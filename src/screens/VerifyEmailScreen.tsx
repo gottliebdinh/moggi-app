@@ -1,19 +1,69 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { supabase } from '../config/supabase';
+import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
 
 export default function VerifyEmailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { email, userId, firstName } = route.params as any;
+  const { signIn } = useAuth();
+  const { email, userId, firstName, password } = route.params as any;
   
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [verified, setVerified] = useState(false);
+  const codeInputRef = useRef<TextInput>(null);
+
+  // Auto-submit wenn 6 Ziffern eingegeben
+  useEffect(() => {
+    if (code.length === 6 && !loading && !verified) {
+      // Tastatur schließen
+      Keyboard.dismiss();
+      // Automatisch verifizieren
+      setTimeout(() => {
+        handleVerify();
+      }, 300); // Kurze Verzögerung damit Tastatur sich schließen kann
+    }
+  }, [code]);
+
+  // Warne User wenn er Screen verlassen will
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      // Wenn bereits verifiziert, erlaube Navigation
+      if (verified) {
+        return;
+      }
+
+      // Verhindere Navigation
+      e.preventDefault();
+
+      // Zeige Warnung
+      Alert.alert(
+        'Registrierung abbrechen?',
+        'Wenn du jetzt abbrichst, musst du dich neu registrieren. Der unbestätigte Account wird gelöscht.',
+        [
+          { text: 'Hier bleiben', style: 'cancel' },
+          {
+            text: 'Abbrechen',
+            style: 'destructive',
+            onPress: async () => {
+              // Lösche den unbestätigten User aus Supabase
+              // TODO: API Endpoint zum Löschen unbestätigter User
+              console.log('User bricht Verifizierung ab');
+              navigation.dispatch(e.data.action);
+            },
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, verified]);
 
   const handleVerify = async () => {
     setErrorMessage('');
@@ -59,18 +109,27 @@ export default function VerifyEmailScreen() {
         console.log('⚠️ Konnte Supabase nicht updaten:', dbError);
       }
 
-      setLoading(false);
+      setVerified(true); // Markiere als verifiziert für beforeRemove listener
 
-      // Erfolg
-      setSuccessMessage('E-Mail erfolgreich bestätigt!');
+      // Erfolg - automatisch anmelden
+      setSuccessMessage('E-Mail bestätigt! Melde dich an...');
       
-      // Nach 2 Sekunden zurück zum Login
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Login' as never }],
-        });
-      }, 2000);
+      // Kurze Pause, dann automatisch anmelden
+      setTimeout(async () => {
+        if (password) {
+          // Automatisch anmelden mit gespeichertem Passwort
+          await signIn(email, password);
+          
+          // Navigate zum Account mit Success Toast
+          (navigation.navigate as any)('AccountMain', { showLoginSuccess: true });
+        } else {
+          // Kein Passwort gespeichert - zurück zum Login
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' as never }],
+          });
+        }
+      }, 1500);
 
     } catch (error) {
       setLoading(false);
@@ -137,6 +196,14 @@ export default function VerifyEmailScreen() {
           gesendet.
         </Text>
 
+        {/* Warning */}
+        <View style={styles.warningCard}>
+          <Ionicons name="warning" size={20} color="#FF6B00" />
+          <Text style={styles.warningText}>
+            Wichtig: Schließe diesen Screen nicht! Bei Verlassen musst du dich neu registrieren.
+          </Text>
+        </View>
+
         {/* Error Message */}
         {errorMessage ? (
           <View style={styles.errorContainer}>
@@ -156,6 +223,7 @@ export default function VerifyEmailScreen() {
         {/* Code Input */}
         <View style={styles.codeInputContainer}>
           <TextInput
+            ref={codeInputRef}
             style={styles.codeInput}
             placeholder="000000"
             placeholderTextColor={colors.mediumGray}
@@ -165,6 +233,7 @@ export default function VerifyEmailScreen() {
             maxLength={6}
             textAlign="center"
             editable={!successMessage}
+            autoFocus={true}
           />
         </View>
 
@@ -255,7 +324,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.lightGray,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
     lineHeight: 22,
   },
   emailText: {
@@ -340,6 +409,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '500',
+  },
+  warningCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary + '15',
+    borderWidth: 1,
+    borderColor: colors.primary + '40',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 24,
+    gap: 10,
+    width: '100%',
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.white,
+    lineHeight: 18,
   },
 });
 

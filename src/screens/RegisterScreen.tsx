@@ -146,11 +146,12 @@ export default function RegisterScreen() {
       // Fehler nicht blockierend
     }
 
-    // Erfolg! Navigiere zu Verify Screen
+    // Erfolg! Navigiere zu Verify Screen mit Passwort für Auto-Login
     (navigation.navigate as any)('VerifyEmail', {
       email,
       userId,
       firstName,
+      password, // Für Auto-Login nach Verifizierung
     });
   };
 
