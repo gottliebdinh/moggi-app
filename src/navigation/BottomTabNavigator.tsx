@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 import { useCart } from '../context/CartContext';
@@ -19,6 +20,12 @@ import OrderTypeScreen from '../screens/OrderTypeScreen';
 import GuestCheckoutScreen from '../screens/GuestCheckoutScreen';
 import LoginCheckoutScreen from '../screens/LoginCheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
+import OrderSuccessScreen from '../screens/OrderSuccessScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 
 // Theme
 import colors from '../theme/colors';
@@ -27,6 +34,7 @@ const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
 const ProductsStack = createNativeStackNavigator();
 const CartStack = createNativeStackNavigator();
+const AccountStack = createNativeStackNavigator();
 const MoreStack = createNativeStackNavigator();
 
 // Home Stack Navigator (mit Contact Screen)
@@ -52,14 +60,49 @@ function ProductsStackNavigator() {
 
 // Cart Stack Navigator (mit Checkout Flow)
 function CartStackNavigator() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  
+  React.useEffect(() => {
+    // Wenn resetStack Parameter gesetzt ist, reset zu CartMain
+    const params = route.params as any;
+    if (params?.resetStack) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'CartMain' as never }],
+      });
+      // Clear parameter
+      navigation.setParams({ resetStack: undefined } as any);
+    }
+  }, [route.params]);
+  
   return (
     <CartStack.Navigator screenOptions={{ headerShown: false }}>
       <CartStack.Screen name="CartMain" component={CartScreen} />
       <CartStack.Screen name="OrderType" component={OrderTypeScreen} />
       <CartStack.Screen name="GuestCheckout" component={GuestCheckoutScreen} />
       <CartStack.Screen name="LoginCheckout" component={LoginCheckoutScreen} />
+      <CartStack.Screen name="Register" component={RegisterScreen} />
+      <CartStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+      <CartStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <CartStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <CartStack.Screen name="Payment" component={PaymentScreen} />
+      <CartStack.Screen name="OrderSuccess" component={OrderSuccessScreen} />
     </CartStack.Navigator>
+  );
+}
+
+// Account Stack Navigator (mit Login und Register Screen)
+function AccountStackNavigator() {
+  return (
+    <AccountStack.Navigator screenOptions={{ headerShown: false }}>
+      <AccountStack.Screen name="AccountMain" component={AccountScreen} />
+      <AccountStack.Screen name="Login" component={LoginScreen} />
+      <AccountStack.Screen name="Register" component={RegisterScreen} />
+      <AccountStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+      <AccountStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <AccountStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+    </AccountStack.Navigator>
   );
 }
 
@@ -147,7 +190,7 @@ export default function BottomTabNavigator() {
       />
       <Tab.Screen
         name="Account"
-        component={AccountScreen}
+        component={AccountStackNavigator}
         options={{
           tabBarLabel: 'Konto',
           tabBarIcon: ({ color, focused }) => (

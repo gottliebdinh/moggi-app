@@ -90,3 +90,4 @@ Die App unterstützt auch **normale Kreditkartenzahlung** über das Stripe Payme
 Bei Fragen zur Stripe Integration: https://stripe.com/docs/payments/accept-a-payment
 Bei Fragen zu Apple Pay: https://developer.apple.com/apple-pay/
 
+

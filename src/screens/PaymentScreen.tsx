@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useStripe, isPlatformPaySupported } from '@stripe/stripe-react-native';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { BACKEND_URL } from '../config/stripe';
 import colors from '../theme/colors';
 
@@ -11,9 +12,11 @@ export default function PaymentScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { clearCart, getTotalPrice, items } = useCart();
+  const { user } = useAuth();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [initialUserState] = useState(user); // Speichere initialen User-State
 
   const params = route.params as any;
   const { customerInfo, pickupDate, pickupTime } = params || {};
@@ -21,6 +24,18 @@ export default function PaymentScreen() {
   useEffect(() => {
     checkPlatformPaySupport();
   }, []);
+
+  // Bei Auth-Änderungen: zurück zum Warenkorb
+  useEffect(() => {
+    // Wenn User sich ausloggt während er auf diesem Screen ist
+    if (initialUserState && !user) {
+      console.log('PaymentScreen - User logged out, navigating back');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'CartMain' as never }],
+      });
+    }
+  }, [user]);
 
   const checkPlatformPaySupport = async () => {
     const isSupported = await isPlatformPaySupported();
@@ -94,19 +109,48 @@ export default function PaymentScreen() {
 
       // 4. Erfolg!
       setIsProcessing(false);
-      Alert.alert(
-        'Zahlung erfolgreich! ✅',
-        `Vielen Dank, ${customerInfo?.firstName}!\n\nDeine Zahlung wurde bestätigt.\n\n📍 Abholung:\n${formatDate(pickupDate)} um ${pickupTime} Uhr\n\nKatharinengasse 14, 90403 Nürnberg\n\nWir bereiten deine Bestellung frisch zu. Bis gleich!`,
-        [
-          {
-            text: 'Fertig',
-            onPress: () => {
-              clearCart();
-              navigation.navigate('Home' as never);
-            }
-          }
-        ]
-      );
+      
+      // 5. Generiere Bestellnummer
+      const orderNumber = `${Date.now().toString().slice(-6)}`;
+      
+      // 6. Sende Bestellbestätigung per E-Mail
+      try {
+        await fetch(`${BACKEND_URL}/send-order-confirmation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerEmail: customerInfo?.email,
+            customerName: `${customerInfo?.firstName} ${customerInfo?.lastName}`,
+            orderNumber,
+            items: items.map(item => {
+              const itemPrice = parseFloat(item.price.replace(',', '.'));
+              return {
+                name: item.name,
+                quantity: item.quantity,
+                price: itemPrice * item.quantity,
+              };
+            }),
+            total: getTotalPrice(),
+            pickupDate: formatDate(pickupDate),
+            pickupTime,
+          }),
+        });
+      } catch (emailError) {
+        console.error('E-Mail konnte nicht gesendet werden:', emailError);
+        // Fehler nicht blockierend - Bestellung war erfolgreich
+      }
+      
+      clearCart();
+      
+      // Navigiere zum Success Screen
+      (navigation.navigate as any)('OrderSuccess', {
+        customerInfo,
+        pickupDate,
+        pickupTime,
+        orderNumber,
+      });
       
     } catch (error) {
       setIsProcessing(false);

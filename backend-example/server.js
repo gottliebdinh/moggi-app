@@ -1,8 +1,18 @@
 // MOGGI App - Backend Beispiel für Stripe Payment Intents
 // Dies ist ein einfaches Node.js/Express Backend für Stripe Zahlungen
 
+require('dotenv').config({ path: '../.env.local' });
+
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'YOUR_STRIPE_SECRET_KEY_HERE');
+const { Resend } = require('resend');
+const { getOrderConfirmationEmail } = require('./emailTemplates/orderConfirmation');
+const { getWelcomeEmail } = require('./emailTemplates/welcomeEmail');
+const { getPasswordResetEmail } = require('./emailTemplates/passwordResetEmail');
+const { getVerificationEmail } = require('./emailTemplates/verificationEmail');
+const { storeVerificationCode, verifyCode } = require('./verificationStore');
+
+const resend = new Resend(process.env.RESEND_API_KEY || 'YOUR_RESEND_API_KEY_HERE');
 const app = express();
 
 app.use(express.json());
@@ -65,6 +75,187 @@ app.post('/create-payment-intent', async (req, res) => {
   } catch (error) {
     console.error('Error creating payment intent:', error);
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Bestellbestätigung per E-Mail senden
+app.post('/send-order-confirmation', async (req, res) => {
+  try {
+    const { customerEmail, customerName, orderNumber, items, total, pickupDate, pickupTime } = req.body;
+
+    console.log('📧 Sende Bestellbestätigung an:', customerEmail);
+
+    const emailHtml = getOrderConfirmationEmail({
+      customerName,
+      orderNumber,
+      items,
+      total,
+      pickupDate,
+      pickupTime,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'MOGGI <noreply@gdinh.de>',
+      to: [customerEmail],
+      subject: `Bestellbestätigung #${orderNumber} - MOGGI`,
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('❌ Fehler beim E-Mail senden:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log('✅ E-Mail erfolgreich gesendet:', data);
+    res.json({ success: true, emailId: data.id });
+
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Welcome E-Mail senden (bei Registrierung)
+app.post('/send-welcome-email', async (req, res) => {
+  try {
+    const { email, firstName, lastName } = req.body;
+
+    console.log('📧 Sende Welcome E-Mail an:', email);
+
+    const emailHtml = getWelcomeEmail({
+      firstName,
+      lastName,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'MOGGI <noreply@gdinh.de>',
+      to: [email],
+      subject: 'Willkommen bei MOGGI! 🎉',
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('❌ Fehler beim E-Mail senden:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log('✅ Welcome E-Mail erfolgreich gesendet:', data);
+    res.json({ success: true, emailId: data.id });
+
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Passwort-Reset E-Mail senden
+app.post('/send-password-reset-email', async (req, res) => {
+  try {
+    const { email, resetLink } = req.body;
+
+    console.log('📧 Sende Passwort-Reset E-Mail an:', email);
+
+    const emailHtml = getPasswordResetEmail({
+      resetLink,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'MOGGI <noreply@gdinh.de>',
+      to: [email],
+      subject: 'Passwort zurücksetzen - MOGGI',
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('❌ Fehler beim E-Mail senden:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log('✅ Passwort-Reset E-Mail erfolgreich gesendet:', data);
+    res.json({ success: true, emailId: data.id });
+
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// E-Mail Verifizierung senden
+app.post('/send-verification-email', async (req, res) => {
+  try {
+    const { email, firstName, userId } = req.body;
+
+    console.log('📧 Sende Verification E-Mail an:', email);
+
+    // Generiere und speichere Code
+    const code = storeVerificationCode(email, userId);
+    
+    const emailHtml = getVerificationEmail({
+      firstName,
+      code,
+      verificationLink: `exp://192.168.178.74:8081/--/verify?email=${encodeURIComponent(email)}&code=${code}`,
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'MOGGI <noreply@gdinh.de>',
+      to: [email],
+      subject: 'Bestätige deine E-Mail - MOGGI',
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('❌ Fehler beim E-Mail senden:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log('✅ Verification E-Mail erfolgreich gesendet:', data);
+    res.json({ success: true, emailId: data.id });
+
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Verification Code prüfen
+app.post('/verify-email', async (req, res) => {
+  try {
+    const { email, code, userId, firstName } = req.body;
+
+    console.log('🔍 Prüfe Verification Code für:', email);
+
+    const result = verifyCode(email, code);
+
+    if (!result.valid) {
+      console.log('❌ Ungültiger Code:', result.error);
+      return res.status(400).json({ error: result.error });
+    }
+
+    console.log('✅ E-Mail erfolgreich verifiziert');
+    
+    // Sende Welcome E-Mail nach erfolgreicher Verifizierung
+    try {
+      const welcomeHtml = getWelcomeEmail({
+        firstName: firstName || 'User',
+      });
+      
+      await resend.emails.send({
+        from: 'MOGGI <noreply@gdinh.de>',
+        to: [email],
+        subject: 'Willkommen bei MOGGI! 🎉',
+        html: welcomeHtml,
+      });
+      
+      console.log('✅ Welcome E-Mail gesendet an:', email);
+    } catch (welcomeError) {
+      console.log('⚠️ Welcome E-Mail konnte nicht gesendet werden:', welcomeError);
+    }
+    
+    res.json({ success: true, userId: result.userId });
+
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

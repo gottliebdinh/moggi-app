@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
 
 export default function CartScreen() {
   const navigation = useNavigation();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { user } = useAuth();
 
   const totalPrice = getTotalPrice().toFixed(2).replace('.', ',');
 
@@ -110,7 +112,15 @@ export default function CartScreen() {
         <TouchableOpacity
           style={styles.checkoutButton}
           activeOpacity={0.8}
-          onPress={() => (navigation.navigate as any)('OrderType')}
+          onPress={() => {
+            // Wenn eingeloggt: direkt zur Abholzeit
+            // Wenn nicht eingeloggt: OrderType Screen (Login oder Gast wählen)
+            if (user) {
+              (navigation.navigate as any)('GuestCheckout');
+            } else {
+              (navigation.navigate as any)('OrderType');
+            }
+          }}
         >
           <Ionicons name="checkmark-circle" size={24} color={colors.white} />
           <Text style={styles.checkoutButtonText}>Zur Kasse</Text>

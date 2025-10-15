@@ -1,40 +1,56 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
 
 export default function LoginCheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
+  const { signIn, user } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
+      setErrorMessage('Bitte fülle alle Felder aus');
       return;
     }
     
     if (!email.includes('@')) {
-      Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
+      setErrorMessage('Bitte gib eine gültige E-Mail-Adresse ein');
       return;
     }
-    
-    // Hier würde die echte Login-Logik kommen
-    Alert.alert(
-      'Login',
-      'Login-Funktion wird noch implementiert.\n\nFür jetzt: Nutze bitte die Gast-Bestellung.',
-      [
-        {
-          text: 'Zurück',
-          onPress: () => navigation.goBack()
-        }
-      ]
-    );
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      console.log('LoginCheckout - Versuche Login mit:', email);
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        console.log('LoginCheckout - Login Fehler:', error);
+        setErrorMessage('E-Mail oder Passwort falsch');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('LoginCheckout - Login erfolgreich!');
+      // Bei erfolgreichem Login zur Abholzeit-Auswahl
+      (navigation.navigate as any)('GuestCheckout');
+    } catch (error: any) {
+      console.log('LoginCheckout - Exception:', error);
+      setErrorMessage('E-Mail oder Passwort falsch');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const totalPrice = getTotalPrice().toFixed(2).replace('.', ',');
@@ -59,6 +75,14 @@ export default function LoginCheckoutScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
+          {/* Error Message */}
+          {errorMessage ? (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle" size={20} color="#FF3B30" />
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Anmeldung</Text>
             
@@ -72,6 +96,7 @@ export default function LoginCheckoutScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoComplete="email"
               />
             </View>
 
@@ -85,6 +110,7 @@ export default function LoginCheckoutScreen() {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
                 />
                 <TouchableOpacity
                   style={styles.eyeButton}
@@ -100,26 +126,54 @@ export default function LoginCheckoutScreen() {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.forgotPassword} activeOpacity={0.7}>
+            {/* Passwort vergessen - vorerst deaktiviert */}
+            {/* 
+            <TouchableOpacity 
+              style={styles.forgotPassword} 
+              activeOpacity={0.7}
+              onPress={() => (navigation.navigate as any)('ForgotPassword')}
+            >
               <Text style={styles.forgotPasswordText}>Passwort vergessen?</Text>
+            </TouchableOpacity>
+            */}
+
+            {/* Login Button */}
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              onPress={handleLogin}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <>
+                  <Ionicons name="log-in" size={24} color={colors.white} />
+                  <Text style={styles.loginButtonText}>Einloggen & Fortfahren</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
           {/* Registrieren */}
-          <View style={styles.registerCard}>
+          <TouchableOpacity
+            style={styles.registerCard}
+            onPress={() => (navigation.navigate as any)('Register')}
+            activeOpacity={0.7}
+          >
             <Ionicons name="person-add" size={24} color={colors.primary} />
             <View style={styles.registerContent}>
               <Text style={styles.registerTitle}>Noch kein Account?</Text>
               <Text style={styles.registerSubtitle}>Erstelle jetzt kostenlos einen Account</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color={colors.mediumGray} />
-          </View>
+          </TouchableOpacity>
 
           {/* Info */}
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={24} color={colors.primary} />
             <Text style={styles.infoCardText}>
-              Mit einem Account kannst du deine Bestellhistorie einsehen, Favoriten speichern und Treuepunkte sammeln.
+              Mit einem Account kannst du deine Bestellhistorie einsehen und Treuepunkte sammeln.
             </Text>
           </View>
         </View>
@@ -130,14 +184,6 @@ export default function LoginCheckoutScreen() {
           <Text style={styles.totalLabel}>Gesamt</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={handleLogin}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="log-in" size={24} color={colors.white} />
-          <Text style={styles.loginButtonText}>Einloggen & Fortfahren</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -188,6 +234,23 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF3B30' + '15',
+    borderWidth: 1,
+    borderColor: '#FF3B30',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#FF3B30',
+    fontWeight: '500',
   },
   section: {
     backgroundColor: colors.black,
@@ -245,6 +308,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
   },
+  loginButton: {
+    backgroundColor: colors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+  },
+  loginButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
+  },
   registerCard: {
     backgroundColor: colors.black,
     padding: 20,
@@ -299,7 +379,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
   },
   totalLabel: {
     fontSize: 18,
@@ -312,19 +391,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontFamily: 'Georgia',
   },
-  loginButton: {
-    backgroundColor: colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    gap: 12,
-  },
-  loginButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.white,
-  },
 });
+
 

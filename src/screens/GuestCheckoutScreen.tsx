@@ -3,11 +3,17 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert 
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
 
 export default function GuestCheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
+  const { user } = useAuth();
+  
+  // Debug: User Status prüfen
+  console.log('GuestCheckoutScreen - User:', user ? 'Eingeloggt' : 'Gast');
+  console.log('GuestCheckoutScreen - User Email:', user?.email);
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -18,6 +24,7 @@ export default function GuestCheckoutScreen() {
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
   const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
+  const [initialUserState] = useState(user); // Speichere initialen User-State
 
   useEffect(() => {
     generateAvailableDates();
@@ -28,6 +35,18 @@ export default function GuestCheckoutScreen() {
       generateTimeSlots(selectedDate);
     }
   }, [selectedDate]);
+
+  // Bei Auth-Änderungen: zurück zum Warenkorb
+  useEffect(() => {
+    // Wenn User sich ausloggt während er auf diesem Screen ist
+    if (initialUserState && !user) {
+      console.log('GuestCheckoutScreen - User logged out, navigating back');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'CartMain' as never }],
+      });
+    }
+  }, [user]);
 
   const generateAvailableDates = () => {
     const dates: Date[] = [];
@@ -98,24 +117,38 @@ export default function GuestCheckoutScreen() {
   };
 
   const handleContinue = () => {
-    if (!firstName || !lastName || !email) {
-      Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
-      return;
+    // Validierung nur für Gäste (persönliche Daten)
+    if (!user) {
+      if (!firstName || !lastName || !email) {
+        Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
+        return;
+      }
+      
+      if (!email.includes('@')) {
+        Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
+        return;
+      }
     }
     
-    if (!email.includes('@')) {
-      Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
-      return;
-    }
-    
+    // Abholzeit-Validierung für alle
     if (!selectedDate || !selectedTime) {
       Alert.alert('Fehler', 'Bitte wähle eine Abholzeit');
       return;
     }
     
     // Zu Stripe Payment
+    // Für eingeloggte User: customerInfo aus user-Daten
+    // Für Gäste: customerInfo aus Formular
     (navigation.navigate as any)('Payment', {
-      customerInfo: { firstName, lastName, email },
+      customerInfo: user ? {
+        firstName: user.user_metadata?.first_name || '',
+        lastName: user.user_metadata?.last_name || '',
+        email: user.email || ''
+      } : {
+        firstName,
+        lastName,
+        email
+      },
       pickupDate: selectedDate,
       pickupTime: selectedTime
     });
@@ -133,8 +166,8 @@ export default function GuestCheckoutScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Gast-Bestellung</Text>
-        <Text style={styles.headerSubtitle}>Deine Informationen</Text>
+        <Text style={styles.headerTitle}>{user ? 'Abholzeit' : 'Gast-Bestellung'}</Text>
+        <Text style={styles.headerSubtitle}>{user ? 'Wann möchtest du abholen?' : 'Deine Informationen'}</Text>
       </View>
 
       <ScrollView
@@ -143,45 +176,47 @@ export default function GuestCheckoutScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Kontaktdaten */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Kontaktdaten</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Vorname</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Max"
-                placeholderTextColor={colors.mediumGray}
-                value={firstName}
-                onChangeText={setFirstName}
-              />
-            </View>
+          {/* Kontaktdaten - nur für Gäste */}
+          {!user && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Kontaktdaten</Text>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Vorname</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Max"
+                  placeholderTextColor={colors.mediumGray}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Nachname</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Mustermann"
-                placeholderTextColor={colors.mediumGray}
-                value={lastName}
-                onChangeText={setLastName}
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Nachname</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Mustermann"
+                  placeholderTextColor={colors.mediumGray}
+                  value={lastName}
+                  onChangeText={setLastName}
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>E-Mail</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="max@example.com"
-                placeholderTextColor={colors.mediumGray}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>E-Mail</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="max@example.com"
+                  placeholderTextColor={colors.mediumGray}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Abholdatum */}
           <View style={styles.section}>
