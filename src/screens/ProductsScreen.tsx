@@ -1,34 +1,174 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
 
+type MenuItem = {
+  id: string;
+  name: string;
+  isHeader?: boolean;
+  image?: string;
+};
+
+const menuItems: MenuItem[] = [
+  // Highlights
+  { id: 'h1', name: 'Highlights', isHeader: true },
+  { 
+    id: '1', 
+    name: 'New In',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e6468c60b7433914f4ed13_DSC02799.png'
+  },
+  { 
+    id: '2', 
+    name: 'Business Lunch',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391eea750278df0d297e4_Lunch%20Bento%20Box%20Fisch.png'
+  },
+  
+  // Kleine Gerichte
+  { id: 'h2', name: 'Kleine Gerichte', isHeader: true },
+  { 
+    id: '3', 
+    name: 'Tapas Fleisch',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37626a9f1c4aefba3d119_Akari.png'
+  },
+  { 
+    id: '4', 
+    name: 'Tapas Fisch',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e3782fdbb3b714e3872e00_Crabbombs.png'
+  },
+  { 
+    id: '5', 
+    name: 'Tapas vegetarisch',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37d60b68f6d067e35a0fd_Spicy%20Cucumber%20Salat.png'
+  },
+  { 
+    id: '6', 
+    name: 'Sticks',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37704b8e3dea86bdbd1e8_Asupara%20Sticks.png'
+  },
+  { 
+    id: '7', 
+    name: 'Crisps',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e3783fa9f1c4aefba47c91_Crisps%20Guacamole.png'
+  },
+  
+  // Fusion Specials
+  { id: 'h3', name: 'Fusion Specials', isHeader: true },
+  { 
+    id: '8', 
+    name: 'Baos',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e377b6b61b875b047e95db_Bao%20Beef.png'
+  },
+  { 
+    id: '9', 
+    name: 'Nori Tacos',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c8c03a0f0ca50c7f4e7_Sake%20Taco.png'
+  },
+  
+  // Sushi
+  { id: 'h4', name: 'Sushi', isHeader: true },
+  { 
+    id: '10', 
+    name: 'Sashimi',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37b0f3e9ddd9337e99e61_Maguro%20to%20Sake.png'
+  },
+  { 
+    id: '11', 
+    name: 'Nigiri',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c4890174fa0f9a7add7_Sake.png'
+  },
+  { 
+    id: '12', 
+    name: 'Hosomaki',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c6e878de12a8d9580f2_Sake%20Hoso.png'
+  },
+  { 
+    id: '13', 
+    name: 'Uramaki',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37644902977171d5faf52_Alasuka%20Roll.png'
+  },
+  { 
+    id: '14', 
+    name: 'Special Roll',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37805b68f6d067e319a13_Chihiro%20Roll.png'
+  },
+  { 
+    id: '15', 
+    name: 'Crispy Rolls',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391c8bb933e1d4e0e1d8b_Crispy%20Bini.png'
+  },
+  
+  // Beilagen & More
+  { id: 'h5', name: 'Beilagen & More', isHeader: true },
+  { 
+    id: '16', 
+    name: 'Salat',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391b7ea20c58b003f8ef2_Avocado%20Salad%20Kopie.png'
+  },
+  { 
+    id: '18', 
+    name: 'Dessert',
+    image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37b58752a400737537906_Mochi%20Trio.png'
+  },
+  { 
+    id: '17', 
+    name: 'Sides'
+  },
+];
+
 export default function ProductsScreen() {
+  const navigation = useNavigation();
+
+  const handleCategoryPress = (categoryName: string) => {
+    navigation.navigate('CategoryDetail' as never, { categoryName } as never);
+  };
+
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Speisekarte</Text>
         <Text style={styles.headerSubtitle}>Entdecke unsere Köstlichkeiten</Text>
       </View>
       
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Kategorien</Text>
-          <Text style={styles.text}>Hier werden deine Produkte angezeigt...</Text>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
+          {menuItems.map((item) => {
+            if (item.isHeader) {
+              return (
+                <View key={item.id} style={styles.headerSection}>
+                  <View style={styles.headerDivider} />
+                  <Text style={styles.headerSectionTitle}>{item.name}</Text>
+                </View>
+              );
+            }
+            
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                activeOpacity={0.7}
+                onPress={() => handleCategoryPress(item.name)}
+              >
+                {item.image && (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.categoryImage}
+                    resizeMode="cover"
+                  />
+                )}
+                <Text style={styles.menuItemText}>{item.name}</Text>
+                <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+              </TouchableOpacity>
+            );
+          })}
         </View>
-
-        {/* Beispiel Produkt-Karten */}
-        <View style={styles.productCard}>
-          <View style={styles.productBadge}>
-            <Text style={styles.badgeText}>NEU</Text>
-          </View>
-          <Text style={styles.productTitle}>Beispiel Produkt</Text>
-          <Text style={styles.productPrice}>€ 99.99</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -36,9 +176,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.darkGray,
-  },
-  scrollContent: {
-    paddingBottom: 100,
   },
   header: {
     backgroundColor: colors.black,
@@ -48,70 +185,65 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '300',
     color: colors.white,
+    fontFamily: 'Georgia',
+    textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 18,
     color: colors.primary,
     marginTop: 5,
+    textAlign: 'center',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100,
   },
   content: {
     padding: 16,
   },
-  card: {
-    backgroundColor: colors.white,
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 16,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    lineHeight: 24,
-  },
-  productCard: {
-    backgroundColor: colors.white,
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  productBadge: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
+  headerSection: {
+    marginTop: 24,
     marginBottom: 12,
   },
-  badgeText: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: 'bold',
+  headerDivider: {
+    height: 3,
+    width: 50,
+    backgroundColor: colors.primary,
+    marginBottom: 12,
+    borderRadius: 2,
   },
-  productTitle: {
-    fontSize: 18,
+  headerSectionTitle: {
+    fontSize: 20,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.white,
     marginBottom: 8,
   },
-  productPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.primary,
+  menuItem: {
+    backgroundColor: colors.black,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.darkGray,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 16,
+  },
+  categoryImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: colors.black,
+  },
+  menuItemText: {
+    fontSize: 16,
+    color: colors.white,
+    fontFamily: 'Georgia',
+    fontWeight: '300',
+    flex: 1,
   },
 });
-

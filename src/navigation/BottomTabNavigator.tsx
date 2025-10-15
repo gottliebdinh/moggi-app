@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
+import { useCart } from '../context/CartContext';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -11,12 +12,21 @@ import CartScreen from '../screens/CartScreen';
 import AccountScreen from '../screens/AccountScreen';
 import MoreScreen from '../screens/MoreScreen';
 import ContactScreen from '../screens/ContactScreen';
+import CategoryDetailScreen from '../screens/CategoryDetailScreen';
+import DishDetailScreen from '../screens/DishDetailScreen';
+import CheckoutScreen from '../screens/CheckoutScreen';
+import OrderTypeScreen from '../screens/OrderTypeScreen';
+import GuestCheckoutScreen from '../screens/GuestCheckoutScreen';
+import LoginCheckoutScreen from '../screens/LoginCheckoutScreen';
+import PaymentScreen from '../screens/PaymentScreen';
 
 // Theme
 import colors from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
+const ProductsStack = createNativeStackNavigator();
+const CartStack = createNativeStackNavigator();
 const MoreStack = createNativeStackNavigator();
 
 // Home Stack Navigator (mit Contact Screen)
@@ -26,6 +36,30 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="Contact" component={ContactScreen} />
     </HomeStack.Navigator>
+  );
+}
+
+// Products Stack Navigator (mit CategoryDetail und DishDetail Screen)
+function ProductsStackNavigator() {
+  return (
+    <ProductsStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProductsStack.Screen name="ProductsMain" component={ProductsScreen} />
+      <ProductsStack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+      <ProductsStack.Screen name="DishDetail" component={DishDetailScreen} />
+    </ProductsStack.Navigator>
+  );
+}
+
+// Cart Stack Navigator (mit Checkout Flow)
+function CartStackNavigator() {
+  return (
+    <CartStack.Navigator screenOptions={{ headerShown: false }}>
+      <CartStack.Screen name="CartMain" component={CartScreen} />
+      <CartStack.Screen name="OrderType" component={OrderTypeScreen} />
+      <CartStack.Screen name="GuestCheckout" component={GuestCheckoutScreen} />
+      <CartStack.Screen name="LoginCheckout" component={LoginCheckoutScreen} />
+      <CartStack.Screen name="Payment" component={PaymentScreen} />
+    </CartStack.Navigator>
   );
 }
 
@@ -40,6 +74,9 @@ function MoreStackNavigator() {
 }
 
 export default function BottomTabNavigator() {
+  const { getTotalItems } = useCart();
+  const cartItemCount = getTotalItems();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -81,7 +118,7 @@ export default function BottomTabNavigator() {
       />
           <Tab.Screen
             name="Products"
-            component={ProductsScreen}
+            component={ProductsStackNavigator}
             options={{
               tabBarLabel: 'Speisekarte',
               tabBarIcon: ({ color, focused }) => (
@@ -95,9 +132,10 @@ export default function BottomTabNavigator() {
           />
       <Tab.Screen
         name="Cart"
-        component={CartScreen}
+        component={CartStackNavigator}
         options={{
           tabBarLabel: 'Warenkorb',
+          tabBarBadge: cartItemCount > 0 ? cartItemCount : undefined,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
               name={focused ? "cart" : "cart-outline"} 

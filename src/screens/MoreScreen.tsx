@@ -71,13 +71,16 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '300',
     color: colors.white,
+    fontFamily: 'Georgia',
+    textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 18,
     color: colors.primary,
     marginTop: 5,
+    textAlign: 'center',
   },
   content: {
     padding: 16,

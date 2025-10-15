@@ -16,15 +16,13 @@ yarn-error.log
 .DS_Store
 
 # iOS
-ios/Pods/
-ios/build/
+ios/
 *.ipa
 *.dSYM.zip
 *.dSYM
 
 # Android
-android/app/build/
-android/build/
+android/
 *.apk
 *.aab
 
