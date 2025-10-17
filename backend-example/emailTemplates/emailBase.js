@@ -13,7 +13,7 @@ const getEmailBase = (content) => {
     <tr>
       <td align="center" style="padding: 40px 20px;">
         <!-- Main Container -->
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #0A0A0A; border-radius: 16px; overflow: hidden;">
+        <table width="600" cellpadding="0" cellspacing="0" style="width: 600px; max-width: 100%; background-color: #0A0A0A; border-radius: 16px; overflow: hidden;">
           
           <!-- Header -->
           <tr>
@@ -48,7 +48,7 @@ const getEmailBase = (content) => {
         </table>
 
         <!-- Footer Text -->
-        <table width="600" cellpadding="0" cellspacing="0">
+        <table width="600" cellpadding="0" cellspacing="0" style="width: 600px; max-width: 100%;">
           <tr>
             <td style="padding: 20px 20px 10px 20px; text-align: center;">
               <p style="margin: 0; color: #666666; font-size: 12px; line-height: 18px;">
