@@ -65,15 +65,17 @@ const getOrderConfirmationEmail = (orderData) => {
           <tr>
             <td style="padding: 0 30px 30px;">
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1A1A1A; border-radius: 12px; border-left: 4px solid #FF6B00;">
-                <td style="padding: 20px;">
-                  <h3 style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">📍 Abholung</h3>
-                  <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Datum</p>
-                  <p style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">${orderData.pickupDate}</p>
-                  <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Uhrzeit</p>
-                  <p style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">${orderData.pickupTime} Uhr</p>
-                  <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Adresse</p>
-                  <p style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">Katharinengasse 14<br/>90403 Nürnberg</p>
-                </td>
+                <tr>
+                  <td style="padding: 20px;">
+                    <h3 style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">📍 Abholung</h3>
+                    <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Datum</p>
+                    <p style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">${orderData.pickupDate}</p>
+                    <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Uhrzeit</p>
+                    <p style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">${orderData.pickupTime} Uhr</p>
+                    <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Adresse</p>
+                    <p style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">Katharinengasse 14<br/>90403 Nürnberg</p>
+                  </td>
+                </tr>
               </table>
             </td>
           </tr>
@@ -109,11 +111,13 @@ const getOrderConfirmationEmail = (orderData) => {
           <tr>
             <td style="padding: 0 30px 40px;">
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3);">
-                <td style="padding: 20px;">
-                  <p style="margin: 0; color: #FFFFFF; font-size: 15px; line-height: 22px;">
-                    💡 <strong>Wichtig:</strong> Bitte sei pünktlich zur angegebenen Abholzeit. Deine Bestellung wird frisch für dich zubereitet!
-                  </p>
-                </td>
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0; color: #FFFFFF; font-size: 15px; line-height: 22px;">
+                      💡 <strong>Wichtig:</strong> Bitte sei pünktlich zur angegebenen Abholzeit. Deine Bestellung wird frisch für dich zubereitet!
+                    </p>
+                  </td>
+                </tr>
               </table>
             </td>
           </tr>
