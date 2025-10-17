@@ -132,7 +132,7 @@ export default function RegisterScreen() {
 
     // Sende Verification E-Mail (nicht blockierend)
     try {
-      await fetch('http://192.168.178.25:3000/send-verification-email', {
+      await fetch('https://moggi-app-production.up.railway.app/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

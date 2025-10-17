@@ -76,7 +76,7 @@ export default function VerifyEmailScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://192.168.178.25:3000/verify-email', {
+      const response = await fetch('https://moggi-app-production.up.railway.app/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export default function VerifyEmailScreen() {
     setSuccessMessage('');
     
     try {
-      await fetch('http://192.168.178.25:3000/send-verification-email', {
+      await fetch('https://moggi-app-production.up.railway.app/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

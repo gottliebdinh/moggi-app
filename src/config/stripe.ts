@@ -12,5 +12,7 @@ export const APPLE_PAY_MERCHANT_ID = 'merchant.com.moggi.app';
 // Google Pay Merchant Info
 export const GOOGLE_PAY_MERCHANT_NAME = 'MOGGI Asian Kitchen & Bar';
 
-// Backend Endpoint (verwende deine lokale IP statt localhost für iPhone Tests)
-export const BACKEND_URL = 'http://192.168.178.25:3000';
+// Backend Endpoint
+// Lokal: 'http://192.168.178.25:3000'
+// Production: Railway URL
+export const BACKEND_URL = 'https://moggi-app-production.up.railway.app';

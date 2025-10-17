@@ -31,7 +31,7 @@ export default function ForgotPasswordScreen() {
       // Sende Reset-E-Mail über eigenen Backend
       const resetLink = 'exp://192.168.178.25:8081/--/reset-password';
       
-      const response = await fetch('http://192.168.178.25:3000/send-password-reset-email', {
+      const response = await fetch('https://moggi-app-production.up.railway.app/send-password-reset-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
