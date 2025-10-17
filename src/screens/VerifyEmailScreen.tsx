@@ -10,7 +10,7 @@ export default function VerifyEmailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { signIn } = useAuth();
-  const { email, userId, firstName, password } = route.params as any;
+  const { email, userId, firstName, password, fromCheckout } = route.params as any;
   
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,7 +76,7 @@ export default function VerifyEmailScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://192.168.178.74:3000/verify-email', {
+      const response = await fetch('http://192.168.178.25:3000/verify-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,8 +120,27 @@ export default function VerifyEmailScreen() {
           // Automatisch anmelden mit gespeichertem Passwort
           await signIn(email, password);
           
-          // Navigate zum Account mit Success Toast
-          (navigation.navigate as any)('AccountMain', { showLoginSuccess: true });
+          // Navigation abhängig vom Kontext
+          if (fromCheckout) {
+            // Vom Checkout: Weiter zur Abholzeit
+            (navigation.navigate as any)('GuestCheckout');
+          } else {
+            // Vom Account: Zurück zum Account mit Toast
+            // @ts-ignore - Navigate zwischen Stacks
+            const tabNavigator = navigation.getParent()?.getParent();
+            if (tabNavigator) {
+              tabNavigator.navigate('Account', {
+                screen: 'AccountMain',
+                params: { showLoginSuccess: true },
+              });
+            } else {
+              // Fallback
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' as never }],
+              });
+            }
+          }
         } else {
           // Kein Passwort gespeichert - zurück zum Login
           navigation.reset({
@@ -142,7 +161,7 @@ export default function VerifyEmailScreen() {
     setSuccessMessage('');
     
     try {
-      await fetch('http://192.168.178.74:3000/send-verification-email', {
+      await fetch('http://192.168.178.25:3000/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

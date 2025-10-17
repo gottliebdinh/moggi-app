@@ -9,7 +9,7 @@ import { STRIPE_PUBLISHABLE_KEY, APPLE_PAY_MERCHANT_ID } from './src/config/stri
 import * as Linking from 'expo-linking';
 
 const linking = {
-  prefixes: ['moggiapp://', 'exp://192.168.178.74:8081/--/'],
+  prefixes: ['moggiapp://', 'exp://192.168.178.25:8081/--/'],
   config: {
     screens: {
       Account: {

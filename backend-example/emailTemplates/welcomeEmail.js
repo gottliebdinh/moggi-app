@@ -55,7 +55,7 @@ const getWelcomeEmail = (userData) => {
         <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
           <tr>
             <td style="background-color: #FF6B00; border-radius: 12px; padding: 16px 32px;">
-              <a href="exp://192.168.178.74:8081" style="color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 600;">
+              <a href="exp://192.168.178.25:8081" style="color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 600;">
                 Jetzt bestellen
               </a>
             </td>

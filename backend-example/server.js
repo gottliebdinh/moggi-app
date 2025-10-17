@@ -193,7 +193,7 @@ app.post('/send-verification-email', async (req, res) => {
     const emailHtml = getVerificationEmail({
       firstName,
       code,
-      verificationLink: `exp://192.168.178.74:8081/--/verify?email=${encodeURIComponent(email)}&code=${code}`,
+      verificationLink: `exp://192.168.178.25:8081/--/verify?email=${encodeURIComponent(email)}&code=${code}`,
     });
 
     const { data, error } = await resend.emails.send({

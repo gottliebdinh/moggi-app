@@ -158,7 +158,7 @@ export default function LoginCheckoutScreen() {
           {/* Registrieren */}
           <TouchableOpacity
             style={styles.registerCard}
-            onPress={() => (navigation.navigate as any)('Register')}
+            onPress={() => (navigation.navigate as any)('Register', { fromCheckout: true })}
             activeOpacity={0.7}
           >
             <Ionicons name="person-add" size={24} color={colors.primary} />

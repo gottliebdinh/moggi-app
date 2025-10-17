@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
 
 export default function RegisterScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { signUp } = useAuth();
+  const { fromCheckout } = (route.params as any) || {};
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -130,7 +132,7 @@ export default function RegisterScreen() {
 
     // Sende Verification E-Mail (nicht blockierend)
     try {
-      await fetch('http://192.168.178.74:3000/send-verification-email', {
+      await fetch('http://192.168.178.25:3000/send-verification-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,6 +154,7 @@ export default function RegisterScreen() {
       userId,
       firstName,
       password, // Für Auto-Login nach Verifizierung
+      fromCheckout, // Flag ob vom Checkout aufgerufen
     });
   };
 

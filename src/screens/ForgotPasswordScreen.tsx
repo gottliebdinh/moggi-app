@@ -29,9 +29,9 @@ export default function ForgotPasswordScreen() {
 
     try {
       // Sende Reset-E-Mail über eigenen Backend
-      const resetLink = 'exp://192.168.178.74:8081/--/reset-password';
+      const resetLink = 'exp://192.168.178.25:8081/--/reset-password';
       
-      const response = await fetch('http://192.168.178.74:3000/send-password-reset-email', {
+      const response = await fetch('http://192.168.178.25:3000/send-password-reset-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
