@@ -26,6 +26,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import VerifyEmailScreen from '../screens/VerifyEmailScreen';
+import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 
 // Theme
 import colors from '../theme/colors';
@@ -102,6 +103,7 @@ function AccountStackNavigator() {
       <AccountStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
       <AccountStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <AccountStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <AccountStack.Screen name="OrderHistory" component={OrderHistoryScreen} />
     </AccountStack.Navigator>
   );
 }

@@ -81,8 +81,20 @@ export default function AccountScreen() {
       return;
     }
 
-    // TODO: Handle other menu items
-    Alert.alert(item.title, 'Diese Funktion wird bald verfügbar sein');
+    // Navigation zu spezifischen Screens
+    switch (item.id) {
+      case '1': // Meine Bestellungen
+        (navigation.navigate as any)('OrderHistory');
+        break;
+      case '2': // Profil bearbeiten
+        Alert.alert('Profil bearbeiten', 'Diese Funktion wird bald verfügbar sein');
+        break;
+      case '3': // Hilfe & Support
+        Alert.alert('Hilfe & Support', 'Diese Funktion wird bald verfügbar sein');
+        break;
+      default:
+        Alert.alert(item.title, 'Diese Funktion wird bald verfügbar sein');
+    }
   };
 
   return (

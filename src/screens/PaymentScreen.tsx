@@ -6,6 +6,7 @@ import { useStripe, isPlatformPaySupported } from '@stripe/stripe-react-native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { BACKEND_URL } from '../config/stripe';
+import { supabase } from '../config/supabase';
 import colors from '../theme/colors';
 
 export default function PaymentScreen() {
@@ -113,7 +114,37 @@ export default function PaymentScreen() {
       // 5. Generiere Bestellnummer
       const orderNumber = `${Date.now().toString().slice(-6)}`;
       
-      // 6. Sende Bestellbestätigung per E-Mail
+      // 6. Speichere Bestellung in Datenbank
+      try {
+        const { error: dbError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user?.id || null, // Null für Gast-Bestellungen
+            order_number: orderNumber,
+            customer_name: `${customerInfo?.firstName} ${customerInfo?.lastName}`,
+            customer_email: customerInfo?.email,
+            items: items.map(item => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: parseFloat(item.price.replace(',', '.')),
+            })),
+            total_amount: getTotalPrice(),
+            pickup_date: pickupDate.toISOString(),
+            pickup_time: pickupTime,
+            status: 'pending',
+          });
+
+        if (dbError) {
+          console.error('Datenbank-Fehler beim Speichern der Bestellung:', dbError);
+        } else {
+          console.log('✅ Bestellung erfolgreich in Datenbank gespeichert');
+        }
+      } catch (dbError) {
+        console.error('Fehler beim Speichern in Datenbank:', dbError);
+        // Nicht blockierend - Bestellung war erfolgreich
+      }
+      
+      // 7. Sende Bestellbestätigung per E-Mail
       try {
         await fetch(`${BACKEND_URL}/send-order-confirmation`, {
           method: 'POST',

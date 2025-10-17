@@ -50,7 +50,7 @@ const getOrderConfirmationEmail = (orderData) => {
           <!-- Order Number -->
           <tr>
             <td style="padding: 0 30px 30px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1A1A1A; border-radius: 12px; border: 2px solid #FF6B00;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #1A1A1A; border-radius: 12px; border: 2px solid #FF6B00;">
                 <tr>
                   <td style="padding: 20px; text-align: center;">
                     <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Bestellnummer</p>
@@ -64,12 +64,12 @@ const getOrderConfirmationEmail = (orderData) => {
           <!-- Pickup Details -->
           <tr>
             <td style="padding: 0 30px 30px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1A1A1A; border-radius: 12px; border-left: 4px solid #FF6B00;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #1A1A1A; border-radius: 12px; border-left: 4px solid #FF6B00;">
                 <tr>
                   <td style="padding: 24px;">
                     <h3 style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">📍 Abholung</h3>
                     
-                    <table width="100%" cellpadding="0" cellspacing="0">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%;">
                       <tr>
                         <td style="padding: 8px 0;">
                           <p style="margin: 0; color: #999999; font-size: 14px;">Datum</p>
@@ -98,12 +98,12 @@ const getOrderConfirmationEmail = (orderData) => {
           <!-- Order Items -->
           <tr>
             <td style="padding: 0 30px 30px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1A1A1A; border-radius: 12px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #1A1A1A; border-radius: 12px;">
                 <tr>
                   <td style="padding: 24px;">
                     <h3 style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">🍜 Deine Bestellung</h3>
                     
-                    <table width="100%" cellpadding="0" cellspacing="0">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%;">
                       ${itemsHtml}
                       
                       <!-- Total -->
@@ -125,7 +125,7 @@ const getOrderConfirmationEmail = (orderData) => {
           <!-- Info Box -->
           <tr>
             <td style="padding: 0 30px 40px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3);">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: rgba(255, 107, 0, 0.1); border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.3);">
                 <tr>
                   <td style="padding: 20px;">
                     <p style="margin: 0; color: #FFFFFF; font-size: 14px; line-height: 22px;">
