@@ -1,7 +1,9 @@
 // MOGGI App - Backend Beispiel für Stripe Payment Intents
 // Dies ist ein einfaches Node.js/Express Backend für Stripe Zahlungen
 
-require('dotenv').config({ path: '../.env.local' });
+// Für lokale Entwicklung: lädt .env.local aus Parent-Verzeichnis
+// Für Railway: nutzt Environment Variables aus Railway Dashboard
+require('dotenv').config({ path: process.env.NODE_ENV === 'production' ? '.env' : '../.env.local' });
 
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'YOUR_STRIPE_SECRET_KEY_HERE');
@@ -288,8 +290,11 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const HOST = process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost';
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 MOGGI Backend läuft auf Port ${PORT}`);
-  console.log(`📡 Payment Intent Endpoint: http://localhost:${PORT}/create-payment-intent`);
+  console.log(`📡 Payment Intent Endpoint: http://${HOST}:${PORT}/create-payment-intent`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
