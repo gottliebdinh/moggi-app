@@ -64,7 +64,7 @@ const getOrderConfirmationEmail = (orderData) => {
           <!-- Pickup Details -->
           <tr>
             <td style="padding: 0 30px 30px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1A1A1A; border-radius: 12px; border-left: 4px solid #FF6B00;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #1A1A1A; border-radius: 12px; border: 2px solid #FF6B00;">
                 <tr>
                   <td style="padding: 20px;">
                     <h3 style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 18px; font-weight: 600;">📍 Abholung</h3>
