@@ -126,20 +126,10 @@ export default function VerifyEmailScreen() {
             (navigation.navigate as any)('GuestCheckout');
           } else {
             // Vom Account: Zurück zum Account mit Toast
-            // @ts-ignore - Navigate zwischen Stacks
-            const tabNavigator = navigation.getParent()?.getParent();
-            if (tabNavigator) {
-              tabNavigator.navigate('Account', {
-                screen: 'AccountMain',
-                params: { showLoginSuccess: true },
-              });
-            } else {
-              // Fallback
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' as never }],
-              });
-            }
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'AccountMain' as never, params: { showLoginSuccess: true } }],
+            });
           }
         } else {
           // Kein Passwort gespeichert - zurück zum Login
