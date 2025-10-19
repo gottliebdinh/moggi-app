@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.moggi.app",
       "infoPlist": {
-        "NSApplePayMerchantIdentifier": "merchant.com.moggi.app"
+        "NSApplePayMerchantIdentifier": "merchant.com.moggi.app",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -31,6 +32,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "008c582f-cd4c-4c01-b15b-1b2fbf5c7022"
+      }
     }
   }
 }
