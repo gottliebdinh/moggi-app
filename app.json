@@ -18,7 +18,10 @@
       "bundleIdentifier": "com.moggi.app",
       "infoPlist": {
         "NSApplePayMerchantIdentifier": "merchant.com.moggi.app",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Die Kamera wird benötigt, um QR-Codes zu scannen und Fotos hochzuladen.",
+        "NSPhotoLibraryUsageDescription": "Wir benötigen Zugriff auf deine Fotobibliothek, um Bilder auszuwählen.",
+        "NSLocationWhenInUseUsageDescription": "Dein Standort wird verwendet, um das nächste MOGGI Restaurant zu finden."
       }
     },
     "android": {
