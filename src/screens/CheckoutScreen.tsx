@@ -20,6 +20,7 @@ export default function CheckoutScreen() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [notes, setNotes] = useState('');
   
   // Abholzeit
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -142,9 +143,10 @@ export default function CheckoutScreen() {
       return;
     }
     
+    const notesText = notes ? `\n\nNotizen: ${notes}` : '';
     Alert.alert(
       'Bestellung erfolgreich!',
-      `Deine Bestellung wurde aufgegeben.\n\nAbholung: ${formatDate(selectedDate)} um ${selectedTime} Uhr\n\nWir freuen uns auf deinen Besuch!`,
+      `Deine Bestellung wurde aufgegeben.\n\nAbholung: ${formatDate(selectedDate)} um ${selectedTime} Uhr${notesText}\n\nWir freuen uns auf deinen Besuch!`,
       [
         {
           text: 'OK',
@@ -306,6 +308,25 @@ export default function CheckoutScreen() {
               </View>
             </View>
           )}
+
+          {/* Notizen - für alle */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Notizen</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Besondere Wünsche</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="z.B. ohne Zwiebeln, extra scharf, Allergien..."
+                placeholderTextColor={colors.mediumGray}
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+          </View>
 
           {/* Hinweis */}
           <View style={styles.infoCard}>
@@ -547,6 +568,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.white,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
   },
 });
 

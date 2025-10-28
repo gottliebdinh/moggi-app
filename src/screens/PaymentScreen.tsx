@@ -20,7 +20,7 @@ export default function PaymentScreen() {
   const [initialUserState] = useState(user); // Speichere initialen User-State
 
   const params = route.params as any;
-  const { customerInfo, pickupDate, pickupTime } = params || {};
+  const { customerInfo, pickupDate, pickupTime, notes } = params || {};
 
   useEffect(() => {
     checkPlatformPaySupport();
@@ -132,6 +132,8 @@ export default function PaymentScreen() {
             pickup_date: pickupDate.toISOString(),
             pickup_time: pickupTime,
             status: 'pending',
+            note: notes || null,
+            source: 'app',
           });
 
         if (dbError) {

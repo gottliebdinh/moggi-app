@@ -18,6 +18,7 @@ export default function GuestCheckoutScreen() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [notes, setNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
@@ -150,7 +151,8 @@ export default function GuestCheckoutScreen() {
         email
       },
       pickupDate: selectedDate,
-      pickupTime: selectedTime
+      pickupTime: selectedTime,
+      notes: notes
     });
   };
 
@@ -217,6 +219,25 @@ export default function GuestCheckoutScreen() {
               </View>
             </View>
           )}
+
+          {/* Notizen - für alle */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Notizen</Text>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Besondere Wünsche</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="z.B. ohne Zwiebeln, extra scharf, Allergien..."
+                placeholderTextColor={colors.mediumGray}
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+          </View>
 
           {/* Abholdatum */}
           <View style={styles.section}>
@@ -526,6 +547,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.white,
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
   },
 });
 
