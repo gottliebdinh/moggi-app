@@ -13,6 +13,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
+import { supabase } from '../config/supabase';
+// Native Date Picker
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimeSlot {
   time: string;
@@ -34,15 +39,102 @@ export default function ReservationScreen() {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // Verfügbare Zeitslots (vereinfacht für Demo)
-  const availableTimes = [
-    '11:30', '12:00', '12:30', '13:00', '13:30', '14:00',
-    '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'
-  ];
+  // Hilfsfunktionen für Zeit-Berechnungen
+  const timeToMinutes = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  const minutesToTime = (minutes: number) => {
+    const h = Math.floor(minutes / 60).toString().padStart(2, '0');
+    const m = Math.floor(minutes % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
+  const loadTimeSlotsForDate = async (date: string) => {
+    try {
+      if (!date) return;
+      // Exceptions: wenn geschlossen, leere Liste
+      const { data: exceptionsData } = await supabase
+        .from('exceptions')
+        .select('date')
+        .eq('date', date);
+      if (exceptionsData && exceptionsData.length > 0) {
+        setTimeSlots([]);
+        return;
+      }
+
+      // Kapazitätsregeln laden
+      const { data: rulesData } = await supabase
+        .from('capacity_rules')
+        .select('*');
+
+      // Reservierungen für den Tag laden
+      const { data: reservationsData } = await supabase
+        .from('reservations')
+        .select('time,status')
+        .eq('date', date);
+
+      const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const dayName = dayNames[new Date(date).getDay()];
+
+      const applicableRules = (rulesData || []).filter((rule: any) => {
+        try {
+          const ruleDays = typeof rule.days === 'string' ? JSON.parse(rule.days) : rule.days;
+          return Array.isArray(ruleDays) && ruleDays.includes(dayName);
+        } catch {
+          return false;
+        }
+      });
+
+      if (applicableRules.length === 0) {
+        setTimeSlots([]);
+        return;
+      }
+
+      // Slots aus allen Regeln generieren und Availability anhand Reservierungen bestimmen
+      const slotsSet = new Set<string>();
+      const timeToCapacity: Record<string, number> = {};
+      for (const rule of applicableRules) {
+        const start = timeToMinutes(rule.start_time);
+        const end = timeToMinutes(rule.end_time);
+        const step = rule.interval_minutes || 30;
+        for (let t = start; t <= end; t += step) {
+          const ts = minutesToTime(t);
+          slotsSet.add(ts);
+          // Wenn mehrere Regeln greifen, nimm die maximale Kapazität
+          timeToCapacity[ts] = Math.max(timeToCapacity[ts] || 0, Number(rule.capacity) || 0);
+        }
+      }
+
+      const reservationsByTime: Record<string, number> = {};
+      (reservationsData || []).forEach(r => {
+        const key = r.time?.slice(0,5);
+        if (!key) return;
+        // Optional: nur aktive/platzierte Reservierungen zählen
+        if (r.status && ['cancelled', 'storniert'].includes(String(r.status).toLowerCase())) return;
+        reservationsByTime[key] = (reservationsByTime[key] || 0) + 1;
+      });
+
+      const computedSlots = Array.from(slotsSet)
+        .sort()
+        .map(time => {
+          const capacity = timeToCapacity[time] ?? 0;
+          const used = reservationsByTime[time] || 0;
+          const available = capacity === 0 ? false : used < capacity;
+          return { time, available } as TimeSlot;
+        });
+
+      setTimeSlots(computedSlots);
+    } catch (e) {
+      // Fallback: keine Slots
+      setTimeSlots([]);
+    }
+  };
 
   useEffect(() => {
-    // Setze heutiges Datum als Standard
+    // Setze heutiges Datum als Standard und lade Slots
     const today = new Date();
     const dateString = today.toISOString().split('T')[0];
     setSelectedDate(dateString);
@@ -52,10 +144,14 @@ export default function ReservationScreen() {
     setYearPart(yyyy);
     setMonthPart(mm);
     setDayPart(dd);
-    
-    // Initialisiere Zeitslots
-    setTimeSlots(availableTimes.map(time => ({ time, available: true })));
+    loadTimeSlotsForDate(dateString);
   }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      loadTimeSlotsForDate(selectedDate);
+    }
+  }, [selectedDate]);
 
   // Konvertiere YYYY-MM-DD zu DD.MM.YYYY für Anzeige
   const formatDateForDisplay = (isoDate: string) => {
@@ -145,15 +241,37 @@ export default function ReservationScreen() {
     setLoading(true);
 
     try {
-      // Hier würde die API-Anfrage an das Backend erfolgen
-      // const response = await fetch('/api/reservations', { ... });
+      // Formatiere das Datum für die Datenbank (YYYY-MM-DD)
+      const formattedDate = selectedDate; // selectedDate ist bereits im Format YYYY-MM-DD
       
-      // Simuliere API-Aufruf
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Bereite Reservierungsdaten vor (Supabase-Schema)
+      const reservationData = {
+        date: formattedDate,
+        time: selectedTime,
+        guest_name: fullName.trim(),
+        guests: guestCount,
+        phone: phone.trim(),
+        email: email.trim(),
+        note: note.trim() || null,
+        source: 'app',
+        status: 'confirmed',
+        duration: 120,
+        type: 'Abendessen'
+      };
+
+      // Speichere Reservierung direkt in Supabase
+      const { data, error } = await supabase
+        .from('reservations')
+        .insert([reservationData])
+        .select();
+
+      if (error) {
+        throw new Error(`Supabase error: ${error.message}`);
+      }
       
       Alert.alert(
         'Reservierung erfolgreich!',
-        `Ihre Reservierung für ${selectedDate} um ${selectedTime} wurde bestätigt.`,
+        `Ihre Reservierung für ${formatDate(selectedDate)} um ${selectedTime} für ${guestCount} Personen wurde bestätigt.`,
         [
           {
             text: 'OK',
@@ -162,6 +280,7 @@ export default function ReservationScreen() {
         ]
       );
     } catch (error) {
+      console.error('Reservierungsfehler:', error);
       Alert.alert('Fehler', 'Die Reservierung konnte nicht durchgeführt werden. Bitte versuchen Sie es erneut.');
     } finally {
       setLoading(false);
@@ -180,7 +299,8 @@ export default function ReservationScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       {/* Header */}
       <View style={styles.header}>
@@ -192,7 +312,7 @@ export default function ReservationScreen() {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>
-            {step === 1 ? 'Tisch reservieren' : 'Gastinformationen'}
+            {step === 1 ? 'Reservierung' : 'Gastinformationen'}
           </Text>
           {step === 2 && (
             <Text style={styles.headerSubtitle}>Bitte füllen Sie alle Pflichtfelder aus</Text>
@@ -210,47 +330,91 @@ export default function ReservationScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.section}>
-            <Text style={styles.inputLabel}>Datum</Text>
-            <View style={styles.dateInputRow}>
-              <View style={styles.dateInputWrapper}>
-                <TextInput
-                  style={styles.dateInput}
-                  placeholder="TT"
-                  placeholderTextColor={colors.mediumGray}
-                  value={dayPart}
-                  onChangeText={onChangeDay}
-                  keyboardType="numeric"
-                  maxLength={2}
-                  textAlign="center"
-                />
-              </View>
-              <Text style={styles.dateSeparator}>.</Text>
-              <View style={styles.dateInputWrapper}>
-                <TextInput
-                  style={styles.dateInput}
-                  placeholder="MM"
-                  placeholderTextColor={colors.mediumGray}
-                  value={monthPart}
-                  onChangeText={onChangeMonth}
-                  keyboardType="numeric"
-                  maxLength={2}
-                  textAlign="center"
-                />
-              </View>
-              <Text style={styles.dateSeparator}>.</Text>
-              <View style={styles.dateInputWrapperYear}>
-                <TextInput
-                  style={styles.dateInput}
-                  placeholder="JJJJ"
-                  placeholderTextColor={colors.mediumGray}
-                  value={yearPart}
-                  onChangeText={onChangeYear}
-                  keyboardType="numeric"
-                  maxLength={4}
-                  textAlign="center"
-                />
-              </View>
+            <Text style={styles.sectionTitle}>Anzahl Personen</Text>
+            <View style={styles.guestSelector}>
+              <TouchableOpacity
+                style={styles.guestButton}
+                onPress={() => setGuestCount(Math.max(1, guestCount - 1))}
+              >
+                <Ionicons name="remove" size={20} color={colors.white} />
+              </TouchableOpacity>
+              <Text style={styles.guestCount}>{guestCount}</Text>
+              <TouchableOpacity
+                style={styles.guestButton}
+                onPress={() => setGuestCount(Math.min(20, guestCount + 1))}
+              >
+                <Ionicons name="add" size={20} color={colors.white} />
+              </TouchableOpacity>
             </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.sectionTitle}>Datum</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <View style={styles.datePickerWrapper}>
+                <Text style={styles.dateDisplayText}>
+                  {selectedDate ? formatDateForDisplay(selectedDate) : 'Datum wählen'}
+                </Text>
+                <Ionicons name="calendar-outline" size={20} color={colors.mediumGray} />
+              </View>
+            </TouchableOpacity>
+            
+            {showDatePicker && (
+              <View style={styles.dayPickerContainer}>
+                <ScrollView 
+                  style={styles.dayPickerScroll}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {(() => {
+                    const today = new Date();
+                    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const end = new Date(start);
+                    end.setFullYear(start.getFullYear() + 1);
+                    const items: any[] = [];
+                    let idx = 0;
+                    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+                      const yyyy = d.getFullYear().toString();
+                      const mm = String(d.getMonth() + 1).padStart(2, '0');
+                      const dd = String(d.getDate()).padStart(2, '0');
+                      const iso = `${yyyy}-${mm}-${dd}`;
+                      const isSelected = selectedDate === iso;
+                      let labelLeft = '';
+                      if (idx === 0) labelLeft = 'Heute';
+                      else if (idx === 1) labelLeft = 'Morgen';
+                      else {
+                        const weekday = d.toLocaleDateString('de-DE', { weekday: 'short' });
+                        const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        labelLeft = `${weekday}, ${dateStr}`;
+                      }
+
+                      items.push(
+                        <TouchableOpacity
+                          key={iso}
+                          style={[styles.dayPickerItem, isSelected && styles.dayPickerItemSelected]}
+                          onPress={() => {
+                            setSelectedDate(iso);
+                            setYearPart(yyyy);
+                            setMonthPart(mm);
+                            setDayPart(dd);
+                            setSelectedTime('');
+                            setShowDatePicker(false);
+                          }}
+                        >
+                          <Text style={[styles.dayPickerItemText, isSelected && styles.dayPickerItemTextSelected]}>
+                            {labelLeft}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                      idx += 1;
+                    }
+                    return items;
+                  })()}
+                </ScrollView>
+              </View>
+            )}
           </View>
 
           <View style={styles.section}>
@@ -290,24 +454,7 @@ export default function ReservationScreen() {
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Anzahl Personen</Text>
-            <View style={styles.guestSelector}>
-              <TouchableOpacity
-                style={styles.guestButton}
-                onPress={() => setGuestCount(Math.max(1, guestCount - 1))}
-              >
-                <Ionicons name="remove" size={20} color={colors.white} />
-              </TouchableOpacity>
-              <Text style={styles.guestCount}>{guestCount}</Text>
-              <TouchableOpacity
-                style={styles.guestButton}
-                onPress={() => setGuestCount(Math.min(20, guestCount + 1))}
-              >
-                <Ionicons name="add" size={20} color={colors.white} />
-              </TouchableOpacity>
-            </View>
-          </View>
+          
 
           <TouchableOpacity
             style={[styles.nextButton, (!selectedDate || !selectedTime || guestCount < 1) && styles.nextButtonDisabled]}
@@ -329,7 +476,7 @@ export default function ReservationScreen() {
         >
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Name *</Text>
+            <Text style={styles.sectionTitle}>Name *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="person-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
@@ -343,7 +490,7 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>E-Mail *</Text>
+            <Text style={styles.sectionTitle}>E-Mail *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="mail-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
@@ -359,7 +506,7 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Telefonnummer *</Text>
+            <Text style={styles.sectionTitle}>Telefonnummer *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="call-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
@@ -374,7 +521,7 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Besondere Wünsche</Text>
+            <Text style={styles.sectionTitle}>Besondere Wünsche</Text>
             <View style={styles.textAreaWrapper}>
               <Ionicons name="chatbubble-outline" size={20} color={colors.mediumGray} style={styles.textAreaIcon} />
               <TextInput
@@ -394,17 +541,20 @@ export default function ReservationScreen() {
 
       {/* Reservierung Button - Fixed über der Navigationsleiste */}
       {step === 2 && (
-        <TouchableOpacity
-          style={[styles.reserveButton, loading && styles.reserveButtonDisabled]}
-          onPress={handleReservation}
-          disabled={loading}
-        >
-          <Ionicons name="restaurant-outline" size={20} color={colors.white} style={styles.reserveButtonIcon} />
-          <Text style={styles.reserveButtonText}>
-            {loading ? 'Wird verarbeitet...' : 'Tisch reservieren'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.reserveButton, loading && styles.reserveButtonDisabled]}
+            onPress={handleReservation}
+            disabled={loading}
+          >
+            <Ionicons name="restaurant-outline" size={20} color={colors.white} style={styles.reserveButtonIcon} />
+            <Text style={styles.reserveButtonText}>
+              {loading ? 'Wird verarbeitet...' : 'Tisch reservieren'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
+
     </KeyboardAvoidingView>
   );
 }
@@ -542,6 +692,20 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontStyle: 'italic',
   },
+  datePickerDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.black,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.darkGray,
+    paddingHorizontal: 16,
+    height: 48,
+  },
+  datePickerText: {
+    color: colors.white,
+    fontSize: 15,
+  },
   timeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -602,16 +766,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
     fontFamily: 'Georgia',
   },
-  input: {
-    backgroundColor: colors.black,
-    borderWidth: 1,
-    borderColor: colors.darkGray,
-    borderRadius: 12,
-    padding: 15,
-    color: colors.white,
-    fontSize: 16,
-    marginBottom: 15,
-  },
   noteInput: {
     height: 80,
     textAlignVertical: 'top',
@@ -641,6 +795,15 @@ const styles = StyleSheet.create({
   nextButtonIcon: {
     marginLeft: 8,
   },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 100 : 90,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.darkGray,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
   reserveButton: {
     backgroundColor: colors.primary,
     borderRadius: 12,
@@ -648,8 +811,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginHorizontal: 20,
-    marginBottom: Platform.OS === 'ios' ? 30 : 20,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -697,6 +858,79 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 48,
   },
+  datePickerWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.black,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.darkGray,
+    paddingHorizontal: 16,
+    height: 48,
+    justifyContent: 'space-between',
+  },
+  dateDisplayText: {
+    color: colors.white,
+    fontSize: 15,
+    flex: 1,
+  },
+  dayPickerContainer: {
+    backgroundColor: colors.black,
+    borderRadius: 12,
+    marginTop: 8,
+    maxHeight: 280,
+  },
+  dayPickerHeader: {
+    display: 'none',
+  },
+  dayPickerTitle: {
+    display: 'none',
+  },
+  dayPickerCloseButton: {
+    display: 'none',
+  },
+  dayPickerScroll: {
+    maxHeight: 240,
+  },
+  dayPickerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.black,
+  },
+  dayPickerItemSelected: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+  },
+  dayPickerItemPast: {
+    opacity: 0.3,
+  },
+  dayPickerItemText: {
+    fontSize: 16,
+    fontWeight: '300',
+    color: colors.white,
+    fontFamily: 'Georgia',
+  },
+  dayPickerItemTextSelected: {
+    color: colors.white,
+  },
+  dayPickerItemTextPast: {
+    color: colors.mediumGray,
+  },
+  dayPickerItemDay: {
+    fontSize: 13,
+    color: colors.lightGray,
+    fontWeight: '300',
+  },
+  dayPickerItemDaySelected: {
+    color: colors.white,
+  },
+  dayPickerItemDayPast: {
+    color: colors.mediumGray,
+  },
   inputIcon: {
     marginRight: 12,
   },
@@ -727,10 +961,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.white,
     textAlignVertical: 'top',
-  },
-  dateSeparator: {
-    fontSize: 18,
-    color: colors.mediumGray,
-    fontWeight: '600',
   },
 });
