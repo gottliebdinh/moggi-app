@@ -197,7 +197,7 @@ export default function AccountScreen() {
           
           {/* Signature */}
           <Text style={styles.signature}>
-            Made with <Text style={styles.heart}>♥</Text> by Gottlieb Dinh
+            Made with <Text style={[styles.heart, { color: '#FF0000' }]}>♥</Text> by Gottlieb Dinh
           </Text>
         </View>
       </ScrollView>
