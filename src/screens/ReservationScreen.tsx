@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
 import { supabase } from '../config/supabase';
+import { BACKEND_URL } from '../config/stripe';
 // Native Date Picker
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -268,17 +269,58 @@ export default function ReservationScreen() {
       if (error) {
         throw new Error(`Supabase error: ${error.message}`);
       }
+
+      // Generiere Reservierungsnummer
+      const reservationNumber = `RES-${Date.now().toString().slice(-6)}`;
+
+      // Sende Bestätigungs-E-Mail
+      try {
+        console.log('📧 Versuche E-Mail zu senden an:', email.trim());
+        console.log('📧 Backend URL:', BACKEND_URL);
+        
+        const emailResponse = await fetch(`${BACKEND_URL}/send-reservation-confirmation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            guestName: fullName.trim(),
+            date: formatDate(selectedDate),
+            time: selectedTime,
+            guests: guestCount,
+            phone: phone.trim(),
+            note: note.trim() || null,
+            reservationNumber: reservationNumber
+          }),
+        });
+
+        console.log('📧 E-Mail Response Status:', emailResponse.status);
+
+        if (emailResponse.ok) {
+          const emailResult = await emailResponse.json();
+          console.log('✅ Reservierungsbestätigung per E-Mail gesendet:', emailResult);
+        } else {
+          const errorText = await emailResponse.text();
+          console.error('❌ E-Mail-Versand fehlgeschlagen:', emailResponse.status, errorText);
+        }
+      } catch (emailError) {
+        console.error('❌ E-Mail-Versand fehlgeschlagen:', emailError);
+        console.error('❌ Ist der Backend-Server gestartet?');
+        // Nicht blockierend - Reservierung war erfolgreich
+      }
       
-      Alert.alert(
-        'Reservierung erfolgreich!',
-        `Ihre Reservierung für ${formatDate(selectedDate)} um ${selectedTime} für ${guestCount} Personen wurde bestätigt.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack()
-          }
-        ]
-      );
+      // Navigiere zur Bestätigungsseite
+      navigation.navigate('ReservationSuccess' as never, {
+        guestName: fullName.trim(),
+        email: email.trim(),
+        date: selectedDate,
+        time: selectedTime,
+        guests: guestCount,
+        phone: phone.trim(),
+        note: note.trim() || null,
+        reservationNumber: reservationNumber
+      });
     } catch (error) {
       console.error('Reservierungsfehler:', error);
       Alert.alert('Fehler', 'Die Reservierung konnte nicht durchgeführt werden. Bitte versuchen Sie es erneut.');

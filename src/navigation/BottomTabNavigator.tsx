@@ -28,6 +28,7 @@ import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import ReservationScreen from '../screens/ReservationScreen';
+import ReservationSuccessScreen from '../screens/ReservationSuccessScreen';
 
 // Theme
 import colors from '../theme/colors';
@@ -46,6 +47,7 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="Contact" component={ContactScreen} />
       <HomeStack.Screen name="Reservation" component={ReservationScreen} />
+      <HomeStack.Screen name="ReservationSuccess" component={ReservationSuccessScreen} />
     </HomeStack.Navigator>
   );
 }

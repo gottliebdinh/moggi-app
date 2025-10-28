@@ -9,6 +9,7 @@ const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'YOUR_STRIPE_SECRET_KEY_HERE');
 const { Resend } = require('resend');
 const { getOrderConfirmationEmail } = require('./emailTemplates/orderConfirmation');
+const { getReservationConfirmationEmail } = require('./emailTemplates/reservationConfirmation');
 const { getWelcomeEmail } = require('./emailTemplates/welcomeEmail');
 const { getPasswordResetEmail } = require('./emailTemplates/passwordResetEmail');
 const { getVerificationEmail } = require('./emailTemplates/verificationEmail');
@@ -147,6 +148,54 @@ app.post('/send-welcome-email', async (req, res) => {
   } catch (error) {
     console.error('Error sending welcome email:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Reservierungsbestätigung E-Mail senden
+app.post('/send-reservation-confirmation', async (req, res) => {
+  try {
+    const { 
+      email, 
+      guestName, 
+      date, 
+      time, 
+      guests, 
+      phone, 
+      note,
+      reservationNumber 
+    } = req.body;
+
+    console.log('📧 Sende Reservierungsbestätigung an:', email);
+
+    const emailHtml = getReservationConfirmationEmail({
+      guestName,
+      date,
+      time,
+      guests,
+      email,
+      phone,
+      note,
+      reservationNumber: reservationNumber || `RES-${Date.now().toString().slice(-6)}`
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: 'MOGGI <noreply@gdinh.de>',
+      to: [email],
+      subject: 'Reservierung bestätigt! 🍽️',
+      html: emailHtml,
+    });
+
+    if (error) {
+      console.error('❌ Fehler beim E-Mail senden:', error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log('✅ Reservierungsbestätigung erfolgreich gesendet:', data);
+    res.json({ success: true, emailId: data.id });
+
+  } catch (error) {
+    console.error('Error sending reservation confirmation:', error);
+    res.status(500).json({ error: 'Failed to send reservation confirmation' });
   }
 });
 
