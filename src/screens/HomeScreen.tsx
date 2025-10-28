@@ -43,6 +43,10 @@ export default function HomeScreen() {
     }
   };
 
+  const handleReservationPress = () => {
+    navigation.navigate('Reservation' as never);
+  };
+
   const handleContactPress = () => {
     navigation.navigate('Contact' as never);
   };
@@ -128,6 +132,15 @@ export default function HomeScreen() {
             </View>
         </View>
       </ScrollView>
+
+      {/* Schwebender Reservierungs-Button über der Navigationsleiste */}
+      <TouchableOpacity 
+        style={styles.floatingReservationButton}
+        onPress={handleReservationPress}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.floatingReservationButtonText}>Tisch reservieren</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -278,6 +291,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.lightGray,
     lineHeight: 22,
+  },
+  floatingReservationButton: {
+    position: 'absolute',
+    bottom: 100, // Über der Navigationsleiste (ca. 85px hoch)
+    left: 20,
+    right: 20,
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1000,
+  },
+  floatingReservationButtonText: {
+    color: colors.white,
+    fontSize: 20,
+    fontWeight: '600',
+    fontFamily: 'Georgia',
   },
 });
 

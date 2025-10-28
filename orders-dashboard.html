@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moggi Admin - Bestellungen</title>
+    <link rel="icon" type="image/png" href="assets/appLogo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #242424;
+            color: #E5E5E5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #242424 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            font-family: Georgia, serif;
+        }
+
+        .header .divider {
+            width: 60px;
+            height: 3px;
+            background: #FF6B00;
+            margin-bottom: 16px;
+            border-radius: 2px;
+        }
+
+        .header p {
+            color: #E5E5E5;
+            font-size: 16px;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #333333;
+            color: #E5E5E5;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: #FF6B00;
+        }
+
+        .nav-btn.active {
+            background: #FF6B00;
+        }
+
+        /* Day Switcher */
+        .day-switcher {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .day-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .day-btn {
+            background: #FF6B00;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .day-btn:hover {
+            background: #CC5500;
+            transform: translateY(-2px);
+        }
+
+        .current-day {
+            background: #FF6B00;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .calendar-btn-modern {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .calendar-btn-modern:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .calendar-btn-modern svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .date-picker-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1A1A1A;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .calendar-month {
+            font-weight: 600;
+            color: #E5E5E5;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 8px 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #E5E5E5;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day.today {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .calendar-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #FF6B00;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #999999;
+        }
+
+        /* Add Order Section */
+        .add-order-section {
+            margin-bottom: 20px;
+        }
+
+        .add-order-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-order-btn:hover {
+            background: #45a049;
+        }
+
+        /* Table */
+        .table-container {
+            background: #1A1A1A;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid #333333;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: #1A1A1A;
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #333333;
+            font-size: 14px;
+            color: #E5E5E5;
+        }
+
+        .table tr:hover {
+            background: #333333;
+        }
+
+        .table tr.clickable {
+            cursor: pointer;
+        }
+
+        .table tr.clickable:hover {
+            background: #333333;
+        }
+
+        /* Column width adjustments */
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            width: 10%; /* Abholzeit */
+        }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            width: 20%; /* Name */
+        }
+
+        .table th:nth-child(3),
+        .table td:nth-child(3) {
+            width: 25%; /* Produkt - mehr Platz */
+        }
+
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            width: 15%; /* Status */
+        }
+
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            width: 10%; /* Preis */
+        }
+
+        .table th:nth-child(6),
+        .table td:nth-child(6) {
+            width: 20%; /* Notiz - weniger Platz */
+        }
+
+        /* Status Dropdown */
+        .status-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .status-select {
+            background: white;
+            border: 2px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: #FF6B00;
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+        }
+
+        .status-select.status-open {
+            background: #FFF3E0;
+            border-color: #FFB74D;
+            color: #E65100;
+        }
+
+        .status-select.status-picked {
+            background: #E8F5E8;
+            border-color: #4CAF50;
+            color: #2E7D32;
+        }
+
+        .status-select.status-cancelled {
+            background: #FFEBEE;
+            border-color: #F44336;
+            color: #C62828;
+        }
+
+        /* Cancelled orders styling */
+        .table tr.cancelled {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .table tr.cancelled .status-select {
+            text-decoration: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #1A1A1A;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333333;
+        }
+
+        .modal-content.large {
+            max-width: 1000px;
+            width: 95%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Order Detail Modal */
+        /* Order Detail Modal - Same style as Reservation Detail */
+        .order-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 15px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .order-info {
+            background: #333333;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            border: 1px solid #444444;
+        }
+
+        .order-info h4 {
+            color: #E5E5E5;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-item label {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item input,
+        .info-item select {
+            padding: 8px 12px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: #242424;
+            color: #E5E5E5;
+        }
+
+        .info-item select:focus,
+        .info-item input:focus {
+            outline: none;
+            border-color: #FF6B00;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555555;
+            border-radius: 6px;
+            background: #2A2A2A;
+            color: #E5E5E5;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.3s ease;
+        }
+
+        .info-item textarea:focus {
+            outline: none;
+            border-color: #FF6B00;
+            box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+        }
+
+        .info-item textarea::placeholder {
+            color: #888888;
+        }
+
+        .customer-details {
+            background: #333333;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            border: 1px solid #444444;
+        }
+
+        .customer-details h4 {
+            color: #E5E5E5;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .customer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            color: #B0B0B0;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            padding: 8px 12px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: #242424;
+            color: #E5E5E5;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #FF6B00;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #444444;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #E5E5E5;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #E5E5E5;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #FF6B00;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #E5E5E5;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: #242424;
+            color: #E5E5E5;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF6B00;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #CC5500;
+        }
+
+        .btn-secondary {
+            background: #333333;
+            color: #E5E5E5;
+        }
+
+        .btn-secondary:hover {
+            background: #444444;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .day-switcher {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .day-nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .current-day {
+                text-align: center;
+            }
+
+            .stats {
+                justify-content: center;
+            }
+
+            .order-detail {
+                gap: 15px;
+            }
+
+            .top-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .order-actions {
+                flex-direction: column;
+            }
+
+            .order-actions .btn {
+                width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Moggi Admin - Bestellungen</h1>
+            <div class="divider"></div>
+            <p>Bestellungen verwalten und überwachen</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-buttons">
+                <a href="#" class="nav-btn active">🍽️ Bestellungen</a>
+                <a href="admin-dashboard.html" class="nav-btn">📊 Reservierungen</a>
+                <a href="tischplan-settings.html" class="nav-btn">🪑 Tischplan</a>
+                <a href="capacity-settings.html" class="nav-btn">⚙️ Kapazität</a>
+            </div>
+        </div>
+
+        <!-- Day Switcher -->
+        <div class="day-switcher">
+            <div class="day-nav">
+                <button class="day-btn" onclick="changeDay(-1)">← Vorheriger</button>
+                <div class="current-day" id="currentDay">
+                    <span>Sonntag, 26. Oktober 2025</span>
+                    <button class="calendar-btn-modern" onclick="toggleDatePicker()" title="Datum auswählen">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </button>
+                    <!-- Date Picker Dropdown -->
+                    <div id="datePickerDropdown" class="date-picker-dropdown">
+                        <!-- Calendar content -->
+                    </div>
+                </div>
+                <button class="day-btn" onclick="changeDay(1)">Nächster →</button>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div class="stat-label">Bestellungen</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="openOrders">0</div>
+                    <div class="stat-label">Offen</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="pickedOrders">0</div>
+                    <div class="stat-label">Abgeholt</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="cancelledOrders">0</div>
+                    <div class="stat-label">Storniert</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Abholzeit</th>
+                        <th>Name</th>
+                        <th>Produkt</th>
+                        <th>Status</th>
+                        <th>Preis</th>
+                        <th>Notiz</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Orders will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Bestellung bearbeiten</h3>
+                <span class="close" onclick="closeModal('orderDetailModal')">&times;</span>
+            </div>
+            
+            <div class="order-detail">
+                <!-- Top section: Order Details and Customer Details side by side -->
+                <div class="top-section">
+                    <!-- Left side: Order Info -->
+                    <div class="order-info">
+                        <h4>Bestelldetails</h4>
+                        
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Abholzeit</label>
+                                <input type="time" id="editOrderPickupTime">
+                            </div>
+                            <div class="info-item">
+                                <label>Status</label>
+                                <select id="editOrderStatus">
+                                    <option value="open">Offen</option>
+                                    <option value="picked">Abgeholt</option>
+                                    <option value="cancelled">Storniert</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>Produkt</label>
+                                <input type="text" id="editOrderProduct" placeholder="z.B. Business Lunch, Sushi, etc.">
+                            </div>
+                            <div class="info-item">
+                                <label>Preis</label>
+                                <input type="text" id="editOrderPrice" placeholder="z.B. 12,80" pattern="[0-9]+[,][0-9]{2}">
+                            </div>
+                            <div class="info-item full-width">
+                                <label>Notizen</label>
+                                <textarea id="editOrderNotes" placeholder="Besondere Wünsche, Allergien..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right side: Customer Details -->
+                    <div class="customer-details">
+                        <h4>Kundendetails</h4>
+                        <div class="customer-form">
+                            <div class="form-group">
+                                <label for="editCustomerName">Name</label>
+                                <input type="text" id="editCustomerName" placeholder="z.B. Max Mustermann">
+                            </div>
+                            <div class="form-group">
+                                <label for="editCustomerEmail">E-Mail</label>
+                                <input type="email" id="editCustomerEmail" placeholder="z.B. max@email.de">
+                            </div>
+                            <div class="form-group">
+                                <label for="editCustomerPhone">Telefon</label>
+                                <input type="tel" id="editCustomerPhone" placeholder="z.B. +49 911 123456">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-actions">
+                <button class="btn btn-secondary" onclick="closeModal('orderDetailModal')">Abbrechen</button>
+                <button class="btn btn-success" onclick="saveOrderChanges()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+        // Clear localStorage to force reload with new data
+        localStorage.removeItem('moggiOrders');
+        localStorage.removeItem('moggiNextOrderId');
+        
+        // Load orders from localStorage or use default
+        let orders = JSON.parse(localStorage.getItem('moggiOrders')) || [
+            // Heute (15. Januar)
+            {
+                id: 1,
+                pickupTime: '12:30',
+                customerName: 'Sarah Kim',
+                product: 'Business Lunch',
+                status: 'picked',
+                notes: 'Extra scharf',
+                email: 'sarah.kim@email.de',
+                phone: '+49 911 111111',
+                source: 'web',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T11:00'
+            },
+            {
+                id: 2,
+                pickupTime: '13:00',
+                customerName: 'Marco Rossi',
+                product: 'Tapas Fleisch',
+                status: 'picked',
+                notes: '',
+                email: 'marco.rossi@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T12:30'
+            },
+            {
+                id: 3,
+                pickupTime: '18:30',
+                customerName: 'Anna Schmidt',
+                product: 'Sashimi',
+                status: 'open',
+                notes: 'Vegetarisch',
+                email: 'anna.schmidt@email.de',
+                phone: '+49 911 123456',
+                source: 'web',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T17:00'
+            },
+            {
+                id: 4,
+                pickupTime: '19:00',
+                customerName: 'Max Mustermann',
+                product: 'Uramaki',
+                status: 'picked',
+                notes: '',
+                email: 'max.mustermann@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T17:30'
+            },
+            {
+                id: 5,
+                pickupTime: '19:30',
+                customerName: 'Lisa Weber',
+                product: 'Baos',
+                status: 'open',
+                notes: 'Allergien: Gluten',
+                email: 'lisa.weber@email.de',
+                phone: '+49 911 345678',
+                source: 'web',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T18:00'
+            },
+            {
+                id: 6,
+                pickupTime: '20:00',
+                customerName: 'Tom Müller',
+                product: 'Special Roll',
+                status: 'cancelled',
+                notes: 'Kunde hat abgesagt',
+                email: 'tom.mueller@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T18:15'
+            },
+            {
+                id: 7,
+                pickupTime: '20:30',
+                customerName: 'Julia Fischer',
+                product: 'Nigiri',
+                status: 'open',
+                notes: 'Frischer Fisch bevorzugt',
+                email: 'julia.fischer@email.de',
+                phone: '+49 911 456789',
+                source: 'manual',
+                date: '2024-01-15',
+                createdAt: '2024-01-15T19:00'
+            },
+            // Gestern (14. Januar)
+            {
+                id: 8,
+                pickupTime: '12:00',
+                customerName: 'David Chen',
+                product: 'Crispy Rolls',
+                status: 'picked',
+                notes: '',
+                email: 'david.chen@email.de',
+                phone: '+49 911 222222',
+                source: 'web',
+                date: '2024-01-14',
+                createdAt: '2024-01-14T11:00'
+            },
+            {
+                id: 9,
+                pickupTime: '18:00',
+                customerName: 'Emma Wagner',
+                product: 'Hosomaki',
+                status: 'picked',
+                notes: 'Vegetarische Optionen',
+                email: 'emma.wagner@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2024-01-14',
+                createdAt: '2024-01-14T17:00'
+            },
+            {
+                id: 10,
+                pickupTime: '19:15',
+                customerName: 'Oliver Klein',
+                product: 'Nori Tacos',
+                status: 'picked',
+                notes: 'Extra scharf',
+                email: 'oliver.klein@email.de',
+                phone: '+49 911 333333',
+                source: 'web',
+                date: '2024-01-14',
+                createdAt: '2024-01-14T18:00'
+            },
+            // Morgen (16. Januar)
+            {
+                id: 11,
+                pickupTime: '12:15',
+                customerName: 'Sophie Müller',
+                product: 'Tapas vegetarisch',
+                status: 'open',
+                notes: 'Vegan',
+                email: 'sophie.mueller@email.de',
+                phone: '+49 911 444444',
+                source: 'web',
+                date: '2024-01-16',
+                createdAt: '2024-01-15T20:00'
+            },
+            {
+                id: 12,
+                pickupTime: '18:45',
+                customerName: 'Felix Bauer',
+                product: 'Sticks',
+                status: 'open',
+                notes: '',
+                email: 'felix.bauer@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2024-01-16',
+                createdAt: '2024-01-15T20:30'
+            },
+            // Heute (26. Oktober 2025)
+            {
+                id: 13,
+                pickupTime: '11:30',
+                customerName: 'Alexander Müller',
+                products: [
+                    { name: 'New In', quantity: 1, price: '12,80' }
+                ],
+                status: 'picked',
+                notes: 'Schnell bitte',
+                comment: 'Sehr zufrieden mit der Qualität',
+                email: 'alexander.mueller@email.de',
+                phone: '+49 911 555555',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T10:30'
+            },
+            {
+                id: 14,
+                pickupTime: '12:00',
+                customerName: 'Michael Weber',
+                products: [
+                    { name: 'Business Lunch', quantity: 1, price: '13,90' },
+                    { name: 'Salat', quantity: 1, price: '8,50' }
+                ],
+                status: 'picked',
+                notes: 'Schnell bitte',
+                email: 'michael.weber@email.de',
+                phone: '+49 911 555555',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T11:30'
+            },
+            {
+                id: 15,
+                pickupTime: '12:30',
+                customerName: 'Sarah Müller',
+                products: [
+                    { name: 'Tapas Fisch', quantity: 2, price: '14,50' },
+                    { name: 'Crisps', quantity: 1, price: '8,90' }
+                ],
+                status: 'picked',
+                notes: '',
+                email: 'sarah.mueller@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T12:00'
+            },
+            {
+                id: 16,
+                pickupTime: '13:15',
+                customerName: 'Thomas Klein',
+                product: 'Crisps',
+                price: '8,90',
+                status: 'picked',
+                notes: 'Extra Guacamole',
+                comment: 'Perfekt zubereitet',
+                email: 'thomas.klein@email.de',
+                phone: '+49 911 666666',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T12:45'
+            },
+            {
+                id: 17,
+                pickupTime: '17:30',
+                customerName: 'Emma Schmidt',
+                product: 'Tapas vegetarisch',
+                price: '12,50',
+                status: 'open',
+                notes: 'Vegan',
+                comment: '',
+                email: 'emma.schmidt@email.de',
+                phone: '+49 911 777777',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T16:30'
+            },
+            {
+                id: 18,
+                pickupTime: '18:00',
+                customerName: 'Laura Schmidt',
+                products: [
+                    { name: 'Sashimi', quantity: 1, price: '18,90' },
+                    { name: 'Nigiri', quantity: 2, price: '14,20' },
+                    { name: 'Miso Suppe', quantity: 1, price: '6,50' }
+                ],
+                status: 'open',
+                notes: 'Frischer Fisch wichtig',
+                email: 'laura.schmidt@email.de',
+                phone: '+49 911 777777',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T17:00'
+            },
+            {
+                id: 19,
+                pickupTime: '18:30',
+                customerName: 'Daniel Fischer',
+                product: 'Uramaki',
+                price: '15,50',
+                status: 'open',
+                notes: '',
+                comment: '',
+                email: 'daniel.fischer@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T17:30'
+            },
+            {
+                id: 20,
+                pickupTime: '19:00',
+                customerName: 'Maria Garcia',
+                product: 'Baos',
+                price: '11,80',
+                status: 'open',
+                notes: 'Vegetarisch',
+                comment: '',
+                email: 'maria.garcia@email.de',
+                phone: '+49 911 888888',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T18:00'
+            },
+            {
+                id: 21,
+                pickupTime: '19:30',
+                customerName: 'Andreas Wagner',
+                product: 'Special Roll',
+                price: '16,90',
+                status: 'open',
+                notes: 'Extra scharf',
+                comment: '',
+                email: 'andreas.wagner@email.de',
+                phone: '', // App-Bestellung ohne Telefon
+                source: 'app',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T18:30'
+            },
+            {
+                id: 22,
+                pickupTime: '20:00',
+                customerName: 'Nicole Becker',
+                product: 'Nigiri',
+                price: '14,20',
+                status: 'cancelled',
+                notes: 'Kunde hat abgesagt',
+                comment: 'Kunde hat 30min vorher abgesagt',
+                email: 'nicole.becker@email.de',
+                phone: '+49 911 999999',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T19:00'
+            },
+            {
+                id: 23,
+                pickupTime: '20:30',
+                customerName: 'Stefan Hoffmann',
+                product: 'Hosomaki',
+                price: '9,50',
+                status: 'open',
+                notes: 'Allergien: Gluten',
+                comment: '',
+                email: 'stefan.hoffmann@email.de',
+                phone: '+49 911 000000',
+                source: 'manual',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T19:30'
+            },
+            {
+                id: 24,
+                pickupTime: '21:00',
+                customerName: 'Julia Fischer',
+                product: 'Nori Tacos',
+                price: '13,20',
+                status: 'open',
+                notes: 'Extra scharf',
+                comment: '',
+                email: 'julia.fischer@email.de',
+                phone: '+49 911 111111',
+                source: 'web',
+                date: '2025-10-26',
+                createdAt: '2025-10-26T20:00'
+            }
+        ];
+
+        let nextOrderId = parseInt(localStorage.getItem('moggiNextOrderId')) || 25;
+        let currentDate = new Date(2025, 9, 26, 12, 0, 0); // 26. Oktober 2025, 12:00 Uhr (Monat ist 0-basiert)
+        
+        // Debug: Log current date
+        console.log('Current date:', currentDate);
+        console.log('Current date string:', currentDate.toISOString().split('T')[0]);
+
+        // Save data to localStorage
+        function saveOrdersData() {
+            localStorage.setItem('moggiOrders', JSON.stringify(orders));
+            localStorage.setItem('moggiNextOrderId', nextOrderId.toString());
+        }
+
+        // Initialize the page
+        function init() {
+            console.log('Total orders loaded:', orders.length);
+            console.log('All orders:', orders);
+            updateDateDisplay();
+            renderOrders();
+            updateStats();
+        }
+
+        // Update date display
+        function updateDateDisplay() {
+            const dateString = currentDate.toLocaleDateString('de-DE', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('currentDay').querySelector('span').textContent = dateString;
+        }
+
+        // Change day
+        function changeDay(direction) {
+            currentDate.setDate(currentDate.getDate() + direction);
+            updateDateDisplay();
+            renderOrders();
+            updateStats();
+        }
+
+        // Toggle date picker
+        function toggleDatePicker() {
+            const dropdown = document.getElementById('datePickerDropdown');
+            if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                showDatePicker();
+            } else {
+                closeDatePicker();
+            }
+        }
+
+        // Show date picker
+        function showDatePicker() {
+            const dropdown = document.getElementById('datePickerDropdown');
+            dropdown.style.display = 'block';
+            renderDatePicker();
+        }
+
+        // Close date picker
+        function closeDatePicker() {
+            document.getElementById('datePickerDropdown').style.display = 'none';
+        }
+
+        // Render date picker
+        function renderDatePicker() {
+            const dropdown = document.getElementById('datePickerDropdown');
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            const monthNames = [
+                'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+            ];
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            let calendarHTML = `
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" onclick="event.stopPropagation(); changeMonth(-1)">←</button>
+                    <div class="calendar-month">${monthNames[month]} ${year}</div>
+                    <button class="calendar-nav-btn" onclick="event.stopPropagation(); changeMonth(1)">→</button>
+                </div>
+                <div class="calendar-days">
+                    <div class="calendar-day-header">Mo</div>
+                    <div class="calendar-day-header">Di</div>
+                    <div class="calendar-day-header">Mi</div>
+                    <div class="calendar-day-header">Do</div>
+                    <div class="calendar-day-header">Fr</div>
+                    <div class="calendar-day-header">Sa</div>
+                    <div class="calendar-day-header">So</div>
+            `;
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < (startingDayOfWeek + 6) % 7; i++) {
+                calendarHTML += '<div class="calendar-day"></div>';
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+                const isSelected = currentDate.toDateString() === new Date(year, month, day).toDateString();
+                const dayClass = isToday ? 'today' : (isSelected ? 'selected' : '');
+                calendarHTML += `<div class="calendar-day ${dayClass}" onclick="event.stopPropagation(); selectDate(${day})">${day}</div>`;
+            }
+            
+            calendarHTML += `
+                </div>
+                <div class="calendar-footer">
+                    <button class="today-btn" onclick="event.stopPropagation(); goToToday()">Heute</button>
+                </div>
+            `;
+            
+            dropdown.innerHTML = calendarHTML;
+        }
+
+        // Select date
+        function selectDate(day) {
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            updateDateDisplay();
+            renderOrders();
+            updateStats();
+            closeDatePicker();
+        }
+
+        // Change month
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderDatePicker();
+        }
+
+        // Go to today
+        function goToToday() {
+            currentDate = new Date();
+            updateDateDisplay();
+            renderOrders();
+            updateStats();
+            closeDatePicker();
+        }
+
+        // Render orders
+        function renderOrders() {
+            const tableBody = document.getElementById('ordersTableBody');
+            tableBody.innerHTML = '';
+
+            const currentDateString = currentDate.toISOString().split('T')[0];
+            console.log('Looking for orders with date:', currentDateString);
+            
+            const dayOrders = orders.filter(order => order.date === currentDateString);
+            console.log('Found orders for today:', dayOrders.length, dayOrders);
+
+            // Sort orders by pickup time
+            const sortedOrders = [...dayOrders].sort((a, b) => a.pickupTime.localeCompare(b.pickupTime));
+
+            sortedOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.className = 'clickable';
+                if (order.status === 'cancelled') {
+                    row.classList.add('cancelled');
+                }
+                row.onclick = () => openOrderDetail(order.id);
+
+                const statusText = {
+                    'open': 'Offen',
+                    'picked': 'Abgeholt',
+                    'cancelled': 'Storniert'
+                };
+
+                const statusClass = `status-${order.status}`;
+                
+                // Combine notes and comment
+                let combinedNotes = '';
+                if (order.notes && order.comment) {
+                    combinedNotes = `${order.notes} | ${order.comment}`;
+                } else if (order.notes) {
+                    combinedNotes = order.notes;
+                } else if (order.comment) {
+                    combinedNotes = order.comment;
+                }
+
+                // Handle products (support both old and new structure)
+                let productsHtml = '';
+                let totalPrice = '0,00';
+                
+                if (order.products && Array.isArray(order.products)) {
+                    // New structure with multiple products
+                    productsHtml = order.products.map(product => 
+                        `${product.quantity}x ${product.name}`
+                    ).join('<br>');
+                    
+                    // Calculate total price
+                    const total = order.products.reduce((sum, product) => {
+                        const price = parseFloat(product.price.replace(',', '.'));
+                        return sum + (price * product.quantity);
+                    }, 0);
+                    totalPrice = total.toFixed(2).replace('.', ',');
+                } else {
+                    // Old structure with single product
+                    productsHtml = `1x ${order.product}`;
+                    totalPrice = order.price || '0,00';
+                }
+
+                row.innerHTML = `
+                    <td>${order.pickupTime}</td>
+                    <td>${order.customerName}</td>
+                    <td>${productsHtml}</td>
+                    <td>
+                        <select class="status-select status-${order.status}" 
+                                onchange="updateOrderStatus(${order.id}, this.value)"
+                                onclick="event.stopPropagation()">
+                            <option value="open" ${order.status === 'open' ? 'selected' : ''}>Offen</option>
+                            <option value="picked" ${order.status === 'picked' ? 'selected' : ''}>Abgeholt</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Storniert</option>
+                        </select>
+                    </td>
+                    <td>${totalPrice} €</td>
+                    <td>${combinedNotes || '-'}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            const currentDateString = currentDate.toISOString().split('T')[0];
+            const dayOrders = orders.filter(order => order.date === currentDateString);
+            
+            const totalOrders = dayOrders.length;
+            const openOrders = dayOrders.filter(o => o.status === 'open').length;
+            const pickedOrders = dayOrders.filter(o => o.status === 'picked').length;
+            const cancelledOrders = dayOrders.filter(o => o.status === 'cancelled').length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('openOrders').textContent = openOrders;
+            document.getElementById('pickedOrders').textContent = pickedOrders;
+            document.getElementById('cancelledOrders').textContent = cancelledOrders;
+        }
+
+        // Update order status
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                
+                // Update the select element's class
+                const selectElement = event.target;
+                selectElement.className = `status-select status-${newStatus}`;
+                
+                saveOrdersData();
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        // Open order detail modal
+        function openOrderDetail(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                // Populate form fields
+                document.getElementById('editOrderPickupTime').value = order.pickupTime;
+                document.getElementById('editOrderStatus').value = order.status;
+                document.getElementById('editOrderProduct').value = order.product;
+                document.getElementById('editOrderPrice').value = order.price || '';
+                document.getElementById('editOrderNotes').value = order.notes || '';
+                document.getElementById('editCustomerName').value = order.customerName;
+                document.getElementById('editCustomerEmail').value = order.email || '';
+                document.getElementById('editCustomerPhone').value = order.phone || '';
+                
+                // Store current order ID for saving
+                window.currentEditingOrderId = orderId;
+                
+                // Show modal
+                document.getElementById('orderDetailModal').style.display = 'block';
+            }
+        }
+
+        // Save order changes
+        function saveOrderChanges() {
+            const orderId = window.currentEditingOrderId;
+            const order = orders.find(o => o.id === orderId);
+            
+            if (order) {
+                // Update order with new values
+                order.pickupTime = document.getElementById('editOrderPickupTime').value;
+                order.status = document.getElementById('editOrderStatus').value;
+                order.product = document.getElementById('editOrderProduct').value;
+                order.price = document.getElementById('editOrderPrice').value.trim() || '0,00';
+                order.notes = document.getElementById('editOrderNotes').value.trim();
+                order.customerName = document.getElementById('editCustomerName').value.trim();
+                order.email = document.getElementById('editCustomerEmail').value.trim();
+                order.phone = document.getElementById('editCustomerPhone').value.trim();
+                
+                // Save to localStorage
+                saveOrdersData();
+                
+                // Refresh display
+                renderOrders();
+                updateStats();
+                
+                // Close modal
+                closeModal('orderDetailModal');
+            }
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Close date picker when clicking outside
+            if (!event.target.closest('.current-day')) {
+                closeDatePicker();
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

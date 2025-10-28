@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moggi Admin - Kapazitäts Einstellungen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #242424;
+            color: #E5E5E5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #242424 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            font-family: Georgia, serif;
+        }
+
+        .header .divider {
+            width: 60px;
+            height: 3px;
+            background: #FF6B00;
+            margin-bottom: 16px;
+            border-radius: 2px;
+        }
+
+        .header p {
+            color: #E5E5E5;
+            font-size: 16px;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #333333;
+            color: #E5E5E5;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: #FF6B00;
+        }
+
+        .nav-btn.active {
+            background: #FF6B00;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        /* Capacity Rules Section */
+        .capacity-section {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #E5E5E5;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .add-btn:hover {
+            background: #45a049;
+        }
+
+        /* Capacity Rules List */
+        .capacity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .capacity-item {
+            background: #333333;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .capacity-item:hover {
+            background: #444444;
+            border-color: #66BB6A;
+        }
+
+        .capacity-item.exception {
+            border-color: #f44336;
+        }
+
+        .capacity-item.exception:hover {
+            border-color: #ff6b6b;
+        }
+
+        .capacity-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .capacity-day {
+            font-weight: 600;
+            color: #FF6B00;
+        }
+
+        .capacity-time {
+            font-size: 14px;
+        }
+
+        .capacity-count {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .capacity-item.exception .capacity-time {
+            color: #f44336;
+        }
+
+        .capacity-interval {
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .capacity-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #E5E5E5;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Overview Section */
+        .overview-section {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .overview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #E5E5E5;
+            margin-bottom: 16px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-column {
+            text-align: center;
+        }
+
+        .day-header {
+            font-weight: 600;
+            color: #FF6B00;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .time-slot {
+            background: #333333;
+            border-radius: 4px;
+            padding: 4px 6px;
+            margin-bottom: 4px;
+            font-size: 10px;
+            color: #E5E5E5;
+        }
+
+        .time-slot.full {
+            background: #f44336;
+            color: white;
+        }
+
+        .time-slot.available {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #E5E5E5;
+            font-size: 14px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: #242424;
+            color: #E5E5E5;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #FF6B00;
+        }
+
+        .days-selection {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .day-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            border: 2px solid #333333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: #242424;
+        }
+
+        .day-checkbox:hover {
+            border-color: #4CAF50;
+        }
+
+        .day-checkbox input[type="checkbox"] {
+            margin-right: 6px;
+            accent-color: #4CAF50;
+        }
+
+        .day-checkbox input[type="checkbox"]:checked + span {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .day-checkbox:has(input[type="checkbox"]:checked) {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #CC5500;
+        }
+
+        .btn-secondary {
+            background: #333333;
+            color: #E5E5E5;
+        }
+
+        .btn-secondary:hover {
+            background: #444444;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #1A1A1A;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333333;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #E5E5E5;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #E5E5E5;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #FF6B00;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .capacity-info {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .overview-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Moggi Admin - Kapazitäts Einstellungen</h1>
+            <div class="divider"></div>
+            <p>Zeitslots und Kapazitäten verwalten</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-buttons">
+                <a href="orders-dashboard.html" class="nav-btn">🍽️ Bestellungen</a>
+                <a href="admin-dashboard.html" class="nav-btn">📊 Reservierungen</a>
+                <a href="tischplan-settings.html" class="nav-btn">🪑 Tischplan</a>
+                <a href="#" class="nav-btn active">⚙️ Kapazität</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Capacity Rules Section -->
+            <div class="capacity-section">
+                <div class="section-header">
+                    <h2 class="section-title">Kapazitäts-Regeln</h2>
+                    <button class="add-btn" onclick="openAddCapacityModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Regel hinzufügen
+                    </button>
+                </div>
+                <div class="capacity-list" id="capacityList">
+                    <!-- Capacity rules will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Exceptions Section -->
+            <div class="capacity-section">
+                <div class="section-header">
+                    <h2 class="section-title">Geschlossene Tage</h2>
+                    <button class="add-btn" onclick="openAddExceptionModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Ausnahme hinzufügen
+                    </button>
+                </div>
+                <div class="capacity-list" id="exceptionList">
+                    <!-- Exceptions will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Capacity Rule Modal -->
+    <div id="addCapacityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Kapazitäts-Regel hinzufügen</h3>
+                <span class="close" onclick="closeModal('addCapacityModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="capacityDays">Wochentage</label>
+                <div class="days-selection">
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="monday" id="day-monday">
+                        <span>Mo</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="tuesday" id="day-tuesday">
+                        <span>Di</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="wednesday" id="day-wednesday">
+                        <span>Mi</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="thursday" id="day-thursday">
+                        <span>Do</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="friday" id="day-friday">
+                        <span>Fr</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="saturday" id="day-saturday">
+                        <span>Sa</span>
+                    </label>
+                    <label class="day-checkbox">
+                        <input type="checkbox" value="sunday" id="day-sunday">
+                        <span>So</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="capacityStartTime">Von</label>
+                    <input type="time" id="capacityStartTime" value="17:30">
+                </div>
+                <div class="form-group">
+                    <label for="capacityEndTime">Bis</label>
+                    <input type="time" id="capacityEndTime" value="22:00">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="capacityCount">Kapazität (Personen)</label>
+                    <input type="number" id="capacityCount" placeholder="120" min="1" max="1000">
+                </div>
+                <div class="form-group">
+                    <label for="capacityInterval">Intervall (Minuten)</label>
+                    <select id="capacityInterval">
+                        <option value="15">15 Minuten</option>
+                        <option value="30" selected>30 Minuten</option>
+                        <option value="45">45 Minuten</option>
+                        <option value="60">60 Minuten</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('addCapacityModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="addCapacityRule()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Exception Modal -->
+    <div id="addExceptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Geschlossenen Tag hinzufügen</h3>
+                <span class="close" onclick="closeModal('addExceptionModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="exceptionDate">Datum</label>
+                <input type="date" id="exceptionDate">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('addExceptionModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="addException()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load capacity rules from localStorage or use default
+        let capacityRules = JSON.parse(localStorage.getItem('moggiCapacityRules')) || [
+            {
+                id: 1,
+                days: ['tuesday', 'wednesday'],
+                startTime: '17:30',
+                endTime: '22:00',
+                capacity: 120,
+                interval: 30
+            },
+            {
+                id: 2,
+                days: ['tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+                startTime: '11:30',
+                endTime: '14:00',
+                capacity: 120,
+                interval: 30
+            },
+            {
+                id: 3,
+                days: ['thursday', 'friday', 'saturday'],
+                startTime: '17:30',
+                endTime: '22:30',
+                capacity: 120,
+                interval: 30
+            },
+            {
+                id: 4,
+                days: ['sunday'],
+                startTime: '17:00',
+                endTime: '22:00',
+                capacity: 120,
+                interval: 30
+            }
+        ];
+
+        // Load exceptions from localStorage or use default
+        let exceptions = JSON.parse(localStorage.getItem('moggiExceptions')) || [
+            {
+                id: 1,
+                date: '2024-11-15'
+            },
+            {
+                id: 2,
+                date: '2024-12-05'
+            },
+            {
+                id: 3,
+                date: '2025-01-29'
+            }
+        ];
+
+        let nextCapacityId = parseInt(localStorage.getItem('moggiNextCapacityId')) || 8;
+        let nextExceptionId = parseInt(localStorage.getItem('moggiNextExceptionId')) || 4;
+
+        // Save data to localStorage
+        function saveCapacityData() {
+            localStorage.setItem('moggiCapacityRules', JSON.stringify(capacityRules));
+            localStorage.setItem('moggiNextCapacityId', nextCapacityId.toString());
+        }
+
+        function saveExceptionData() {
+            localStorage.setItem('moggiExceptions', JSON.stringify(exceptions));
+            localStorage.setItem('moggiNextExceptionId', nextExceptionId.toString());
+        }
+
+        // Initialize the page
+        function init() {
+            renderCapacityRules();
+            renderExceptions();
+            renderOverview();
+        }
+
+        // Render capacity rules
+        function renderCapacityRules() {
+            const capacityList = document.getElementById('capacityList');
+            capacityList.innerHTML = '';
+
+            capacityRules.forEach(rule => {
+                const ruleElement = document.createElement('div');
+                ruleElement.className = 'capacity-item';
+                
+                const dayNames = {
+                    monday: 'Mo',
+                    tuesday: 'Di',
+                    wednesday: 'Mi',
+                    thursday: 'Do',
+                    friday: 'Fr',
+                    saturday: 'Sa',
+                    sunday: 'So'
+                };
+
+                const daysText = rule.days.map(day => dayNames[day]).join(', ');
+
+                ruleElement.innerHTML = `
+                    <div class="capacity-info">
+                        <div class="capacity-day">${daysText}</div>
+                        <div class="capacity-time">${rule.startTime} - ${rule.endTime}</div>
+                        <div class="capacity-count">${rule.capacity} Personen</div>
+                        <div class="capacity-interval">Alle ${rule.interval}min</div>
+                        <div class="capacity-actions">
+                            <button class="action-btn" onclick="editCapacityRule(${rule.id})" title="Bearbeiten">
+                                ✏️
+                            </button>
+                            <button class="action-btn" onclick="deleteCapacityRule(${rule.id})" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                capacityList.appendChild(ruleElement);
+            });
+        }
+
+        // Render exceptions
+        function renderExceptions() {
+            const exceptionList = document.getElementById('exceptionList');
+            exceptionList.innerHTML = '';
+
+            exceptions.forEach(exception => {
+                const exceptionElement = document.createElement('div');
+                exceptionElement.className = 'capacity-item exception';
+                
+                const date = new Date(exception.date);
+                const formattedDate = date.toLocaleDateString('de-DE', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+
+                exceptionElement.innerHTML = `
+                    <div class="capacity-info">
+                        <div class="capacity-day">${formattedDate}</div>
+                        <div class="capacity-time">Geschlossen</div>
+                        <div class="capacity-count"></div>
+                        <div class="capacity-interval"></div>
+                        <div class="capacity-actions">
+                            <button class="action-btn" onclick="deleteException(${exception.id})" title="Löschen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                exceptionList.appendChild(exceptionElement);
+            });
+        }
+
+        // Render overview
+        function renderOverview() {
+            const overviewGrid = document.getElementById('overviewGrid');
+            overviewGrid.innerHTML = '';
+
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+            days.forEach(day => {
+                const dayColumn = document.createElement('div');
+                dayColumn.className = 'day-column';
+                
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = dayNames[days.indexOf(day)];
+                dayColumn.appendChild(dayHeader);
+
+                // Find rules that apply to this day
+                const applicableRules = capacityRules.filter(r => r.days.includes(day));
+                
+                if (applicableRules.length > 0) {
+                    // Combine all time slots for this day
+                    const allSlots = [];
+                    applicableRules.forEach(rule => {
+                        const timeSlots = generateTimeSlots(rule);
+                        allSlots.push(...timeSlots);
+                    });
+                    
+                    // Sort and deduplicate slots
+                    const uniqueSlots = allSlots.reduce((acc, slot) => {
+                        const existing = acc.find(s => s.time === slot.time);
+                        if (existing) {
+                            existing.booked += slot.booked;
+                            existing.capacity = Math.max(existing.capacity || 0, slot.capacity || 0);
+                        } else {
+                            acc.push({
+                                time: slot.time,
+                                booked: slot.booked || 0,
+                                capacity: slot.capacity || 0,
+                                available: (slot.booked || 0) < (slot.capacity || 0)
+                            });
+                        }
+                        return acc;
+                    }, []);
+                    
+                    uniqueSlots.sort((a, b) => a.time.localeCompare(b.time));
+                    
+                    uniqueSlots.forEach(slot => {
+                        const slotElement = document.createElement('div');
+                        slotElement.className = `time-slot ${slot.available ? 'available' : 'full'}`;
+                        slotElement.textContent = `${slot.time} (${slot.booked}/${slot.capacity})`;
+                        dayColumn.appendChild(slotElement);
+                    });
+                } else {
+                    const noRuleElement = document.createElement('div');
+                    noRuleElement.className = 'time-slot';
+                    noRuleElement.textContent = 'Keine Regel';
+                    dayColumn.appendChild(noRuleElement);
+                }
+                
+                overviewGrid.appendChild(dayColumn);
+            });
+        }
+
+        // Generate time slots for a rule
+        function generateTimeSlots(rule) {
+            const slots = [];
+            const startTime = rule.startTime.split(':');
+            const endTime = rule.endTime.split(':');
+            
+            let currentMinutes = parseInt(startTime[0]) * 60 + parseInt(startTime[1]);
+            const endMinutes = parseInt(endTime[0]) * 60 + parseInt(endTime[1]);
+            
+            while (currentMinutes < endMinutes) {
+                const hours = Math.floor(currentMinutes / 60);
+                const minutes = currentMinutes % 60;
+                const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                
+                // Simulate booking data (in real app, this would come from reservations)
+                const booked = Math.floor(Math.random() * rule.capacity * 0.8);
+                
+                slots.push({
+                    time: timeString,
+                    booked: booked,
+                    capacity: rule.capacity,
+                    available: booked < rule.capacity
+                });
+                
+                currentMinutes += rule.interval;
+            }
+            
+            return slots;
+        }
+
+        // Open add capacity modal
+        function openAddCapacityModal() {
+            // Reset editing state
+            window.editingRuleId = null;
+            
+            document.getElementById('addCapacityModal').style.display = 'block';
+            
+            // Reset all checkboxes
+            const checkboxes = document.querySelectorAll('.day-checkbox input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            
+            document.getElementById('capacityStartTime').value = '17:30';
+            document.getElementById('capacityEndTime').value = '22:00';
+            document.getElementById('capacityCount').value = '120';
+            document.getElementById('capacityInterval').value = '30';
+            
+            // Reset modal title and button text
+            document.querySelector('#addCapacityModal .modal-header h3').textContent = 'Kapazitäts-Regel hinzufügen';
+            document.querySelector('#addCapacityModal .btn-primary').textContent = 'Hinzufügen';
+        }
+
+        // Add or edit capacity rule
+        function addCapacityRule() {
+            // Get selected days
+            const selectedDays = [];
+            const checkboxes = document.querySelectorAll('.day-checkbox input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => selectedDays.push(checkbox.value));
+            
+            const startTime = document.getElementById('capacityStartTime').value;
+            const endTime = document.getElementById('capacityEndTime').value;
+            const capacity = parseInt(document.getElementById('capacityCount').value);
+            const interval = parseInt(document.getElementById('capacityInterval').value);
+
+            if (selectedDays.length === 0) {
+                alert('Bitte wählen Sie mindestens einen Wochentag aus.');
+                return;
+            }
+
+            if (!startTime || !endTime || !capacity || !interval) {
+                alert('Bitte füllen Sie alle Felder aus.');
+                return;
+            }
+
+            if (startTime >= endTime) {
+                alert('Endzeit muss nach der Startzeit liegen.');
+                return;
+            }
+
+            // Check if we're editing an existing rule
+            if (window.editingRuleId) {
+                // Find and update existing rule
+                const existingRule = capacityRules.find(r => r.id === window.editingRuleId);
+                if (existingRule) {
+                    existingRule.days = selectedDays;
+                    existingRule.startTime = startTime;
+                    existingRule.endTime = endTime;
+                    existingRule.capacity = capacity;
+                    existingRule.interval = interval;
+                }
+                window.editingRuleId = null;
+            } else {
+                // Check for overlapping rules
+                const overlappingRules = capacityRules.filter(rule => 
+                    rule.days.some(day => selectedDays.includes(day)) &&
+                    rule.startTime === startTime &&
+                    rule.endTime === endTime
+                );
+                
+                if (overlappingRules.length > 0) {
+                    if (!confirm('Es existieren bereits Regeln für diese Wochentage und Zeiten. Möchten Sie sie ersetzen?')) {
+                        return;
+                    }
+                    // Remove overlapping rules
+                    capacityRules = capacityRules.filter(rule => 
+                        !(rule.days.some(day => selectedDays.includes(day)) &&
+                          rule.startTime === startTime &&
+                          rule.endTime === endTime)
+                    );
+                }
+
+                const newRule = {
+                    id: nextCapacityId++,
+                    days: selectedDays,
+                    startTime: startTime,
+                    endTime: endTime,
+                    capacity: capacity,
+                    interval: interval
+                };
+
+                capacityRules.push(newRule);
+            }
+
+            saveCapacityData();
+            renderCapacityRules();
+            renderOverview();
+            closeModal('addCapacityModal');
+        }
+
+        // Edit capacity rule
+        function editCapacityRule(ruleId) {
+            const rule = capacityRules.find(r => r.id === ruleId);
+            if (!rule) return;
+
+            // Store the rule ID for editing
+            window.editingRuleId = ruleId;
+            
+            // Open modal with existing data
+            document.getElementById('addCapacityModal').style.display = 'block';
+            
+            // Reset all checkboxes first
+            const checkboxes = document.querySelectorAll('.day-checkbox input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            
+            // Check the days for this rule
+            rule.days.forEach(day => {
+                const checkbox = document.getElementById(`day-${day}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            document.getElementById('capacityStartTime').value = rule.startTime;
+            document.getElementById('capacityEndTime').value = rule.endTime;
+            document.getElementById('capacityCount').value = rule.capacity;
+            document.getElementById('capacityInterval').value = rule.interval;
+            
+            // Change modal title
+            document.querySelector('#addCapacityModal .modal-header h3').textContent = 'Kapazitäts-Regel bearbeiten';
+            
+            // Change button text
+            document.querySelector('#addCapacityModal .btn-primary').textContent = 'Speichern';
+        }
+
+        // Delete capacity rule
+        function deleteCapacityRule(ruleId) {
+            if (!confirm('Möchten Sie diese Kapazitäts-Regel wirklich löschen?')) {
+                return;
+            }
+
+            capacityRules = capacityRules.filter(r => r.id !== ruleId);
+            saveCapacityData();
+            renderCapacityRules();
+            renderOverview();
+        }
+
+        // Open add exception modal
+        function openAddExceptionModal() {
+            document.getElementById('addExceptionModal').style.display = 'block';
+            document.getElementById('exceptionDate').value = '';
+        }
+
+        // Add exception
+        function addException() {
+            const date = document.getElementById('exceptionDate').value;
+
+            if (!date) {
+                alert('Bitte wählen Sie ein Datum aus.');
+                return;
+            }
+
+            // Check if exception already exists for this date
+            const existingException = exceptions.find(e => e.date === date);
+            if (existingException) {
+                alert('Für dieses Datum existiert bereits eine Ausnahme.');
+                return;
+            }
+
+            const newException = {
+                id: nextExceptionId++,
+                date: date
+            };
+
+            exceptions.push(newException);
+            saveExceptionData();
+            renderExceptions();
+            closeModal('addExceptionModal');
+        }
+
+        // Delete exception
+        function deleteException(exceptionId) {
+            if (!confirm('Möchten Sie diese Ausnahme wirklich löschen?')) {
+                return;
+            }
+
+            exceptions = exceptions.filter(e => e.id !== exceptionId);
+            saveExceptionData();
+            renderExceptions();
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

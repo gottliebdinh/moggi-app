@@ -91,3 +91,4 @@ Bei Fragen zur Stripe Integration: https://stripe.com/docs/payments/accept-a-pay
 Bei Fragen zu Apple Pay: https://developer.apple.com/apple-pay/
 
 
+

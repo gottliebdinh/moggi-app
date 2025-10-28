@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moggi Admin - Tischplan Einstellungen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #242424;
+            color: #E5E5E5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1A1A1A 0%, #242424 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            font-family: Georgia, serif;
+        }
+
+        .header .divider {
+            width: 60px;
+            height: 3px;
+            background: #FF6B00;
+            margin-bottom: 16px;
+            border-radius: 2px;
+        }
+
+        .header p {
+            color: #E5E5E5;
+            font-size: 16px;
+        }
+
+        /* Navigation */
+        .nav {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #333333;
+            color: #E5E5E5;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background: #FF6B00;
+        }
+
+        .nav-btn.active {
+            background: #FF6B00;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        /* Rooms Section */
+        .rooms-section {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #E5E5E5;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .add-btn:hover {
+            background: #45a049;
+        }
+
+        /* Room List */
+        .room-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .room-item {
+            background: #333333;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .room-item:hover {
+            background: #444444;
+        }
+
+        .room-item.selected {
+            background: #FF6B00;
+        }
+
+        .room-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .room-info p {
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #E5E5E5;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tables Section */
+        .tables-section {
+            background: #1A1A1A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333333;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .table-item {
+            background: #333333;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .table-item:hover {
+            background: #444444;
+        }
+
+        .table-item.selected {
+            background: #FF6B00;
+        }
+
+        .table-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .table-capacity {
+            font-size: 12px;
+            color: #999999;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #E5E5E5;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: #242424;
+            color: #E5E5E5;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #FF6B00;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #CC5500;
+        }
+
+        .btn-secondary {
+            background: #333333;
+            color: #E5E5E5;
+        }
+
+        .btn-secondary:hover {
+            background: #444444;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #1A1A1A;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333333;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #E5E5E5;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #E5E5E5;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #FF6B00;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .table-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Moggi Admin - Tischplan Einstellungen</h1>
+            <div class="divider"></div>
+            <p>Räume und Tische verwalten</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-buttons">
+                <a href="orders-dashboard.html" class="nav-btn">🍽️ Bestellungen</a>
+                <a href="admin-dashboard.html" class="nav-btn">📊 Reservierungen</a>
+                <a href="#" class="nav-btn active">🪑 Tischplan</a>
+                <a href="capacity-settings.html" class="nav-btn">⚙️ Kapazität</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Rooms Section -->
+            <div class="rooms-section">
+                <div class="section-header">
+                    <h2 class="section-title">Räume</h2>
+                    <button class="add-btn" onclick="openAddRoomModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Raum hinzufügen
+                    </button>
+                </div>
+                <div class="room-list" id="roomList">
+                    <!-- Rooms will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Tables Section -->
+            <div class="tables-section">
+                <div class="section-header">
+                    <h2 class="section-title">Tische</h2>
+                    <button class="add-btn" onclick="openAddTableModal()" id="addTableBtn" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Tisch hinzufügen
+                    </button>
+                </div>
+                <div class="table-grid" id="tableGrid">
+                    <!-- Tables will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Room Modal -->
+    <div id="addRoomModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Raum hinzufügen</h3>
+                <span class="close" onclick="closeModal('addRoomModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="roomName">Raumname</label>
+                <input type="text" id="roomName" placeholder="z.B. Hauptraum, Terrasse, VIP-Bereich">
+            </div>
+            <div class="form-group">
+                <label for="roomDescription">Beschreibung (optional)</label>
+                <input type="text" id="roomDescription" placeholder="Kurze Beschreibung des Raums">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('addRoomModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="addRoom()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Table Modal -->
+    <div id="addTableModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tisch hinzufügen</h3>
+                <span class="close" onclick="closeModal('addTableModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="tableName">Tischname</label>
+                <input type="text" id="tableName" placeholder="z.B. Tisch 1, Fensterplatz A">
+            </div>
+            <div class="form-group">
+                <label for="tableCapacity">Kapazität (Personen)</label>
+                <input type="number" id="tableCapacity" placeholder="2" min="1" max="20">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('addTableModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="addTable()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Clear old data and load new Moggi tables
+        localStorage.removeItem('moggiRooms');
+        localStorage.removeItem('moggiNextRoomId');
+        localStorage.removeItem('moggiNextTableId');
+        
+        // Load data from localStorage or use default
+        let rooms = JSON.parse(localStorage.getItem('moggiRooms')) || [
+            {
+                id: 1,
+                name: 'Galerie',
+                description: 'Oberer Bereich des Restaurants',
+                tables: [
+                    // Galerie - 2 Plätze
+                    { id: 61, name: '61 Galerie oben', capacity: 2 },
+                    { id: 51, name: '51 Galerie oben', capacity: 2 },
+                    { id: 58, name: '58 Galerie oben', capacity: 2 },
+                    { id: 60, name: '60 Galerie oben', capacity: 2 },
+                    
+                    // Galerie - 3 Plätze
+                    { id: 50, name: '50 Galerie oben', capacity: 3 },
+                    { id: 62, name: '62 Galerie oben', capacity: 3 },
+                    
+                    // Galerie - 4 Plätze
+                    { id: 57, name: '57 Galerie oben', capacity: 4 },
+                    { id: 53, name: '53 Galerie oben', capacity: 4 },
+                    { id: 54, name: '54 Galerie oben', capacity: 4 },
+                    { id: 55, name: '55 Galerie oben', capacity: 4 },
+                    { id: 56, name: '56 Galerie oben', capacity: 4 },
+                    { id: 59, name: '59 Galerie oben', capacity: 4 }
+                ]
+            },
+            {
+                id: 2,
+                name: 'Unten',
+                description: 'Unterer Bereich des Restaurants',
+                tables: [
+                    // Unten - 2 Plätze
+                    { id: 1, name: '1 Tisch', capacity: 2 },
+                    { id: 7, name: '7 Tisch', capacity: 2 },
+                    { id: 26, name: '26 Tisch', capacity: 2 },
+                    { id: 27, name: '27 Tisch', capacity: 2 },
+                    { id: 23, name: '23 Tisch', capacity: 2 },
+                    { id: 22, name: '22 Tisch', capacity: 2 },
+                    { id: 25, name: '25 Tisch', capacity: 2 },
+                    { id: 18, name: '18 Tisch', capacity: 2 },
+                    { id: 19, name: '19 Tisch', capacity: 2 },
+                    { id: 28, name: '28 Tisch', capacity: 2 },
+                    { id: 24, name: '24 Tisch', capacity: 2 },
+                    
+                    // Unten - 3 Plätze
+                    { id: 30, name: '30 Tisch', capacity: 3 },
+                    { id: 31, name: '31 Tisch', capacity: 3 },
+                    
+                    // Unten - 4 Plätze
+                    { id: 17, name: '17 Tisch', capacity: 4 },
+                    { id: 2, name: '2 Tisch', capacity: 4 },
+                    { id: 3, name: '3 Tisch', capacity: 4 },
+                    { id: 4, name: '4 Tisch', capacity: 4 },
+                    { id: 5, name: '5 Tisch', capacity: 4 },
+                    { id: 6, name: '6 Tisch', capacity: 4 },
+                    
+                    // Unten - 6 Plätze
+                    { id: 20, name: '20 Tisch', capacity: 6 },
+                    { id: 21, name: '21 Tisch', capacity: 6 }
+                ]
+            }
+        ];
+
+        let selectedRoomId = null;
+        let nextRoomId = parseInt(localStorage.getItem('moggiNextRoomId')) || 3;
+        let nextTableId = parseInt(localStorage.getItem('moggiNextTableId')) || 63;
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('moggiRooms', JSON.stringify(rooms));
+            localStorage.setItem('moggiNextRoomId', nextRoomId.toString());
+            localStorage.setItem('moggiNextTableId', nextTableId.toString());
+        }
+
+        // Initialize the page
+        function init() {
+            renderRooms();
+        }
+
+        // Render rooms
+        function renderRooms() {
+            const roomList = document.getElementById('roomList');
+            roomList.innerHTML = '';
+
+            rooms.forEach(room => {
+                const roomElement = document.createElement('div');
+                roomElement.className = `room-item ${selectedRoomId === room.id ? 'selected' : ''}`;
+                roomElement.onclick = () => selectRoom(room.id);
+                
+                roomElement.innerHTML = `
+                    <div class="room-info">
+                        <h3>${room.name}</h3>
+                        <p>${room.tables.length} Tische • ${room.description}</p>
+                    </div>
+                    <div class="room-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); editRoom(${room.id})" title="Bearbeiten">
+                            ✏️
+                        </button>
+                        <button class="action-btn" onclick="event.stopPropagation(); deleteRoom(${room.id})" title="Löschen">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                
+                roomList.appendChild(roomElement);
+            });
+
+            // Update tables if a room is selected
+            if (selectedRoomId) {
+                renderTables();
+            }
+        }
+
+        // Select room
+        function selectRoom(roomId) {
+            selectedRoomId = roomId;
+            renderRooms();
+            renderTables();
+            
+            // Enable add table button
+            document.getElementById('addTableBtn').disabled = false;
+        }
+
+        // Render tables
+        function renderTables() {
+            const tableGrid = document.getElementById('tableGrid');
+            tableGrid.innerHTML = '';
+
+            if (!selectedRoomId) {
+                tableGrid.innerHTML = '<p style="text-align: center; color: #999;">Wählen Sie einen Raum aus</p>';
+                return;
+            }
+
+            const room = rooms.find(r => r.id === selectedRoomId);
+            if (!room) return;
+
+            room.tables.forEach(table => {
+                const tableElement = document.createElement('div');
+                tableElement.className = 'table-item';
+                tableElement.onclick = () => editTable(table.id);
+                
+                tableElement.innerHTML = `
+                    <div class="table-name">${table.name}</div>
+                    <div class="table-capacity">für ${table.capacity} Personen</div>
+                `;
+                
+                tableGrid.appendChild(tableElement);
+            });
+        }
+
+        // Open add room modal
+        function openAddRoomModal() {
+            document.getElementById('addRoomModal').style.display = 'block';
+            document.getElementById('roomName').value = '';
+            document.getElementById('roomDescription').value = '';
+        }
+
+        // Open add table modal
+        function openAddTableModal() {
+            if (!selectedRoomId) return;
+            document.getElementById('addTableModal').style.display = 'block';
+            document.getElementById('tableName').value = '';
+            document.getElementById('tableCapacity').value = '2';
+        }
+
+        // Add room
+        function addRoom() {
+            const name = document.getElementById('roomName').value.trim();
+            const description = document.getElementById('roomDescription').value.trim();
+
+            if (!name) {
+                alert('Bitte geben Sie einen Raumnamen ein.');
+                return;
+            }
+
+            const newRoom = {
+                id: nextRoomId++,
+                name: name,
+                description: description || 'Keine Beschreibung',
+                tables: []
+            };
+
+            rooms.push(newRoom);
+            saveData();
+            renderRooms();
+            closeModal('addRoomModal');
+        }
+
+        // Add table
+        function addTable() {
+            if (!selectedRoomId) return;
+
+            const name = document.getElementById('tableName').value.trim();
+            const capacity = parseInt(document.getElementById('tableCapacity').value);
+
+            if (!name || !capacity) {
+                alert('Bitte geben Sie einen Tischnamen und eine Kapazität ein.');
+                return;
+            }
+
+            const room = rooms.find(r => r.id === selectedRoomId);
+            if (!room) return;
+
+            const newTable = {
+                id: nextTableId++,
+                name: name,
+                capacity: capacity
+            };
+
+            room.tables.push(newTable);
+            saveData();
+            renderTables();
+            renderRooms(); // Update room count
+            closeModal('addTableModal');
+        }
+
+        // Edit room
+        function editRoom(roomId) {
+            const room = rooms.find(r => r.id === roomId);
+            if (!room) return;
+
+            const newName = prompt('Neuer Raumname:', room.name);
+            if (newName && newName.trim()) {
+                room.name = newName.trim();
+                saveData();
+                renderRooms();
+            }
+        }
+
+        // Edit table
+        function editTable(tableId) {
+            const room = rooms.find(r => r.id === selectedRoomId);
+            if (!room) return;
+
+            const table = room.tables.find(t => t.id === tableId);
+            if (!table) return;
+
+            const newName = prompt('Neuer Tischname:', table.name);
+            if (newName && newName.trim()) {
+                table.name = newName.trim();
+                saveData();
+                renderTables();
+            }
+        }
+
+        // Delete room
+        function deleteRoom(roomId) {
+            if (!confirm('Möchten Sie diesen Raum wirklich löschen? Alle Tische werden ebenfalls gelöscht.')) {
+                return;
+            }
+
+            rooms = rooms.filter(r => r.id !== roomId);
+            if (selectedRoomId === roomId) {
+                selectedRoomId = null;
+                document.getElementById('addTableBtn').disabled = true;
+            }
+            saveData();
+            renderRooms();
+            renderTables();
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

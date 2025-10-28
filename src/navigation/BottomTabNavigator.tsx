@@ -27,6 +27,7 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
+import ReservationScreen from '../screens/ReservationScreen';
 
 // Theme
 import colors from '../theme/colors';
@@ -38,12 +39,13 @@ const CartStack = createNativeStackNavigator();
 const AccountStack = createNativeStackNavigator();
 const MoreStack = createNativeStackNavigator();
 
-// Home Stack Navigator (mit Contact Screen)
+// Home Stack Navigator (mit Contact und Reservation Screen)
 function HomeStackNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="Contact" component={ContactScreen} />
+      <HomeStack.Screen name="Reservation" component={ReservationScreen} />
     </HomeStack.Navigator>
   );
 }

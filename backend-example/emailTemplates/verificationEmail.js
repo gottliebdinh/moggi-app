@@ -80,3 +80,4 @@ const getVerificationEmail = (verificationData) => {
 
 module.exports = { getVerificationEmail };
 
+
