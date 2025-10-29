@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
@@ -7,51 +7,88 @@ import colors from '../theme/colors';
 export default function MoreScreen() {
   const navigation = useNavigation();
 
-  const handleContactPress = () => {
-    navigation.navigate('Contact' as never);
+  const menuItems = [
+    { id: '1', title: 'Kontakt', icon: 'call-outline', subtitle: 'Telefon, E-Mail & Adresse' },
+    { id: '2', title: 'Datenschutz', icon: 'shield-checkmark-outline', subtitle: 'Datenschutzerklärung' },
+    { id: '3', title: 'Impressum', icon: 'business-outline', subtitle: 'Rechtliche Informationen' },
+  ];
+
+  const handleMenuPress = (item: any) => {
+    switch (item.id) {
+      case '1': // Kontakt
+        navigation.navigate('Contact' as never);
+        break;
+      case '2': // Datenschutz
+        navigation.navigate('Privacy' as never);
+        break;
+      case '3': // Impressum
+        navigation.navigate('Imprint' as never);
+        break;
+      default:
+        Alert.alert('Info', 'Diese Funktion wird bald verfügbar sein');
+    }
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mehr</Text>
         <Text style={styles.headerSubtitle}>Weitere Optionen</Text>
       </View>
-      
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.menuItem} onPress={handleContactPress}>
-          <Ionicons name="call-outline" size={24} color={colors.primary} />
-          <Text style={styles.menuText}>Kontakt</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
-        </TouchableOpacity>
 
-        <View style={styles.menuItem}>
-          <Ionicons name="information-circle-outline" size={24} color={colors.primary} />
-          <Text style={styles.menuText}>Über die App</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
+          {/* App Info Card */}
+          <View style={styles.appInfoCard}>
+            <View style={styles.appIcon}>
+              <Ionicons name="restaurant" size={40} color={colors.white} />
+            </View>
+            <View style={styles.appInfo}>
+              <Text style={styles.appName}>MOGGI App</Text>
+              <Text style={styles.appSubtitle}>Restaurant-App</Text>
+              <Text style={styles.appVersion}>Version 1.0.0</Text>
+            </View>
+          </View>
+
+          {/* Menu Items */}
+          <View style={styles.menuSection}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.menuItem,
+                  index === menuItems.length - 1 && styles.lastMenuItem
+                ]}
+                activeOpacity={0.7}
+                onPress={() => handleMenuPress(item)}
+              >
+                <View style={styles.iconContainer}>
+                  <Ionicons 
+                    name={item.icon as any} 
+                    size={24} 
+                    color={colors.primary} 
+                  />
+                </View>
+                <View style={styles.menuItemContent}>
+                  <Text style={styles.menuItemTitle}>{item.title}</Text>
+                  <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+                </View>
+                <Ionicons 
+                  name="chevron-forward" 
+                  size={20} 
+                  color={colors.mediumGray} 
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+
         </View>
-        
-        <View style={styles.menuItem}>
-          <Ionicons name="help-circle-outline" size={24} color={colors.primary} />
-          <Text style={styles.menuText}>Hilfe & Support</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
-        </View>
-        
-        <View style={styles.menuItem}>
-          <Ionicons name="shield-checkmark-outline" size={24} color={colors.primary} />
-          <Text style={styles.menuText}>Datenschutz</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.mediumGray} />
-        </View>
-        
-        <View style={styles.versionCard}>
-          <Ionicons name="phone-portrait-outline" size={24} color={colors.white} />
-          <Text style={styles.versionText}>Version 1.0.0</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -59,9 +96,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.darkGray,
-  },
-  scrollContent: {
-    paddingBottom: 100,
   },
   header: {
     backgroundColor: colors.black,
@@ -82,43 +116,91 @@ const styles = StyleSheet.create({
     marginTop: 5,
     textAlign: 'center',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
   content: {
     padding: 16,
+  },
+  appInfoCard: {
+    backgroundColor: colors.black,
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+  },
+  appIcon: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  appInfo: {
+    flex: 1,
+  },
+  appName: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.white,
+    marginBottom: 4,
+    fontFamily: 'Georgia',
+  },
+  appSubtitle: {
+    fontSize: 14,
+    color: colors.lightGray,
+    marginBottom: 4,
+  },
+  appVersion: {
+    fontSize: 12,
+    color: colors.mediumGray,
+  },
+  menuSection: {
+    backgroundColor: colors.black,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.darkGray,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.white,
-    padding: 18,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.darkGray,
   },
-  menuText: {
-    fontSize: 16,
-    color: colors.textPrimary,
-    fontWeight: '500',
-    flex: 1,
-    marginLeft: 15,
+  lastMenuItem: {
+    borderBottomWidth: 0,
   },
-  versionCard: {
-    flexDirection: 'row',
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary + '20',
     alignItems: 'center',
-    backgroundColor: colors.primary,
-    padding: 18,
-    borderRadius: 12,
-    marginTop: 20,
     justifyContent: 'center',
+    marginRight: 16,
   },
-  versionText: {
+  menuItemContent: {
+    flex: 1,
+  },
+  menuItemTitle: {
     fontSize: 16,
-    color: colors.white,
     fontWeight: '600',
-    marginLeft: 10,
+    color: colors.white,
+    marginBottom: 4,
+  },
+  menuItemSubtitle: {
+    fontSize: 14,
+    color: colors.lightGray,
   },
 });
 

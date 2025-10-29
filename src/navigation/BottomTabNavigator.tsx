@@ -29,6 +29,9 @@ import VerifyEmailScreen from '../screens/VerifyEmailScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import ReservationScreen from '../screens/ReservationScreen';
 import ReservationSuccessScreen from '../screens/ReservationSuccessScreen';
+import ProfileEditScreen from '../screens/ProfileEditScreen';
+import PrivacyScreen from '../screens/PrivacyScreen';
+import ImprintScreen from '../screens/ImprintScreen';
 
 // Theme
 import colors from '../theme/colors';
@@ -108,16 +111,19 @@ function AccountStackNavigator() {
       <AccountStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <AccountStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <AccountStack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+      <AccountStack.Screen name="ProfileEdit" component={ProfileEditScreen} />
     </AccountStack.Navigator>
   );
 }
 
-// More Stack Navigator (mit Contact Screen)
+// More Stack Navigator (mit Contact, Privacy und Imprint Screen)
 function MoreStackNavigator() {
   return (
     <MoreStack.Navigator screenOptions={{ headerShown: false }}>
       <MoreStack.Screen name="MoreMain" component={MoreScreen} />
       <MoreStack.Screen name="Contact" component={ContactScreen} />
+      <MoreStack.Screen name="Privacy" component={PrivacyScreen} />
+      <MoreStack.Screen name="Imprint" component={ImprintScreen} />
     </MoreStack.Navigator>
   );
 }
