@@ -107,12 +107,12 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
       <Animated.View style={{
         position: 'absolute',
         backgroundColor: '#000000',
-        width: width * 2,
+        width: width,
         height: height,
         left: -width,
         opacity: wipeAnimation.interpolate({
-          inputRange: [0, 0.01, 0.99, 1, 1.01, 1.99, 2],
-          outputRange: [0, 1, 1, 0, 0, 1, 1], // Logo sichtbar, dann Wisch-Effekte
+          inputRange: [0, 0.0001, 0.9999, 1, 1.0001, 1.9999, 2],
+          outputRange: [1, 1, 1, 0, 1, 1, 1], // Wischer ist während beider Phasen sichtbar
         }),
         transform: [{
           translateX: wipeAnimation.interpolate({
