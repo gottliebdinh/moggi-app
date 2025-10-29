@@ -31,7 +31,7 @@ const getEmailBase = (content) => {
             <td style="background-color: #0A0A0A; padding: 30px; text-align: center; border-top: 1px solid #2A2A2A;">
               <p style="margin: 0 0 12px 0; color: #FFFFFF; font-size: 16px; font-weight: 600;">MOGGI Asian Kitchen & Bar</p>
               <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Katharinengasse 14, 90403 Nürnberg</p>
-              <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">📞 0911 / 123456</p>
+              <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">📞 0911 63290791</p>
               <p style="margin: 0; color: #999999; font-size: 14px;">📧 info@moggi-nuernberg.de</p>
               
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #2A2A2A;">

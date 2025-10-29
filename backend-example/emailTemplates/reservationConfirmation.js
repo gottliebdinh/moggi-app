@@ -97,7 +97,7 @@ const getReservationConfirmationEmail = (reservationData) => {
                     <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Adresse</p>
                     <p style="margin: 0 0 16px 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">Katharinengasse 14<br/>90403 Nürnberg</p>
                     <p style="margin: 0 0 8px 0; color: #999999; font-size: 14px;">Telefon</p>
-                    <p style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">0911 / 123456</p>
+                    <p style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 500;">0911 63290791</p>
                   </td>
                 </tr>
               </table>

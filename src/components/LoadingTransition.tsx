@@ -9,52 +9,42 @@ interface LoadingTransitionProps {
 }
 
 export default function LoadingTransition({ onFinish }: LoadingTransitionProps) {
+  // Opacities
   const logoOpacity = useRef(new Animated.Value(1)).current;
-  const locationOpacity = useRef(new Animated.Value(0)).current;
-  const locationScale = useRef(new Animated.Value(0.9)).current;
-  const wipeAnimation = useRef(new Animated.Value(0)).current;
+  const locationOpacity = useRef(new Animated.Value(1)).current; // sichtbar, wird durch Reveal-Wipe verdeckt
+
+  // Wipe positions
+  // Reveal overlay: starts covering the screen (x=0), moves to x=width to reveal content
+  const revealX = useRef(new Animated.Value(0)).current;
+  // Cover overlay: starts off-screen left (x=-width), moves to x=0 to cover screen
+  const coverX = useRef(new Animated.Value(-width)).current;
 
   useEffect(() => {
     // Splash Screen verstecken
     SplashScreen.hideAsync();
 
     const sequence = Animated.sequence([
-      // Logo kurz anzeigen (1 Sekunde)
-      Animated.delay(1000),
-      
-      // Übergang: Logo ausblenden
+      // Schwarzer Screen mit Logo länger anzeigen (1.8s)
+      Animated.delay(1800),
+
+      // Logo sanft ausblenden, danach erster Wisch startet (cleaner Übergang)
       Animated.timing(logoOpacity, {
         toValue: 0,
         duration: 400,
         useNativeDriver: true,
       }),
-      
-      // Erster Wisch: Von links nach rechts, Location erscheint
-      Animated.parallel([
-        Animated.timing(wipeAnimation, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.timing(locationOpacity, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }),
-        Animated.spring(locationScale, {
-          toValue: 1,
-          tension: 50,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]),
-      
-      // Location anzeigen (1 Sekunde)
+      Animated.timing(revealX, {
+        toValue: width,
+        duration: 650,
+        useNativeDriver: true,
+      }),
+
+      // Location kurz stehen lassen (~1 Sekunde)
       Animated.delay(1000),
-      
-      // Zweiter Wisch: Von links nach rechts, wischt alles weg und bleibt schwarz
-      Animated.timing(wipeAnimation, {
-        toValue: 2,
+
+      // Zweiter Wisch: von links rein, bleibt schwarz
+      Animated.timing(coverX, {
+        toValue: 0,
         duration: 600,
         useNativeDriver: true,
       }),
@@ -72,26 +62,21 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
       justifyContent: 'center',
       alignItems: 'center',
     }}>
-      {/* MOGGI Logo */}
-      <Animated.View style={{
-        position: 'absolute',
-        opacity: logoOpacity,
-      }}>
+      {/* Logo zentriert, blendet aus */}
+      <Animated.View style={{ position: 'absolute', opacity: logoOpacity, zIndex: 5 }}>
         <Image
           source={require('../../assets/logo.png')}
-          style={{
-            width: 180,
-            height: 180,
-            resizeMode: 'contain',
-          }}
+          style={{ width: 180, height: 180, resizeMode: 'contain' }}
         />
       </Animated.View>
 
-      {/* Restaurant Location Teaser */}
+      {/* Restaurant Location - wird durch Wisch freigegeben */}
       <Animated.View style={{
         position: 'absolute',
+        width: width,
+        height: height,
         opacity: locationOpacity,
-        transform: [{ scale: locationScale }],
+        zIndex: 0,
       }}>
         <Image
           source={require('../../assets/moggiLocation.png')}
@@ -103,23 +88,24 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
         />
       </Animated.View>
 
-      {/* Wisch-Animation: Eine Animation für beide Effekte */}
+      {/* Erster Wisch: von links nach rechts, Location erscheint */}
       <Animated.View style={{
         position: 'absolute',
         backgroundColor: '#000000',
         width: width,
         height: height,
-        left: -width,
-        opacity: wipeAnimation.interpolate({
-          inputRange: [0, 0.0001, 0.9999, 1, 1.0001, 1.9999, 2],
-          outputRange: [1, 1, 1, 0, 1, 1, 1], // Wischer ist während beider Phasen sichtbar
-        }),
-        transform: [{
-          translateX: wipeAnimation.interpolate({
-            inputRange: [0, 1, 2],
-            outputRange: [0, width * 2, 0], // Beide Male von links nach rechts
-          })
-        }],
+        transform: [{ translateX: revealX }],
+        zIndex: 2,
+      }} />
+
+      {/* Zweiter Wisch: von links nach rechts, wischt alles weg (endet schwarz) */}
+      <Animated.View style={{
+        position: 'absolute',
+        backgroundColor: '#000000',
+        width: width,
+        height: height,
+        transform: [{ translateX: coverX }],
+        zIndex: 4,
       }} />
     </View>
   );
