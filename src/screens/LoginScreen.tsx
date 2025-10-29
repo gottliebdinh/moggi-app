@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
   const { signIn } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +20,7 @@ export default function LoginScreen() {
     setErrorMessage(''); // Reset error
     
     if (!email || !password) {
-      setErrorMessage('Bitte fülle alle Felder aus');
+      setErrorMessage(t('login.fillAllFields'));
       return;
     }
 
@@ -29,11 +31,11 @@ export default function LoginScreen() {
     if (error) {
       // Spezifische Fehlermeldungen
       if (error.message.includes('Invalid login credentials')) {
-        setErrorMessage('E-Mail oder Passwort ist falsch');
+        setErrorMessage(t('login.invalidCredentials'));
       } else if (error.message.includes('Email not confirmed')) {
-        setErrorMessage('Bitte bestätige deine E-Mail-Adresse');
+        setErrorMessage(t('login.emailNotConfirmed'));
       } else {
-        setErrorMessage(error.message || 'Ein Fehler ist aufgetreten');
+        setErrorMessage(error.message || t('login.error'));
       }
       return;
     }
@@ -54,7 +56,7 @@ export default function LoginScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Login</Text>
+        <Text style={styles.headerTitle}>{t('login.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -78,13 +80,13 @@ export default function LoginScreen() {
 
             {/* Login Form */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Anmeldung</Text>
+              <Text style={styles.sectionTitle}>{t('login.sectionTitle')}</Text>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>E-Mail / Benutzername</Text>
+                <Text style={styles.inputLabel}>{t('login.emailLabel')}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="max@example.com"
+                  placeholder={t('login.emailPlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   value={email}
                   onChangeText={setEmail}
@@ -95,11 +97,11 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Passwort</Text>
+                <Text style={styles.inputLabel}>{t('login.passwordLabel')}</Text>
                 <View style={styles.passwordContainer}>
                   <TextInput
                     style={styles.passwordInput}
-                    placeholder="••••••••"
+                    placeholder={t('login.passwordPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={password}
                     onChangeText={setPassword}
@@ -143,7 +145,7 @@ export default function LoginScreen() {
                 ) : (
                   <>
                     <Ionicons name="log-in" size={24} color={colors.white} />
-                    <Text style={styles.loginButtonText}>Anmelden</Text>
+                    <Text style={styles.loginButtonText}>{t('login.button')}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -157,8 +159,8 @@ export default function LoginScreen() {
             >
               <Ionicons name="person-add" size={24} color={colors.primary} />
               <View style={styles.registerContent}>
-                <Text style={styles.registerTitle}>Noch kein Account?</Text>
-                <Text style={styles.registerSubtitle}>Erstelle jetzt kostenlos einen Account</Text>
+                <Text style={styles.registerTitle}>{t('login.noAccount')}</Text>
+                <Text style={styles.registerSubtitle}>{t('login.registerNow')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.mediumGray} />
             </TouchableOpacity>
@@ -167,7 +169,7 @@ export default function LoginScreen() {
             <View style={styles.infoCard}>
               <Ionicons name="information-circle" size={24} color={colors.primary} />
               <Text style={styles.infoCardText}>
-                Mit einem Account kannst du deine Bestellhistorie einsehen und Treuepunkte sammeln.
+                {t('login.accountInfo')}
               </Text>
             </View>
           </View>

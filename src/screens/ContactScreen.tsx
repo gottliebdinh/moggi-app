@@ -3,16 +3,18 @@ import { View, Text, StyleSheet, ScrollView, Linking, TouchableOpacity, Platform
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ContactScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await Clipboard.setString(text);
-      Alert.alert('Kopiert', `${label} wurde in die Zwischenablage kopiert`);
+      Alert.alert(t('contact.copied'), t('contact.copiedMessage', { label }));
     } catch (error) {
-      Alert.alert('Fehler', 'Konnte nicht kopiert werden');
+      Alert.alert(t('contact.copyError'), t('contact.copyErrorMessage'));
     }
   };
 
@@ -31,21 +33,21 @@ export default function ContactScreen() {
   const contactItems = [
     {
       id: '1',
-      title: 'Telefon',
+      title: t('contact.phone'),
       subtitle: '0911 63290791',
       icon: 'call-outline',
       action: handlePhonePress
     },
     {
       id: '2',
-      title: 'Standort',
+      title: t('contact.location'),
       subtitle: 'Katharinengasse 14, 90403 Nürnberg',
       icon: 'location-outline',
       action: handleLocationPress
     },
     {
       id: '3',
-      title: 'E-Mail',
+      title: t('contact.email'),
       subtitle: 'info@moggi-restaurant.de',
       icon: 'mail-outline',
       action: handleEmailPress
@@ -63,7 +65,7 @@ export default function ContactScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Kontakt</Text>
+        <Text style={styles.headerTitle}>{t('contact.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -104,7 +106,7 @@ export default function ContactScreen() {
           <View style={styles.hoursCard}>
             <View style={styles.hoursHeader}>
               <Ionicons name="time-outline" size={24} color={colors.primary} />
-              <Text style={styles.hoursTitle}>Öffnungszeiten</Text>
+              <Text style={styles.hoursTitle}>{t('contact.openingHours')}</Text>
             </View>
             <View style={styles.hoursContent}>
               <View style={styles.hoursRow}>
@@ -120,7 +122,7 @@ export default function ContactScreen() {
                 <Text style={styles.hoursTime}>17:30 - 23:00 Uhr (Abendservice)</Text>
               </View>
               <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}>Donnerstag:</Text>
+                <Text style={styles.hoursDay}>Donnerstag-Samstag:</Text>
                 <Text style={styles.hoursTime}>11:30 - 14:30 Uhr (Mittagsservice)</Text>
               </View>
               <View style={styles.hoursRow}>

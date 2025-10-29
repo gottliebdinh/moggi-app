@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 type MenuItem = {
@@ -11,9 +12,10 @@ type MenuItem = {
   image?: string;
 };
 
-const menuItems: MenuItem[] = [
+// Menu items with translated headers
+const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   // Highlights
-  { id: 'h1', name: 'Highlights', isHeader: true },
+  { id: 'h1', name: t('products.highlights'), isHeader: true },
   { 
     id: '1', 
     name: 'New In',
@@ -26,7 +28,7 @@ const menuItems: MenuItem[] = [
   },
   
   // Kleine Gerichte
-  { id: 'h2', name: 'Kleine Gerichte', isHeader: true },
+  { id: 'h2', name: t('products.smallDishes'), isHeader: true },
   { 
     id: '3', 
     name: 'Tapas Fleisch',
@@ -54,7 +56,7 @@ const menuItems: MenuItem[] = [
   },
   
   // Fusion Specials
-  { id: 'h3', name: 'Fusion Specials', isHeader: true },
+  { id: 'h3', name: t('products.fusionSpecials'), isHeader: true },
   { 
     id: '8', 
     name: 'Baos',
@@ -67,7 +69,7 @@ const menuItems: MenuItem[] = [
   },
   
   // Sushi
-  { id: 'h4', name: 'Sushi', isHeader: true },
+  { id: 'h4', name: t('products.sushi'), isHeader: true },
   { 
     id: '10', 
     name: 'Sashimi',
@@ -100,7 +102,7 @@ const menuItems: MenuItem[] = [
   },
   
   // Beilagen & More
-  { id: 'h5', name: 'Beilagen & More', isHeader: true },
+  { id: 'h5', name: t('products.sides'), isHeader: true },
   { 
     id: '16', 
     name: 'Salat',
@@ -119,6 +121,8 @@ const menuItems: MenuItem[] = [
 
 export default function ProductsScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+  const menuItems = getMenuItems(t);
 
   const handleCategoryPress = (categoryName: string) => {
     navigation.navigate('CategoryDetail' as never, { categoryName } as never);
@@ -127,8 +131,8 @@ export default function ProductsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Speisekarte</Text>
-        <Text style={styles.headerSubtitle}>Entdecke unsere Köstlichkeiten</Text>
+        <Text style={styles.headerTitle}>{t('products.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('products.subtitle')}</Text>
       </View>
       
       <ScrollView 

@@ -2,15 +2,17 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function MoreScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const menuItems = [
-    { id: '1', title: 'Kontakt', icon: 'call-outline', subtitle: 'Telefon, E-Mail & Adresse' },
-    { id: '2', title: 'Datenschutz', icon: 'shield-checkmark-outline', subtitle: 'Datenschutzerklärung' },
-    { id: '3', title: 'Impressum', icon: 'business-outline', subtitle: 'Rechtliche Informationen' },
+    { id: '1', title: t('more.contact'), icon: 'call-outline', subtitle: t('more.contactSubtitle') },
+    { id: '2', title: t('more.privacy'), icon: 'shield-checkmark-outline', subtitle: t('more.privacySubtitle') },
+    { id: '3', title: t('more.imprint'), icon: 'business-outline', subtitle: t('more.imprintSubtitle') },
   ];
 
   const handleMenuPress = (item: any) => {
@@ -25,15 +27,15 @@ export default function MoreScreen() {
         navigation.navigate('Imprint' as never);
         break;
       default:
-        Alert.alert('Info', 'Diese Funktion wird bald verfügbar sein');
+        Alert.alert(t('more.info'), t('more.comingSoon'));
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Mehr</Text>
-        <Text style={styles.headerSubtitle}>Weitere Optionen</Text>
+        <Text style={styles.headerTitle}>{t('more.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('more.subtitle')}</Text>
       </View>
 
       <ScrollView
@@ -48,9 +50,9 @@ export default function MoreScreen() {
               <Ionicons name="restaurant" size={40} color={colors.white} />
             </View>
             <View style={styles.appInfo}>
-              <Text style={styles.appName}>MOGGI App</Text>
-              <Text style={styles.appSubtitle}>Restaurant-App</Text>
-              <Text style={styles.appVersion}>Version 1.0.0</Text>
+              <Text style={styles.appName}>{t('more.appName')}</Text>
+              <Text style={styles.appSubtitle}>{t('more.appSubtitle')}</Text>
+              <Text style={styles.appVersion}>{t('more.appVersion')}</Text>
             </View>
           </View>
 

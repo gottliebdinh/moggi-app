@@ -4,10 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function OrderTypeScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
+  const { t } = useLanguage();
 
   const handleGuestPress = () => {
     (navigation.navigate as any)('GuestCheckout');
@@ -29,8 +31,8 @@ export default function OrderTypeScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bestellart</Text>
-        <Text style={styles.headerSubtitle}>Wie möchtest du bestellen?</Text>
+        <Text style={styles.headerTitle}>{t('checkout.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('products.subtitle')}</Text>
       </View>
 
       <View style={styles.content}>
@@ -43,20 +45,20 @@ export default function OrderTypeScreen() {
           <View style={styles.iconCircleLarge}>
             <Ionicons name="person" size={48} color={colors.white} />
           </View>
-          <Text style={styles.loginTitle}>Login</Text>
-          <Text style={styles.loginSubtitle}>Schneller bestellen mit deinem Account</Text>
+          <Text style={styles.loginTitle}>{t('login.title')}</Text>
+          <Text style={styles.loginSubtitle}>{t('login.accountInfo')}</Text>
           <View style={styles.benefitsList}>
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-              <Text style={styles.benefitText}>Bestellhistorie einsehen</Text>
+              <Text style={styles.benefitText}>{t('account.ordersSubtitle')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-              <Text style={styles.benefitText}>Gespeicherte Daten</Text>
+              <Text style={styles.benefitText}>{t('profile.personalData')}</Text>
             </View>
             <View style={styles.benefitItem}>
               <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-              <Text style={styles.benefitText}>Treuepunkte sammeln</Text>
+              <Text style={styles.benefitText}>Loyalty points</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -70,8 +72,8 @@ export default function OrderTypeScreen() {
           <View style={styles.guestContent}>
             <Ionicons name="walk" size={32} color={colors.lightGray} />
             <View style={styles.guestTextContainer}>
-              <Text style={styles.guestTitle}>Als Gast fortfahren</Text>
-              <Text style={styles.guestSubtitle}>Schnell und unkompliziert</Text>
+              <Text style={styles.guestTitle}>{t('checkout.guestData')}</Text>
+              <Text style={styles.guestSubtitle}>{t('products.subtitle')}</Text>
             </View>
           </View>
           <Ionicons name="chevron-forward" size={24} color={colors.mediumGray} />
@@ -79,7 +81,7 @@ export default function OrderTypeScreen() {
 
         {/* Preis Info */}
         <View style={styles.priceCard}>
-          <Text style={styles.priceLabel}>Gesamtbetrag</Text>
+          <Text style={styles.priceLabel}>{t('payment.amount')}</Text>
           <Text style={styles.priceValue}>{totalPrice}</Text>
         </View>
       </View>

@@ -5,11 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function GuestCheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   
   // Debug: User Status prüfen
   console.log('GuestCheckoutScreen - User:', user ? 'Eingeloggt' : 'Gast');
@@ -110,7 +112,7 @@ export default function GuestCheckoutScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const days = language === 'de' ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -121,19 +123,19 @@ export default function GuestCheckoutScreen() {
     // Validierung nur für Gäste (persönliche Daten)
     if (!user) {
       if (!firstName || !lastName || !email) {
-        Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
+        Alert.alert(t('common.error'), t('login.fillAllFields'));
         return;
       }
       
       if (!email.includes('@')) {
-        Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
+        Alert.alert(t('common.error'), t('checkout.invalidEmail'));
         return;
       }
     }
     
     // Abholzeit-Validierung für alle
     if (!selectedDate || !selectedTime) {
-      Alert.alert('Fehler', 'Bitte wähle eine Abholzeit');
+      Alert.alert(t('common.error'), t('checkout.selectTimeFirst'));
       return;
     }
     
@@ -168,8 +170,8 @@ export default function GuestCheckoutScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{user ? 'Abholzeit' : 'Gast-Bestellung'}</Text>
-        <Text style={styles.headerSubtitle}>{user ? 'Wann möchtest du abholen?' : 'Deine Informationen'}</Text>
+        <Text style={styles.headerTitle}>{user ? t('checkout.pickupTime') : t('checkout.guestData')}</Text>
+        <Text style={styles.headerSubtitle}>{user ? t('reservation.selectTime') : t('register.subtitle')}</Text>
       </View>
 
       <ScrollView
@@ -181,10 +183,10 @@ export default function GuestCheckoutScreen() {
           {/* Kontaktdaten - nur für Gäste */}
           {!user && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Kontaktdaten</Text>
+              <Text style={styles.sectionTitle}>{t('checkout.guestData')}</Text>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Vorname</Text>
+                <Text style={styles.inputLabel}>{t('profile.firstName')}</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="Max"
@@ -195,7 +197,7 @@ export default function GuestCheckoutScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Nachname</Text>
+                <Text style={styles.inputLabel}>{t('profile.lastName')}</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="Mustermann"
@@ -206,7 +208,7 @@ export default function GuestCheckoutScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>E-Mail</Text>
+                <Text style={styles.inputLabel}>{t('register.email')}</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="max@example.com"
@@ -222,13 +224,13 @@ export default function GuestCheckoutScreen() {
 
           {/* Notizen - für alle */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notizen</Text>
+            <Text style={styles.sectionTitle}>{t('checkout.notes')}</Text>
             
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Besondere Wünsche</Text>
+              <Text style={styles.inputLabel}>{t('reservation.notes')}</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="z.B. ohne Zwiebeln, extra scharf, Allergien..."
+                placeholder={t('reservation.notes')}
                 placeholderTextColor={colors.mediumGray}
                 value={notes}
                 onChangeText={setNotes}
@@ -241,17 +243,17 @@ export default function GuestCheckoutScreen() {
 
           {/* Abholdatum */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Abholzeit</Text>
+            <Text style={styles.sectionTitle}>{t('orderSuccess.pickup')}</Text>
             
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Datum</Text>
+              <Text style={styles.inputLabel}>{t('reservation.selectDate')}</Text>
               <TouchableOpacity
                 style={styles.dropdownTrigger}
                 onPress={() => setIsDateDropdownOpen(!isDateDropdownOpen)}
                 activeOpacity={0.7}
               >
                 <Text style={selectedDate ? styles.dropdownTriggerTextSelected : styles.dropdownTriggerText}>
-                  {selectedDate ? formatDate(selectedDate) : 'Datum wählen'}
+                  {selectedDate ? formatDate(selectedDate) : t('reservation.selectDate')}
                 </Text>
                 <Ionicons
                   name={isDateDropdownOpen ? 'chevron-up' : 'chevron-down'}
@@ -293,14 +295,17 @@ export default function GuestCheckoutScreen() {
             {/* Abholzeit */}
             {selectedDate && (
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Uhrzeit</Text>
+              <Text style={styles.inputLabel}>{t('reservation.selectTime')}</Text>
                 <TouchableOpacity
                   style={styles.dropdownTrigger}
                   onPress={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
                   activeOpacity={0.7}
                 >
                   <Text style={selectedTime ? styles.dropdownTriggerTextSelected : styles.dropdownTriggerText}>
-                    {selectedTime ? `${selectedTime} Uhr` : 'Uhrzeit wählen'}
+                    {selectedTime ? (() => {
+                      const timeUnit = t('checkout.timeUnit');
+                      return `${selectedTime}${timeUnit && timeUnit !== 'checkout.timeUnit' ? ` ${timeUnit}` : ''}`;
+                    })() : t('checkout.selectTimePlaceholder')}
                   </Text>
                   <Ionicons
                     name={isTimeDropdownOpen ? 'chevron-up' : 'chevron-down'}
@@ -328,7 +333,10 @@ export default function GuestCheckoutScreen() {
                           styles.dropdownText,
                           selectedTime === time && styles.dropdownTextActive
                         ]}>
-                          {time} Uhr
+                          {(() => {
+                            const timeUnit = t('checkout.timeUnit');
+                            return `${time}${timeUnit && timeUnit !== 'checkout.timeUnit' ? ` ${timeUnit}` : ''}`;
+                          })()}
                         </Text>
                         {selectedTime === time && (
                           <Ionicons name="checkmark" size={20} color={colors.primary} />
@@ -345,7 +353,7 @@ export default function GuestCheckoutScreen() {
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={24} color={colors.primary} />
             <Text style={styles.infoCardText}>
-              Deine Bestellung wird frisch zubereitet. Bitte sei pünktlich zur Abholzeit bei uns in der Katharinengasse 14, Nürnberg.
+              {t('checkout.pickupInfo')}
             </Text>
           </View>
         </View>
@@ -353,7 +361,7 @@ export default function GuestCheckoutScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Gesamt</Text>
+          <Text style={styles.totalLabel}>{t('cart.total')}</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
         <TouchableOpacity
@@ -361,7 +369,7 @@ export default function GuestCheckoutScreen() {
           onPress={handleContinue}
           activeOpacity={0.8}
         >
-          <Text style={styles.continueButtonText}>Weiter zur Zahlung</Text>
+          <Text style={styles.continueButtonText}>{t('checkout.continuePayment')}</Text>
           <Ionicons name="arrow-forward" size={24} color={colors.white} />
         </TouchableOpacity>
       </View>

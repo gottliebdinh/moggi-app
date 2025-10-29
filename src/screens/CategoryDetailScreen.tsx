@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 type Dish = {
@@ -1110,12 +1111,17 @@ export default function CategoryDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { categoryName } = route.params as { categoryName: string };
+  const { getCategoryTitle, getCategorySubtitle, getDishDescription, getTagTranslation } = useLanguage();
 
   const categoryInfo = categoryData[categoryName] || {
     title: categoryName,
     subtitle: '',
     dishes: []
   };
+
+  // Übersetze Titel und Subtitle
+  const translatedTitle = getCategoryTitle(categoryName);
+  const translatedSubtitle = getCategorySubtitle(categoryName);
 
   const handleDishPress = (dish: Dish) => {
     (navigation.navigate as any)('DishDetail', { dish, categoryName });
@@ -1131,9 +1137,9 @@ export default function CategoryDetailScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{categoryInfo.title}</Text>
-        {categoryInfo.subtitle && (
-          <Text style={styles.headerSubtitle}>{categoryInfo.subtitle}</Text>
+        <Text style={styles.headerTitle}>{translatedTitle}</Text>
+        {translatedSubtitle && (
+          <Text style={styles.headerSubtitle}>{translatedSubtitle}</Text>
         )}
       </View>
 
@@ -1162,14 +1168,19 @@ export default function CategoryDetailScreen() {
                   <Text style={styles.dishName}>{dish.name}</Text>
                   <Text style={styles.dishPrice}>{dish.price}</Text>
                 </View>
-                {dish.description && (
-                  <Text style={styles.dishDescription}>{dish.description}</Text>
-                )}
+                {(() => {
+                  const translatedDescription = getDishDescription(dish.name);
+                  return translatedDescription ? (
+                    <Text style={styles.dishDescription}>{translatedDescription}</Text>
+                  ) : dish.description ? (
+                    <Text style={styles.dishDescription}>{dish.description}</Text>
+                  ) : null;
+                })()}
                 {dish.tags && dish.tags.length > 0 && (
                   <View style={styles.tagsContainer}>
                     {dish.tags.map((tag, tagIndex) => (
                       <View key={tagIndex} style={styles.tag}>
-                        <Text style={styles.tagText}>{tag}</Text>
+                        <Text style={styles.tagText}>{getTagTranslation(tag)}</Text>
                       </View>
                     ))}
                   </View>

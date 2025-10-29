@@ -16,6 +16,7 @@ import colors from '../theme/colors';
 import { supabase } from '../config/supabase';
 import { BACKEND_URL } from '../config/stripe';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 // Native Date Picker
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -30,6 +31,7 @@ interface TimeSlot {
 export default function ReservationScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [dayPart, setDayPart] = useState('');
@@ -81,6 +83,7 @@ export default function ReservationScreen() {
         .select('time,status,guests,duration')
         .eq('date', date);
 
+      // WICHTIG: DB-Regeln verwenden deutsche Wochentagsnamen – daher hier immer Deutsch
       const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
       const dayName = dayNames[new Date(date).getDay()];
 
@@ -239,6 +242,7 @@ export default function ReservationScreen() {
       }
       
       // Prüfe welche Wochentage keine Abendregel (17:30-20:30) haben
+      // WICHTIG: DB-Regeln verwenden deutsche Wochentagsnamen – daher hier immer Deutsch
       const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
       const start1730 = timeToMinutes('17:30');
       const end2030 = timeToMinutes('20:30');
@@ -396,22 +400,22 @@ export default function ReservationScreen() {
 
   const handleReservation = async () => {
     if (!fullName.trim()) {
-      Alert.alert('Fehler', 'Bitte geben Sie Ihren vollständigen Namen ein.');
+      Alert.alert(t('common.error'), t('reservation.fullName'));
       return;
     }
 
     if (!email.trim()) {
-      Alert.alert('Fehler', 'Bitte geben Sie Ihre E-Mail-Adresse ein.');
+      Alert.alert(t('common.error'), t('register.email'));
       return;
     }
 
     if (!phone.trim()) {
-      Alert.alert('Fehler', 'Bitte geben Sie Ihre Telefonnummer ein.');
+      Alert.alert(t('common.error'), t('reservation.phone'));
       return;
     }
 
     if (!selectedTime) {
-      Alert.alert('Fehler', 'Bitte wählen Sie eine Uhrzeit aus.');
+      Alert.alert(t('common.error'), t('reservation.selectTime'));
       return;
     }
 
@@ -499,7 +503,7 @@ export default function ReservationScreen() {
       });
     } catch (error) {
       console.error('Reservierungsfehler:', error);
-      Alert.alert('Fehler', 'Die Reservierung konnte nicht durchgeführt werden. Bitte versuchen Sie es erneut.');
+      Alert.alert(t('common.error'), t('reservation.confirmMessage'));
     } finally {
       setLoading(false);
     }
@@ -530,10 +534,10 @@ export default function ReservationScreen() {
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>
-            {step === 1 ? 'Reservierung' : 'Gastinformationen'}
+            {step === 1 ? t('reservation.title') : t('reservation.step2')}
           </Text>
           {step === 2 && (
-            <Text style={styles.headerSubtitle}>Bitte füllen Sie alle Pflichtfelder aus</Text>
+            <Text style={styles.headerSubtitle}>{t('reservation.confirm')}</Text>
           )}
         </View>
         <View style={styles.placeholder} />
@@ -548,7 +552,7 @@ export default function ReservationScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Anzahl Personen</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.guests')}</Text>
             <View style={styles.guestSelector}>
               <TouchableOpacity
                 style={styles.guestButton}
@@ -567,14 +571,14 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.sectionTitle}>Datum</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.selectDate')}</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => setShowDatePicker(true)}
             >
               <View style={styles.datePickerWrapper}>
                 <Text style={styles.dateDisplayText}>
-                  {selectedDate ? formatDateForDisplay(selectedDate) : 'Datum wählen'}
+                  {selectedDate ? formatDateForDisplay(selectedDate) : t('reservation.selectDate')}
                 </Text>
                 <Ionicons name="calendar-outline" size={20} color={colors.mediumGray} />
               </View>
@@ -600,11 +604,12 @@ export default function ReservationScreen() {
                       const iso = `${yyyy}-${mm}-${dd}`;
                       const isSelected = selectedDate === iso;
                       let labelLeft = '';
-                      if (idx === 0) labelLeft = 'Heute';
-                      else if (idx === 1) labelLeft = 'Morgen';
+                      if (idx === 0) labelLeft = language === 'de' ? 'Heute' : 'Today';
+                      else if (idx === 1) labelLeft = language === 'de' ? 'Morgen' : 'Tomorrow';
                       else {
-                        const weekday = d.toLocaleDateString('de-DE', { weekday: 'short' });
-                        const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const locale = language === 'de' ? 'de-DE' : 'en-US';
+                        const weekday = d.toLocaleDateString(locale, { weekday: 'short' });
+                        const dateStr = d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
                         labelLeft = `${weekday}, ${dateStr}`;
                       }
 
@@ -648,7 +653,7 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Uhrzeit</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.selectTime')}</Text>
             <View style={styles.timeGrid}>
               {timeSlots.map((slot) => {
                 const isPastForToday = isTodaySelected() && slot.time <= currentTimeHHMM();
@@ -692,7 +697,7 @@ export default function ReservationScreen() {
             onPress={() => setStep(2)}
             disabled={!selectedDate || !selectedTime || guestCount < 1}
           >
-            <Text style={styles.nextButtonText}>Weiter</Text>
+            <Text style={styles.nextButtonText}>{t('common.next')}</Text>
             <Ionicons name="arrow-forward" size={20} color={colors.white} style={styles.nextButtonIcon} />
           </TouchableOpacity>
         </ScrollView>
@@ -707,28 +712,28 @@ export default function ReservationScreen() {
         >
 
           <View style={styles.inputGroup}>
-            <Text style={styles.sectionTitle}>Name *</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.fullName')} *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="person-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={fullName}
                 onChangeText={setFullName}
-                placeholder="Vor- und Nachname"
+                placeholder={t('reservation.fullName')}
                 placeholderTextColor={colors.mediumGray}
               />
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.sectionTitle}>E-Mail *</Text>
+            <Text style={styles.sectionTitle}>{t('register.email')} *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="mail-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="ihre.email@beispiel.de"
+                placeholder={t('register.emailPlaceholder')}
                 placeholderTextColor={colors.mediumGray}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -737,7 +742,7 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.sectionTitle}>Telefonnummer *</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.phone')} *</Text>
             <View style={styles.inputWrapper}>
               <Ionicons name="call-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
               <TextInput
@@ -752,14 +757,14 @@ export default function ReservationScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.sectionTitle}>Besondere Wünsche</Text>
+            <Text style={styles.sectionTitle}>{t('reservation.notes')}</Text>
             <View style={styles.textAreaWrapper}>
               <Ionicons name="chatbubble-outline" size={20} color={colors.mediumGray} style={styles.textAreaIcon} />
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={note}
                 onChangeText={setNote}
-                placeholder="Allergien, besondere Wünsche, etc."
+                placeholder={t('reservation.notes')}
                 placeholderTextColor={colors.mediumGray}
                 multiline
                 numberOfLines={4}
@@ -780,7 +785,7 @@ export default function ReservationScreen() {
           >
             <Ionicons name="restaurant-outline" size={20} color={colors.white} style={styles.reserveButtonIcon} />
             <Text style={styles.reserveButtonText}>
-              {loading ? 'Wird verarbeitet...' : 'Tisch reservieren'}
+              {loading ? t('payment.processing') : t('reservation.confirm')}
             </Text>
           </TouchableOpacity>
         </View>

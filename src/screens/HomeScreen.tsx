@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const handleLocationPress = async () => {
     const address = 'Katharinengasse 14, 90403 Nürnberg';
@@ -91,11 +93,11 @@ export default function HomeScreen() {
         {/* Hero Banner mit Zitat */}
         <View style={styles.heroBanner}>
           <Text style={styles.heroTitle}>
-            Zwei Welten, eine Vision - Asiatische Küche neu interpretiert
+            {t('home.heroTitle')}
           </Text>
           <View style={styles.divider} />
           <Text style={styles.heroSubtitle}>
-            Willkommen in einer Welt, wo Tradition auf Innovation trifft
+            {t('home.heroSubtitle')}
           </Text>
         </View>
 
@@ -107,10 +109,10 @@ export default function HomeScreen() {
             resizeMode="cover"
           />
           <View style={styles.chefInfo}>
-            <Text style={styles.chefName}>Chef Quan</Text>
+            <Text style={styles.chefName}>{t('home.chefQuan')}</Text>
             <View style={styles.chefDivider} />
             <Text style={styles.chefDescription}>
-              Quan verbindet die authentischen Aromen seiner südchinesischen Heimat mit moderner Kreativität. Geprägt von den lebendigen Märkten Guangzhous, bringt er jahrtausendealte Esskultur auf kleine Teller.
+              {t('home.chefQuanDescription')}
             </Text>
           </View>
         </View>
@@ -123,10 +125,10 @@ export default function HomeScreen() {
                 resizeMode="cover"
               />
               <View style={styles.chefInfo}>
-                <Text style={styles.chefName}>Chef Ryohey</Text>
+                <Text style={styles.chefName}>{t('home.chefRyohey')}</Text>
                 <View style={styles.chefDivider} />
                 <Text style={styles.chefDescription}>
-                  Ryohey bringt die hohe Kunst des Sushi-Handwerks nach Nürnberg. Mit über 15 Jahren Erfahrung in der Edomae-Tradition erschafft er jedes Stück mit Respekt für das Produkt und japanischer Perfektion.
+                  {t('home.chefRyoheyDescription')}
                 </Text>
               </View>
             </View>
@@ -139,7 +141,7 @@ export default function HomeScreen() {
         onPress={handleReservationPress}
         activeOpacity={0.8}
       >
-        <Text style={styles.floatingReservationButtonText}>Tisch reservieren</Text>
+        <Text style={styles.floatingReservationButtonText}>{t('home.reserveTable')}</Text>
       </TouchableOpacity>
     </View>
   );

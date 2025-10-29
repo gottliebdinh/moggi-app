@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ReservationSuccessScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { t, language } = useLanguage();
   const { 
     guestName, 
     email, 
@@ -107,8 +109,8 @@ export default function ReservationSuccessScreen() {
                 <Ionicons name="time-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Uhrzeit</Text>
-                <Text style={styles.detailValue}>{time} Uhr</Text>
+                <Text style={styles.detailLabel}>{t('reservation.time')}</Text>
+                <Text style={styles.detailValue}>{time} {language === 'de' ? 'Uhr' : ''}</Text>
               </View>
             </View>
 

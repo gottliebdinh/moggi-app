@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function CartScreen() {
   const navigation = useNavigation();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const totalPrice = getTotalPrice().toFixed(2).replace('.', ',');
 
@@ -20,8 +22,8 @@ export default function CartScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Warenkorb</Text>
-          <Text style={styles.headerSubtitle}>Deine ausgewählten Artikel</Text>
+          <Text style={styles.headerTitle}>{t('cart.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('cart.subtitle')}</Text>
         </View>
         
         <View style={styles.content}>
@@ -29,8 +31,8 @@ export default function CartScreen() {
             <View style={styles.iconCircle}>
               <Ionicons name="cart-outline" size={48} color={colors.primary} />
             </View>
-            <Text style={styles.emptyText}>Dein Warenkorb ist leer</Text>
-            <Text style={styles.emptySubtext}>Füge Produkte hinzu, um loszulegen</Text>
+            <Text style={styles.emptyText}>{t('cart.empty')}</Text>
+            <Text style={styles.emptySubtext}>{t('cart.emptySubtext')}</Text>
           </View>
         </View>
       </ScrollView>
@@ -40,8 +42,8 @@ export default function CartScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Warenkorb</Text>
-        <Text style={styles.headerSubtitle}>{items.length} {items.length === 1 ? 'Artikel' : 'Artikel'}</Text>
+        <Text style={styles.headerTitle}>{t('cart.title')}</Text>
+        <Text style={styles.headerSubtitle}>{items.length} {t('cart.items')}</Text>
       </View>
 
       <ScrollView
@@ -99,14 +101,14 @@ export default function CartScreen() {
             activeOpacity={0.7}
           >
             <Ionicons name="trash-outline" size={20} color={colors.white} />
-            <Text style={styles.clearButtonText}>Warenkorb leeren</Text>
+            <Text style={styles.clearButtonText}>{t('cart.clear')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Gesamt</Text>
+          <Text style={styles.totalLabel}>{t('cart.total')}</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
         <TouchableOpacity
@@ -123,7 +125,7 @@ export default function CartScreen() {
           }}
         >
           <Ionicons name="checkmark-circle" size={24} color={colors.white} />
-          <Text style={styles.checkoutButtonText}>Zur Kasse</Text>
+          <Text style={styles.checkoutButtonText}>{t('cart.checkout')}</Text>
         </TouchableOpacity>
       </View>
     </View>

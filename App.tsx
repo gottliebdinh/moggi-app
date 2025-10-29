@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { CartProvider } from './src/context/CartContext';
 import { AuthProvider } from './src/context/AuthContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
 import LoadingTransition from './src/components/LoadingTransition';
 import { STRIPE_PUBLISHABLE_KEY, APPLE_PAY_MERCHANT_ID } from './src/config/stripe';
@@ -38,18 +39,20 @@ export default function App() {
   }
 
   return (
-    <StripeProvider
-      publishableKey={STRIPE_PUBLISHABLE_KEY}
-      merchantIdentifier={APPLE_PAY_MERCHANT_ID}
-    >
-      <AuthProvider>
-        <CartProvider>
-          <NavigationContainer linking={linking}>
-            <StatusBar style="auto" />
-            <BottomTabNavigator />
-          </NavigationContainer>
-        </CartProvider>
-      </AuthProvider>
-    </StripeProvider>
+    <LanguageProvider>
+      <StripeProvider
+        publishableKey={STRIPE_PUBLISHABLE_KEY}
+        merchantIdentifier={APPLE_PAY_MERCHANT_ID}
+      >
+        <AuthProvider>
+          <CartProvider>
+            <NavigationContainer linking={linking}>
+              <StatusBar style="auto" />
+              <BottomTabNavigator />
+            </NavigationContainer>
+          </CartProvider>
+        </AuthProvider>
+      </StripeProvider>
+    </LanguageProvider>
   );
 }

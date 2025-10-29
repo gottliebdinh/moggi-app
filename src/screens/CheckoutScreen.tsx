@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert 
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 type TimeSlot = {
@@ -14,6 +15,7 @@ type TimeSlot = {
 export default function CheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice, clearCart } = useCart();
+  const { t } = useLanguage();
   const [isGuest, setIsGuest] = useState(true);
   
   // Gast-Daten
@@ -118,7 +120,7 @@ export default function CheckoutScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const days = t('reservation.title') ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] : ['Su','Mo','Tu','We','Th','Fr','Sa'];
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -128,25 +130,25 @@ export default function CheckoutScreen() {
   const handlePlaceOrder = () => {
     if (isGuest) {
       if (!firstName || !lastName || !email) {
-        Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
+        Alert.alert(t('common.error'), t('checkout.fillAllFields'));
         return;
       }
       
       if (!email.includes('@')) {
-        Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
+        Alert.alert(t('common.error'), t('checkout.invalidEmail'));
         return;
       }
     }
     
     if (!selectedDate || !selectedTime) {
-      Alert.alert('Fehler', 'Bitte wähle eine Abholzeit');
+      Alert.alert(t('common.error'), t('checkout.selectTimeFirst'));
       return;
     }
     
-    const notesText = notes ? `\n\nNotizen: ${notes}` : '';
+    const notesText = notes ? `\n\n${t('checkout.notes')}: ${notes}` : '';
     Alert.alert(
-      'Bestellung erfolgreich!',
-      `Deine Bestellung wurde aufgegeben.\n\nAbholung: ${formatDate(selectedDate)} um ${selectedTime} Uhr${notesText}\n\nWir freuen uns auf deinen Besuch!`,
+      t('common.success'),
+      `${t('orderSuccess.paymentSuccess')}\n\n${t('orderSuccess.pickup')}: ${formatDate(selectedDate)} ${t('orderSuccess.pickupTime')}: ${selectedTime}${notesText}`,
       [
         {
           text: 'OK',
@@ -171,8 +173,8 @@ export default function CheckoutScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bestellung</Text>
-        <Text style={styles.headerSubtitle}>Fast geschafft!</Text>
+        <Text style={styles.headerTitle}>{t('checkout.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('products.subtitle')}</Text>
       </View>
 
       <ScrollView

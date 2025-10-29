@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   View, 
   Text, 
   StyleSheet, 
@@ -14,12 +14,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import Toast from '../components/Toast';
 import colors from '../theme/colors';
 
 export default function ProfileEditScreen() {
   const navigation = useNavigation();
   const { user, updateProfile } = useAuth();
+  const { t } = useLanguage();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,12 +38,12 @@ export default function ProfileEditScreen() {
 
   const handleSave = async () => {
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      Alert.alert('Fehler', 'Bitte fülle alle Felder aus');
+      Alert.alert(t('profile.error'), t('profile.fillAllFields'));
       return;
     }
 
     if (!email.includes('@')) {
-      Alert.alert('Fehler', 'Bitte gib eine gültige E-Mail-Adresse ein');
+      Alert.alert(t('profile.error'), t('profile.invalidEmail'));
       return;
     }
 
@@ -55,7 +57,7 @@ export default function ProfileEditScreen() {
       });
 
       if (error) {
-        Alert.alert('Fehler', error.message || 'Ein Fehler ist aufgetreten');
+        Alert.alert(t('profile.error'), error.message || t('profile.unexpectedError'));
         return;
       }
 
@@ -64,7 +66,7 @@ export default function ProfileEditScreen() {
         navigation.goBack();
       }, 1500);
     } catch (error) {
-      Alert.alert('Fehler', 'Ein unerwarteter Fehler ist aufgetreten');
+      Alert.alert(t('profile.error'), t('profile.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +81,7 @@ export default function ProfileEditScreen() {
       {/* Success Toast */}
       {showSuccessToast && (
         <Toast 
-          message="Profil erfolgreich aktualisiert!"
+          message={t('profile.saveSuccess')}
           type="success"
           onHide={() => setShowSuccessToast(false)}
         />
@@ -94,7 +96,7 @@ export default function ProfileEditScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profil bearbeiten</Text>
+        <Text style={styles.headerTitle}>{t('profile.edit')}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -109,21 +111,21 @@ export default function ProfileEditScreen() {
             <View style={styles.avatar}>
               <Ionicons name="person" size={40} color={colors.white} />
             </View>
-            <Text style={styles.profileTitle}>Persönliche Daten</Text>
-            <Text style={styles.profileSubtitle}>Aktualisiere deine Kontoinformationen</Text>
+            <Text style={styles.profileTitle}>{t('profile.personalData')}</Text>
+            <Text style={styles.profileSubtitle}>{t('profile.updateInfo')}</Text>
           </View>
 
           {/* Form */}
           <View style={styles.formSection}>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Vorname</Text>
+              <Text style={styles.inputLabel}>{t('profile.firstName')}</Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="person-outline" size={20} color={colors.mediumGray} />
                 <TextInput
                   style={styles.textInput}
                   value={firstName}
                   onChangeText={setFirstName}
-                  placeholder="Dein Vorname"
+                  placeholder={t('profile.firstNamePlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   autoCapitalize="words"
                   autoCorrect={false}
@@ -132,14 +134,14 @@ export default function ProfileEditScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Nachname</Text>
+              <Text style={styles.inputLabel}>{t('profile.lastName')}</Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="person-outline" size={20} color={colors.mediumGray} />
                 <TextInput
                   style={styles.textInput}
                   value={lastName}
                   onChangeText={setLastName}
-                  placeholder="Dein Nachname"
+                  placeholder={t('profile.lastNamePlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   autoCapitalize="words"
                   autoCorrect={false}
@@ -148,14 +150,14 @@ export default function ProfileEditScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>E-Mail-Adresse</Text>
+              <Text style={styles.inputLabel}>{t('profile.email')}</Text>
               <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={20} color={colors.mediumGray} />
                 <TextInput
                   style={styles.textInput}
                   value={email}
                   onChangeText={setEmail}
-                  placeholder="deine@email.com"
+                  placeholder={t('profile.emailPlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -178,7 +180,7 @@ export default function ProfileEditScreen() {
               ) : (
                 <>
                   <Ionicons name="checkmark" size={20} color={colors.white} />
-                  <Text style={styles.saveButtonText}>Änderungen speichern</Text>
+                  <Text style={styles.saveButtonText}>{t('profile.save')}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -189,7 +191,7 @@ export default function ProfileEditScreen() {
             <View style={styles.infoCard}>
               <Ionicons name="information-circle" size={20} color={colors.primary} />
               <Text style={styles.infoText}>
-                Deine E-Mail-Adresse wird für die Bestätigung von Bestellungen und Reservierungen verwendet.
+                {t('profile.emailInfo')}
               </Text>
             </View>
           </View>

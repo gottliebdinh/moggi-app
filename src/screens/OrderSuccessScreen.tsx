@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function OrderSuccessScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { t, language } = useLanguage();
   const { customerInfo, pickupDate, pickupTime, orderNumber } = route.params as any;
 
   const scaleAnim = new Animated.Value(0);
@@ -43,7 +45,9 @@ export default function OrderSuccessScreen() {
   }, []);
 
   const formatDate = (date: Date) => {
-    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const days = language === 'de' 
+      ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -68,11 +72,11 @@ export default function OrderSuccessScreen() {
 
   const getPickupMessage = () => {
     if (isToday(pickupDate)) {
-      return 'Wir bereiten deine Bestellung frisch zu. Bis gleich!';
+      return t('orderSuccess.prepareToday');
     } else if (isTomorrow(pickupDate)) {
-      return 'Deine Bestellung wird morgen frisch zubereitet.';
+      return t('orderSuccess.prepareTomorrow');
     } else {
-      return 'Deine Bestellung wird am Abholtag frisch zubereitet.';
+      return t('orderSuccess.prepareLater');
     }
   };
 
@@ -88,30 +92,32 @@ export default function OrderSuccessScreen() {
 
         <Animated.View style={[styles.textContainer, { opacity: fadeAnim }]}>
           {/* Success Message */}
-          <Text style={styles.title}>Zahlung erfolgreich!</Text>
+          <Text style={styles.title}>{t('orderSuccess.paymentSuccess')}</Text>
           <Text style={styles.subtitle}>
-            Vielen Dank, {customerInfo?.firstName}!
+            {t('orderSuccess.thankYou', { name: customerInfo?.firstName || '' })}
           </Text>
 
           {/* Order Number */}
           {orderNumber && (
             <View style={styles.orderNumberCard}>
-              <Text style={styles.orderNumberLabel}>Bestellnummer</Text>
+              <Text style={styles.orderNumberLabel}>{t('orderSuccess.orderNumber')}</Text>
               <Text style={styles.orderNumberText}>#{orderNumber}</Text>
-              <Text style={styles.orderNumberSubtext}>Eine Bestätigung wurde an {customerInfo?.email} gesendet</Text>
+              <Text style={styles.orderNumberSubtext}>
+                {t('orderSuccess.confirmationSent', { email: customerInfo?.email || '' })}
+              </Text>
             </View>
           )}
 
           {/* Order Details */}
           <View style={styles.detailsCard}>
-            <Text style={styles.detailsTitle}>Abholung</Text>
+            <Text style={styles.detailsTitle}>{t('orderSuccess.pickup')}</Text>
             
             <View style={styles.detailRow}>
               <View style={styles.iconWrapper}>
                 <Ionicons name="calendar-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Abholdatum</Text>
+                <Text style={styles.detailLabel}>{t('orderSuccess.pickupDate')}</Text>
                 <Text style={styles.detailValue}>{formatDate(pickupDate)}</Text>
               </View>
             </View>
@@ -121,8 +127,8 @@ export default function OrderSuccessScreen() {
                 <Ionicons name="time-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Uhrzeit</Text>
-                <Text style={styles.detailValue}>{pickupTime} Uhr</Text>
+                <Text style={styles.detailLabel}>{t('orderSuccess.pickupTime')}</Text>
+                <Text style={styles.detailValue}>{pickupTime} {language === 'de' ? 'Uhr' : ''}</Text>
               </View>
             </View>
 
@@ -131,9 +137,9 @@ export default function OrderSuccessScreen() {
                 <Ionicons name="location-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Abholadresse</Text>
-                <Text style={styles.detailValue}>Katharinengasse 14</Text>
-                <Text style={styles.detailValue}>90403 Nürnberg</Text>
+                <Text style={styles.detailLabel}>{t('orderSuccess.pickupAddress')}</Text>
+                <Text style={styles.detailValue}>{t('orderSuccess.pickupAddressLine1')}</Text>
+                <Text style={styles.detailValue}>{t('orderSuccess.pickupAddressLine2')}</Text>
               </View>
             </View>
           </View>
@@ -155,7 +161,7 @@ export default function OrderSuccessScreen() {
           activeOpacity={0.8}
         >
           <Ionicons name="restaurant" size={20} color={colors.white} />
-          <Text style={styles.primaryButtonText}>Weitere Bestellung</Text>
+          <Text style={styles.primaryButtonText}>{t('orderSuccess.newOrder')}</Text>
         </TouchableOpacity>
       </View>
     </View>

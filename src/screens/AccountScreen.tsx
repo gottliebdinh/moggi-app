@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage, Language } from '../context/LanguageContext';
 import Toast from '../components/Toast';
 import colors from '../theme/colors';
 
@@ -10,8 +11,10 @@ export default function AccountScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { user, signOut } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const isLoggedIn = !!user;
   const [showLoginSuccessToast, setShowLoginSuccessToast] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   // Check für Login-Success Parameter
   useEffect(() => {
@@ -45,13 +48,14 @@ export default function AccountScreen() {
   }, [route.params]);
 
   const baseMenuItems = [
-    { id: '1', title: 'Meine Bestellungen', icon: 'receipt-outline', subtitle: 'Bestellhistorie ansehen', requiresLogin: true },
-    { id: '2', title: 'Profil bearbeiten', icon: 'person-outline', subtitle: 'Name, E-Mail, etc.', requiresLogin: true },
+    { id: '1', title: t('account.orders'), icon: 'receipt-outline', subtitle: t('account.ordersSubtitle'), requiresLogin: true },
+    { id: '2', title: t('account.editProfile'), icon: 'person-outline', subtitle: t('account.editProfileSubtitle'), requiresLogin: true },
+    { id: '0', title: t('account.language'), icon: 'language-outline', subtitle: t('account.languageSubtitle'), requiresLogin: false },
   ];
 
   // Füge "Abmelden" nur hinzu wenn User eingeloggt ist
   const menuItems = isLoggedIn 
-    ? [...baseMenuItems, { id: '3', title: 'Abmelden', icon: 'log-out-outline', subtitle: '', isLogout: true }]
+    ? [...baseMenuItems, { id: '3', title: t('account.logout'), icon: 'log-out-outline', subtitle: '', isLogout: true }]
     : baseMenuItems;
 
   const handleMenuPress = (item: any) => {
@@ -62,12 +66,12 @@ export default function AccountScreen() {
 
     if (item.isLogout) {
       Alert.alert(
-        'Abmelden',
-        'Möchtest du dich wirklich abmelden?',
+        t('account.logout'),
+        t('account.logoutConfirm'),
         [
-          { text: 'Abbrechen', style: 'cancel' },
+          { text: t('account.cancel'), style: 'cancel' },
           { 
-            text: 'Abmelden', 
+            text: t('account.logout'), 
             style: 'destructive',
             onPress: async () => {
               await signOut();
@@ -82,6 +86,9 @@ export default function AccountScreen() {
 
     // Navigation zu spezifischen Screens
     switch (item.id) {
+      case '0': // Sprache
+        setShowLanguageModal(true);
+        break;
       case '1': // Meine Bestellungen
         (navigation.navigate as any)('OrderHistory');
         break;
@@ -89,8 +96,13 @@ export default function AccountScreen() {
         (navigation.navigate as any)('ProfileEdit');
         break;
       default:
-        Alert.alert(item.title, 'Diese Funktion wird bald verfügbar sein');
+        Alert.alert(item.title, t('account.comingSoon'));
     }
+  };
+
+  const handleLanguageSelect = async (lang: Language) => {
+    await setLanguage(lang);
+    setShowLanguageModal(false);
   };
 
   return (
@@ -98,15 +110,15 @@ export default function AccountScreen() {
       {/* Success Toast */}
       {showLoginSuccessToast && (
         <Toast 
-          message="Erfolgreich angemeldet!"
+          message={t('account.loginSuccess')}
           type="success"
           onHide={() => setShowLoginSuccessToast(false)}
         />
       )}
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Konto</Text>
-        <Text style={styles.headerSubtitle}>Verwalte dein Profil</Text>
+        <Text style={styles.headerTitle}>{t('account.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('account.subtitle')}</Text>
       </View>
 
       <ScrollView
@@ -130,14 +142,14 @@ export default function AccountScreen() {
                 </>
               ) : (
                 <>
-                  <Text style={styles.userName}>Gast</Text>
-                  <Text style={styles.userEmail}>Noch nicht angemeldet</Text>
+                  <Text style={styles.userName}>{t('account.guest')}</Text>
+                  <Text style={styles.userEmail}>{t('account.notLoggedIn')}</Text>
                   <TouchableOpacity 
                     style={styles.loginButton}
                     onPress={() => (navigation.navigate as any)('Login')}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.loginButtonText}>Jetzt anmelden</Text>
+                    <Text style={styles.loginButtonText}>{t('account.loginNow')}</Text>
                     <Ionicons name="arrow-forward" size={16} color={colors.white} />
                   </TouchableOpacity>
                 </>
@@ -197,6 +209,82 @@ export default function AccountScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Language Selection Modal */}
+      <Modal
+        visible={showLanguageModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('account.language')}</Text>
+              <TouchableOpacity
+                onPress={() => setShowLanguageModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color={colors.white} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.languageOptions}>
+              <TouchableOpacity
+                style={[
+                  styles.languageOption,
+                  language === 'de' && styles.languageOptionActive
+                ]}
+                onPress={() => handleLanguageSelect('de')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.languageOptionContent}>
+                  <Ionicons 
+                    name={language === 'de' ? 'radio-button-on' : 'radio-button-off'} 
+                    size={24} 
+                    color={language === 'de' ? colors.primary : colors.mediumGray} 
+                  />
+                  <Text style={[
+                    styles.languageOptionText,
+                    language === 'de' && styles.languageOptionTextActive
+                  ]}>
+                    {t('language.german')}
+                  </Text>
+                </View>
+                {language === 'de' && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.languageOption,
+                  language === 'en' && styles.languageOptionActive
+                ]}
+                onPress={() => handleLanguageSelect('en')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.languageOptionContent}>
+                  <Ionicons 
+                    name={language === 'en' ? 'radio-button-on' : 'radio-button-off'} 
+                    size={24} 
+                    color={language === 'en' ? colors.primary : colors.mediumGray} 
+                  />
+                  <Text style={[
+                    styles.languageOptionText,
+                    language === 'en' && styles.languageOptionTextActive
+                  ]}>
+                    {t('language.english')}
+                  </Text>
+                </View>
+                {language === 'en' && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -347,6 +435,73 @@ const styles = StyleSheet.create({
   },
   heart: {
     color: '#FF3B30',
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.black,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: 40,
+    maxHeight: '50%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.darkGray,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.white,
+    fontFamily: 'Georgia',
+  },
+  modalCloseButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.darkGray,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  languageOptions: {
+    padding: 20,
+  },
+  languageOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: colors.darkGray,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.mediumGray + '30',
+  },
+  languageOptionActive: {
+    borderColor: colors.primary + '50',
+    backgroundColor: colors.primary + '10',
+  },
+  languageOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  languageOptionText: {
+    fontSize: 16,
+    color: colors.white,
+    marginLeft: 12,
+  },
+  languageOptionTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
 });
 

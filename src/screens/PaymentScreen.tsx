@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { BACKEND_URL } from '../config/stripe';
 import { supabase } from '../config/supabase';
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function PaymentScreen() {
   const navigation = useNavigation();
@@ -18,6 +19,7 @@ export default function PaymentScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [initialUserState] = useState(user); // Speichere initialen User-State
+  const { t, language } = useLanguage();
 
   const params = route.params as any;
   const { customerInfo, pickupDate, pickupTime, notes } = params || {};
@@ -44,7 +46,9 @@ export default function PaymentScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const days = language === 'de'
+      ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -94,7 +98,7 @@ export default function PaymentScreen() {
       });
 
       if (initError) {
-        Alert.alert('Fehler', initError.message);
+        Alert.alert(t('payment.error'), initError.message);
         setIsProcessing(false);
         return;
       }
@@ -103,7 +107,7 @@ export default function PaymentScreen() {
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        Alert.alert('Zahlung abgebrochen', presentError.message);
+        Alert.alert(t('payment.error'), presentError.message);
         setIsProcessing(false);
         return;
       }
@@ -187,7 +191,7 @@ export default function PaymentScreen() {
       
     } catch (error) {
       setIsProcessing(false);
-      Alert.alert('Fehler', 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+      Alert.alert(t('payment.error'), t('common.error'));
     }
   };
 
@@ -203,8 +207,8 @@ export default function PaymentScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Zahlung</Text>
-        <Text style={styles.headerSubtitle}>Wähle deine Zahlungsmethode</Text>
+        <Text style={styles.headerTitle}>{t('payment.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('payment.selectMethod')}</Text>
       </View>
 
       <ScrollView
@@ -215,24 +219,24 @@ export default function PaymentScreen() {
         <View style={styles.content}>
           {/* Bestellübersicht */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bestellübersicht</Text>
+            <Text style={styles.sectionTitle}>{t('payment.orderSummary')}</Text>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Artikel</Text>
+              <Text style={styles.summaryLabel}>{t('payment.items')}</Text>
               <Text style={styles.summaryValue}>{items.length}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Abholung</Text>
+              <Text style={styles.summaryLabel}>{t('payment.pickupDate')}</Text>
               <Text style={styles.summaryValue}>
                 {pickupDate && `${formatDate(pickupDate)}`}
               </Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Uhrzeit</Text>
-              <Text style={styles.summaryValue}>{pickupTime} Uhr</Text>
+              <Text style={styles.summaryLabel}>{t('payment.time')}</Text>
+              <Text style={styles.summaryValue}>{pickupTime} {language === 'de' ? 'Uhr' : ''}</Text>
             </View>
             {customerInfo && (
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Name</Text>
+                <Text style={styles.summaryLabel}>{t('payment.name')}</Text>
                 <Text style={styles.summaryValue}>
                   {customerInfo.firstName} {customerInfo.lastName}
                 </Text>
@@ -247,8 +251,8 @@ export default function PaymentScreen() {
                     <Ionicons name="card" size={36} color={colors.white} />
                   </View>
                   <View style={styles.stripeHeaderText}>
-                    <Text style={styles.stripeTitle}>Sichere Zahlung</Text>
-                    <Text style={styles.stripeSubtitle}>Kreditkarte via Stripe</Text>
+                    <Text style={styles.stripeTitle}>{t('payment.securePayment')}</Text>
+                    <Text style={styles.stripeSubtitle}>{t('payment.creditCard')}</Text>
                   </View>
                 </View>
 
@@ -257,15 +261,15 @@ export default function PaymentScreen() {
                 <View style={styles.stripeFeatures}>
                   <View style={styles.featureItem}>
                     <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
-                    <Text style={styles.featureText}>SSL-verschlüsselt</Text>
+                    <Text style={styles.featureText}>{t('payment.sslEncrypted')}</Text>
                   </View>
                   <View style={styles.featureItem}>
                     <Ionicons name="lock-closed" size={20} color={colors.primary} />
-                    <Text style={styles.featureText}>PCI-konform</Text>
+                    <Text style={styles.featureText}>{t('payment.pciCompliant')}</Text>
                   </View>
                   <View style={styles.featureItem}>
                     <Ionicons name="card" size={20} color={colors.primary} />
-                    <Text style={styles.featureText}>Alle Kreditkarten</Text>
+                    <Text style={styles.featureText}>{t('payment.allCards')}</Text>
                   </View>
                 </View>
               </View>
@@ -274,7 +278,7 @@ export default function PaymentScreen() {
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={24} color={colors.primary} />
             <Text style={styles.infoCardText}>
-              Du wirst zum sicheren Stripe-Zahlungsformular weitergeleitet. Deine Kartendaten werden verschlüsselt übertragen.
+              {t('payment.stripeInfo')}
             </Text>
           </View>
         </View>
@@ -282,7 +286,7 @@ export default function PaymentScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Zu zahlen</Text>
+          <Text style={styles.totalLabel}>{t('payment.toPay')}</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
         <TouchableOpacity
@@ -294,12 +298,12 @@ export default function PaymentScreen() {
               {isProcessing ? (
                 <>
                   <Ionicons name="hourglass" size={24} color={colors.white} />
-                  <Text style={styles.orderButtonText}>Verarbeite Zahlung...</Text>
+                  <Text style={styles.orderButtonText}>{t('payment.processingPayment')}</Text>
                 </>
               ) : (
                 <>
                   <Ionicons name="card" size={24} color={colors.white} />
-                  <Text style={styles.orderButtonText}>Jetzt bezahlen</Text>
+                  <Text style={styles.orderButtonText}>{t('payment.pay')}</Text>
                 </>
               )}
         </TouchableOpacity>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 type DishParams = {
@@ -21,8 +22,12 @@ export default function DishDetailScreen() {
   const route = useRoute();
   const { dish, categoryName } = route.params as DishParams;
   const { addToCart } = useCart();
+  const { getDishDescription, getTagTranslation, t } = useLanguage();
   
   const [quantity, setQuantity] = useState(1);
+
+  // Übersetze Beschreibung und Tags
+  const translatedDescription = getDishDescription(dish.name) || dish.description;
 
   const increaseQuantity = () => {
     setQuantity(quantity + 1);
@@ -74,15 +79,15 @@ export default function DishDetailScreen() {
               style={styles.dishImage}
               resizeMode="cover"
             />
-            {dish.tags && dish.tags.length > 0 && (
-              <View style={styles.tagsOverlay}>
-                {dish.tags.map((tag, index) => (
-                  <View key={index} style={styles.tag}>
-                    <Text style={styles.tagText}>{tag}</Text>
+                {dish.tags && dish.tags.length > 0 && (
+                  <View style={styles.tagsOverlay}>
+                    {dish.tags.map((tag, index) => (
+                      <View key={index} style={styles.tag}>
+                        <Text style={styles.tagText}>{getTagTranslation(tag)}</Text>
+                      </View>
+                    ))}
                   </View>
-                ))}
-              </View>
-            )}
+                )}
           </View>
         )}
 
@@ -92,15 +97,15 @@ export default function DishDetailScreen() {
             <Text style={styles.dishPrice}>{dish.price}</Text>
           </View>
 
-          {dish.description && (
-            <Text style={styles.dishDescription}>{dish.description}</Text>
+          {translatedDescription && (
+            <Text style={styles.dishDescription}>{translatedDescription}</Text>
           )}
 
           {(!dish.image || dish.image.includes('Akari.png')) && dish.tags && dish.tags.length > 0 && (
             <View style={styles.tagsContainer}>
               {dish.tags.map((tag, index) => (
                 <View key={index} style={styles.tagInline}>
-                  <Text style={styles.tagText}>{tag}</Text>
+                  <Text style={styles.tagText}>{getTagTranslation(tag)}</Text>
                 </View>
               ))}
             </View>
@@ -109,7 +114,7 @@ export default function DishDetailScreen() {
           <View style={styles.divider} />
 
           <View style={styles.quantitySection}>
-            <Text style={styles.quantityLabel}>Menge</Text>
+            <Text style={styles.quantityLabel}>{t('dish.quantity')}</Text>
             <View style={styles.quantityControls}>
               <TouchableOpacity
                 style={styles.quantityButton}
@@ -135,7 +140,7 @@ export default function DishDetailScreen() {
 
       <View style={styles.footer}>
         <View style={styles.footerInfo}>
-          <Text style={styles.footerLabel}>Gesamt</Text>
+          <Text style={styles.footerLabel}>{t('cart.total')}</Text>
           <Text style={styles.footerPrice}>{totalPrice}</Text>
         </View>
         <TouchableOpacity
@@ -144,7 +149,7 @@ export default function DishDetailScreen() {
           activeOpacity={0.8}
         >
           <Ionicons name="cart" size={24} color={colors.white} />
-          <Text style={styles.addButtonText}>In den Warenkorb</Text>
+          <Text style={styles.addButtonText}>{t('dish.addToCart')}</Text>
         </TouchableOpacity>
       </View>
     </View>

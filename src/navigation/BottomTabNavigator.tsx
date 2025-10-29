@@ -35,6 +35,7 @@ import ImprintScreen from '../screens/ImprintScreen';
 
 // Theme
 import colors from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
@@ -131,6 +132,7 @@ function MoreStackNavigator() {
 export default function BottomTabNavigator() {
   const { getTotalItems } = useCart();
   const cartItemCount = getTotalItems();
+  const { t } = useLanguage();
 
   return (
     <Tab.Navigator
@@ -161,7 +163,7 @@ export default function BottomTabNavigator() {
         name="Home"
         component={HomeStackNavigator}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: t('nav.home'),
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
               name={focused ? "home" : "home-outline"} 
@@ -175,7 +177,7 @@ export default function BottomTabNavigator() {
             name="Products"
             component={ProductsStackNavigator}
             options={{
-              tabBarLabel: 'Speisekarte',
+              tabBarLabel: t('nav.menu'),
               tabBarIcon: ({ color, focused }) => (
                 <Ionicons
                   name={focused ? "restaurant" : "restaurant-outline"}
@@ -189,7 +191,7 @@ export default function BottomTabNavigator() {
         name="Cart"
         component={CartStackNavigator}
         options={{
-          tabBarLabel: 'Warenkorb',
+          tabBarLabel: t('nav.cart'),
           tabBarBadge: cartItemCount > 0 ? cartItemCount : undefined,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
@@ -204,7 +206,7 @@ export default function BottomTabNavigator() {
         name="Account"
         component={AccountStackNavigator}
         options={{
-          tabBarLabel: 'Konto',
+          tabBarLabel: t('nav.account'),
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
               name={focused ? "person-circle" : "person-circle-outline"} 
@@ -218,7 +220,7 @@ export default function BottomTabNavigator() {
         name="More"
         component={MoreStackNavigator}
         options={{
-          tabBarLabel: 'Mehr',
+          tabBarLabel: t('nav.more'),
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
               name={focused ? "menu" : "menu-outline"} 
