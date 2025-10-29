@@ -90,12 +90,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error: { message: 'User already registered' }, userId: null };
       }
       
+      // WICHTIG: Lösche Session falls vorhanden - User darf erst nach Verifizierung eingeloggt sein
+      if (data.session) {
+        console.log('AuthContext - Session erstellt, aber löschen für Verifizierung');
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+      }
+      
       // Erfolg - gebe UserID zurück für Verification
       console.log('AuthContext - User created, ID:', data.user?.id);
       console.log('AuthContext - User email:', data.user?.email);
-      
-      // WICHTIG: Nicht ausloggen! User bleibt in Supabase, aber ohne Session in der App
-      // Session wird nur gesetzt wenn user sich nach Verifizierung einloggt
+      console.log('AuthContext - User muss erst verifiziert werden, keine Session aktiv');
       
       return { error: null, userId: data.user?.id, email: data.user?.email };
     } catch (error) {

@@ -118,7 +118,16 @@ export default function VerifyEmailScreen() {
       setTimeout(async () => {
         if (password) {
           // Automatisch anmelden mit gespeichertem Passwort
-          await signIn(email, password);
+          // Dies erstellt die Session erst NACH erfolgreicher Verifizierung
+          const signInResult = await signIn(email, password);
+          
+          if (signInResult.error) {
+            // Falls Login fehlschlägt, zeige Fehler
+            setLoading(false);
+            setErrorMessage('Anmeldung fehlgeschlagen. Bitte melde dich manuell an.');
+            setSuccessMessage('');
+            return;
+          }
           
           // Navigation abhängig vom Kontext
           if (fromCheckout) {

@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import colors from '../theme/colors';
 import { supabase } from '../config/supabase';
 import { BACKEND_URL } from '../config/stripe';
+import { useAuth } from '../context/AuthContext';
 // Native Date Picker
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -23,10 +24,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 interface TimeSlot {
   time: string;
   available: boolean;
+  capacity?: number; // Verfügbare Kapazität für diese Zeit
 }
 
 export default function ReservationScreen() {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [dayPart, setDayPart] = useState('');
@@ -41,6 +44,7 @@ export default function ReservationScreen() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [disabledDates, setDisabledDates] = useState<Set<string>>(new Set()); // Datums die nicht auswählbar sind
 
   // Hilfsfunktionen für Zeit-Berechnungen
   const timeToMinutes = (timeStr: string) => {
@@ -71,10 +75,10 @@ export default function ReservationScreen() {
         .from('capacity_rules')
         .select('*');
 
-      // Reservierungen für den Tag laden
+      // Reservierungen für den Tag laden (mit guests und duration für Kapazitätsberechnung)
       const { data: reservationsData } = await supabase
         .from('reservations')
-        .select('time,status')
+        .select('time,status,guests,duration')
         .eq('date', date);
 
       const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
@@ -94,37 +98,113 @@ export default function ReservationScreen() {
         return;
       }
 
-      // Slots aus allen Regeln generieren und Availability anhand Reservierungen bestimmen
-      const slotsSet = new Set<string>();
-      const timeToCapacity: Record<string, number> = {};
-      for (const rule of applicableRules) {
+      // Finde die Regel die 17:30-20:30 Zeitbereich hat (oder beste Regel für Abend)
+      const eveningRule = applicableRules.find((rule: any) => {
         const start = timeToMinutes(rule.start_time);
         const end = timeToMinutes(rule.end_time);
-        const step = rule.interval_minutes || 30;
-        for (let t = start; t <= end; t += step) {
-          const ts = minutesToTime(t);
-          slotsSet.add(ts);
-          // Wenn mehrere Regeln greifen, nimm die maximale Kapazität
-          timeToCapacity[ts] = Math.max(timeToCapacity[ts] || 0, Number(rule.capacity) || 0);
-        }
+        const start1730 = timeToMinutes('17:30');
+        const end2030 = timeToMinutes('20:30');
+        // Prüfe ob die Regel den Bereich 17:30-20:30 enthält
+        return start <= start1730 && end >= end2030;
+      }) || applicableRules[0]; // Fallback zur ersten Regel
+
+      if (!eveningRule) {
+        setTimeSlots([]);
+        return;
       }
 
-      const reservationsByTime: Record<string, number> = {};
-      (reservationsData || []).forEach(r => {
-        const key = r.time?.slice(0,5);
-        if (!key) return;
-        // Optional: nur aktive/platzierte Reservierungen zählen
-        if (r.status && ['cancelled', 'storniert'].includes(String(r.status).toLowerCase())) return;
-        reservationsByTime[key] = (reservationsByTime[key] || 0) + 1;
-      });
+      // Generiere Zeitslots nur zwischen 17:30-20:30
+      const slotsSet = new Set<string>();
+      const start1730 = timeToMinutes('17:30');
+      const end2030 = timeToMinutes('20:30');
+      const step = eveningRule.interval_minutes || 30;
+      for (let t = start1730; t <= end2030; t += step) {
+        slotsSet.add(minutesToTime(t));
+      }
 
+      // Gesamtkapazität aus allen Tischen berechnen
+      const { data: roomsData } = await supabase
+        .from('rooms')
+        .select(`
+          id,
+          name,
+          tables (
+            id,
+            name,
+            capacity
+          )
+        `);
+      
+      // Berechne Gesamtkapazität aus allen Tischen
+      let totalCapacity = 0;
+      if (roomsData) {
+        roomsData.forEach((room: any) => {
+          if (room.tables && Array.isArray(room.tables)) {
+            room.tables.forEach((table: any) => {
+              totalCapacity += Number(table.capacity) || 0;
+            });
+          }
+        });
+      }
+      
+      // Fallback: wenn keine Tische gefunden, verwende Kapazität aus Regel
+      if (totalCapacity === 0) {
+        totalCapacity = Number(eveningRule.capacity) || 0;
+      }
+
+      // Standard-Dauer für Reservierungen: 120 Minuten
+      const standardDuration = 120;
+
+      // Berechne verfügbare Kapazität für jeden Slot basierend auf 30-Minuten-Intervallen
       const computedSlots = Array.from(slotsSet)
         .sort()
         .map(time => {
-          const capacity = timeToCapacity[time] ?? 0;
-          const used = reservationsByTime[time] || 0;
-          const available = capacity === 0 ? false : used < capacity;
-          return { time, available } as TimeSlot;
+          // Berechne verfügbare Kapazität für diesen Zeitraum
+          const startMinutes = timeToMinutes(time);
+          const endMinutes = startMinutes + standardDuration;
+          
+          // Generiere 30-Minuten-Intervalle für diesen Zeitraum
+          const intervals: number[] = [];
+          for (let min = startMinutes; min < endMinutes; min += 30) {
+            intervals.push(min);
+          }
+
+          // Für jedes Intervall berechne die belegte Kapazität
+          const availableCapacities = intervals.map(intervalStart => {
+            const intervalEnd = intervalStart + 30;
+            
+            // Finde alle Reservierungen, die dieses Intervall überlappen
+            const overlappingReservations = (reservationsData || []).filter((reservation: any) => {
+              // Überspringe stornierte Reservierungen
+              if (reservation.status && ['cancelled', 'storniert'].includes(String(reservation.status).toLowerCase())) {
+                return false;
+              }
+              
+              const reservationTimeStr = reservation.time?.slice(0, 5) || '';
+              if (!reservationTimeStr) return false;
+              
+              const reservationStart = timeToMinutes(reservationTimeStr);
+              const reservationDuration = reservation.duration || 120;
+              const reservationEnd = reservationStart + reservationDuration;
+              
+              // Prüfe auf Überlappung
+              return !(intervalEnd <= reservationStart || intervalStart >= reservationEnd);
+            });
+            
+            // Berechne belegte Kapazität (Summe der Gäste)
+            const occupiedCapacity = overlappingReservations.reduce((sum: number, reservation: any) => {
+              return sum + (Number(reservation.guests) || 0);
+            }, 0);
+            
+            // Verfügbare Kapazität für dieses Intervall
+            return totalCapacity - occupiedCapacity;
+          });
+
+          // Gib das Minimum zurück (der Engpass bestimmt die verfügbare Kapazität)
+          const availableCapacity = Math.min(...availableCapacities);
+          const available = availableCapacity > 0;
+
+          return { time, available, capacity: availableCapacity } as TimeSlot;
         });
 
       setTimeSlots(computedSlots);
@@ -134,7 +214,87 @@ export default function ReservationScreen() {
     }
   };
 
+  // Lade exceptions und capacity_rules um ungültige Datums zu bestimmen
+  const loadDisabledDates = async () => {
+    try {
+      // Lade alle exceptions
+      const { data: exceptionsData } = await supabase
+        .from('exceptions')
+        .select('date');
+      
+      // Lade capacity_rules um zu prüfen welche Wochentage keine Abendregel haben
+      const { data: rulesData } = await supabase
+        .from('capacity_rules')
+        .select('*');
+      
+      const disabledDatesSet = new Set<string>();
+      
+      // Füge alle exceptions hinzu
+      if (exceptionsData) {
+        exceptionsData.forEach((exception: any) => {
+          if (exception.date) {
+            disabledDatesSet.add(exception.date);
+          }
+        });
+      }
+      
+      // Prüfe welche Wochentage keine Abendregel (17:30-20:30) haben
+      const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const start1730 = timeToMinutes('17:30');
+      const end2030 = timeToMinutes('20:30');
+      
+      // Finde Wochentage die eine Abendregel haben
+      const daysWithEveningRule = new Set<string>();
+      if (rulesData) {
+        rulesData.forEach((rule: any) => {
+          try {
+            const ruleDays = typeof rule.days === 'string' ? JSON.parse(rule.days) : rule.days;
+            if (Array.isArray(ruleDays)) {
+              const ruleStart = timeToMinutes(rule.start_time);
+              const ruleEnd = timeToMinutes(rule.end_time);
+              // Prüfe ob diese Regel den Bereich 17:30-20:30 enthält
+              if (ruleStart <= start1730 && ruleEnd >= end2030) {
+                ruleDays.forEach((day: string) => {
+                  daysWithEveningRule.add(day);
+                });
+              }
+            }
+          } catch {
+            // Ignoriere ungültige Regeln
+          }
+        });
+      }
+      
+      // Generiere Datums für das nächste Jahr und markiere die ohne Abendregel als disabled
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const end = new Date(start);
+      end.setFullYear(start.getFullYear() + 1);
+      
+      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+        const dayOfWeek = d.getDay();
+        const dayName = dayNames[dayOfWeek];
+        
+        // Wenn dieser Wochentag keine Abendregel hat, füge das Datum zu disabled hinzu
+        if (!daysWithEveningRule.has(dayName)) {
+          const yyyy = d.getFullYear().toString();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          const iso = `${yyyy}-${mm}-${dd}`;
+          disabledDatesSet.add(iso);
+        }
+      }
+      
+      setDisabledDates(disabledDatesSet);
+    } catch (e) {
+      console.error('Fehler beim Laden der disabled dates:', e);
+    }
+  };
+
   useEffect(() => {
+    // Lade disabled dates beim Start
+    loadDisabledDates();
+    
     // Setze heutiges Datum als Standard und lade Slots
     const today = new Date();
     const dateString = today.toISOString().split('T')[0];
@@ -153,6 +313,22 @@ export default function ReservationScreen() {
       loadTimeSlotsForDate(selectedDate);
     }
   }, [selectedDate]);
+
+  // Fülle Name und E-Mail automatisch aus, wenn User angemeldet ist
+  useEffect(() => {
+    if (user && step === 2) {
+      // Fülle Name nur aus, wenn noch leer
+      if (!fullName.trim() && (user.user_metadata?.first_name || user.user_metadata?.last_name)) {
+        const firstName = user.user_metadata?.first_name || '';
+        const lastName = user.user_metadata?.last_name || '';
+        setFullName(`${firstName} ${lastName}`.trim());
+      }
+      // Fülle E-Mail nur aus, wenn noch leer
+      if (!email.trim() && user.email) {
+        setEmail(user.email);
+      }
+    }
+  }, [user, step]);
 
   // Konvertiere YYYY-MM-DD zu DD.MM.YYYY für Anzeige
   const formatDateForDisplay = (isoDate: string) => {
@@ -432,11 +608,18 @@ export default function ReservationScreen() {
                         labelLeft = `${weekday}, ${dateStr}`;
                       }
 
+                      const isDisabled = disabledDates.has(iso) || (idx === 0 && new Date().toISOString().split('T')[0] === iso && new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) >= '21:00');
+                      
                       items.push(
                         <TouchableOpacity
                           key={iso}
-                          style={[styles.dayPickerItem, isSelected && styles.dayPickerItemSelected]}
+                          style={[
+                            styles.dayPickerItem, 
+                            isSelected && !isDisabled && styles.dayPickerItemSelected,
+                            isDisabled && styles.dayPickerItemUnavailable
+                          ]}
                           onPress={() => {
+                            if (isDisabled) return;
                             setSelectedDate(iso);
                             setYearPart(yyyy);
                             setMonthPart(mm);
@@ -444,8 +627,13 @@ export default function ReservationScreen() {
                             setSelectedTime('');
                             setShowDatePicker(false);
                           }}
+                          disabled={isDisabled}
                         >
-                          <Text style={[styles.dayPickerItemText, isSelected && styles.dayPickerItemTextSelected]}>
+                          <Text style={[
+                            styles.dayPickerItemText, 
+                            isSelected && !isDisabled && styles.dayPickerItemTextSelected,
+                            isDisabled && styles.dayPickerItemTextUnavailable
+                          ]}>
                             {labelLeft}
                           </Text>
                         </TouchableOpacity>
@@ -464,7 +652,8 @@ export default function ReservationScreen() {
             <View style={styles.timeGrid}>
               {timeSlots.map((slot) => {
                 const isPastForToday = isTodaySelected() && slot.time <= currentTimeHHMM();
-                const disabled = !slot.available || isPastForToday;
+                // Deaktiviere wenn nicht verfügbar, Kapazität 0, oder in der Vergangenheit
+                const disabled = !slot.available || (slot.capacity !== undefined && slot.capacity === 0) || isPastForToday;
                 return (
                   <TouchableOpacity
                     key={slot.time}
@@ -950,6 +1139,10 @@ const styles = StyleSheet.create({
   dayPickerItemPast: {
     opacity: 0.3,
   },
+  dayPickerItemUnavailable: {
+    backgroundColor: colors.darkGray,
+    opacity: 0.5,
+  },
   dayPickerItemText: {
     fontSize: 16,
     fontWeight: '300',
@@ -971,6 +1164,9 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   dayPickerItemDayPast: {
+    color: colors.mediumGray,
+  },
+  dayPickerItemTextUnavailable: {
     color: colors.mediumGray,
   },
   inputIcon: {
