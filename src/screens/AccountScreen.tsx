@@ -47,12 +47,11 @@ export default function AccountScreen() {
   const baseMenuItems = [
     { id: '1', title: 'Meine Bestellungen', icon: 'receipt-outline', subtitle: 'Bestellhistorie ansehen', requiresLogin: true },
     { id: '2', title: 'Profil bearbeiten', icon: 'person-outline', subtitle: 'Name, E-Mail, etc.', requiresLogin: true },
-    { id: '3', title: 'Hilfe & Support', icon: 'help-circle-outline', subtitle: 'FAQ & Kontakt' },
   ];
 
   // Füge "Abmelden" nur hinzu wenn User eingeloggt ist
   const menuItems = isLoggedIn 
-    ? [...baseMenuItems, { id: '4', title: 'Abmelden', icon: 'log-out-outline', subtitle: '', isLogout: true }]
+    ? [...baseMenuItems, { id: '3', title: 'Abmelden', icon: 'log-out-outline', subtitle: '', isLogout: true }]
     : baseMenuItems;
 
   const handleMenuPress = (item: any) => {
@@ -87,10 +86,7 @@ export default function AccountScreen() {
         (navigation.navigate as any)('OrderHistory');
         break;
       case '2': // Profil bearbeiten
-        Alert.alert('Profil bearbeiten', 'Diese Funktion wird bald verfügbar sein');
-        break;
-      case '3': // Hilfe & Support
-        Alert.alert('Hilfe & Support', 'Diese Funktion wird bald verfügbar sein');
+        (navigation.navigate as any)('ProfileEdit');
         break;
       default:
         Alert.alert(item.title, 'Diese Funktion wird bald verfügbar sein');

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { CartProvider } from './src/context/CartContext';
 import { AuthProvider } from './src/context/AuthContext';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import LoadingTransition from './src/components/LoadingTransition';
 import { STRIPE_PUBLISHABLE_KEY, APPLE_PAY_MERCHANT_ID } from './src/config/stripe';
 import * as Linking from 'expo-linking';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Splash Screen verhindern, dass es automatisch verschwindet
+SplashScreen.preventAutoHideAsync();
 
 const linking = {
   prefixes: ['moggiapp://', 'exp://192.168.178.25:8081/--/'],
@@ -22,6 +27,16 @@ const linking = {
 };
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleLoadingFinish = () => {
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return <LoadingTransition onFinish={handleLoadingFinish} />;
+  }
+
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISHABLE_KEY}

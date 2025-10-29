@@ -555,7 +555,7 @@ export default function ReservationScreen() {
                 style={styles.input}
                 value={phone}
                 onChangeText={setPhone}
-                placeholder="+49 123 456789"
+                placeholder="0911 63290791"
                 placeholderTextColor={colors.mediumGray}
                 keyboardType="phone-pad"
               />

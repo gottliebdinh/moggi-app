@@ -9,6 +9,7 @@ type AuthContextType = {
   signUp: (email: string, password: string, firstName: string, lastName: string, birthDate: string) => Promise<{ error: any; userId?: string | null; email?: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: { first_name?: string; last_name?: string; email?: string }) => Promise<{ error: any }>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null, userId: null }),
   signIn: async () => ({ error: null }),
   signOut: async () => {},
+  updateProfile: async () => ({ error: null }),
 });
 
 export const useAuth = () => {
@@ -133,6 +135,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  const updateProfile = async (updates: { first_name?: string; last_name?: string; email?: string }) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          first_name: updates.first_name,
+          last_name: updates.last_name,
+        },
+        email: updates.email,
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      // Update local user state
+      if (user) {
+        setUser({
+          ...user,
+          email: updates.email || user.email,
+          user_metadata: {
+            ...user.user_metadata,
+            first_name: updates.first_name || user.user_metadata?.first_name,
+            last_name: updates.last_name || user.user_metadata?.last_name,
+          },
+        });
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -142,6 +177,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signUp,
         signIn,
         signOut,
+        updateProfile,
       }}
     >
       {children}
