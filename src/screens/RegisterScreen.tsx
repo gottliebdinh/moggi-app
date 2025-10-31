@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { signUp } = useAuth();
+  const { t } = useLanguage();
   const { fromCheckout } = (route.params as any) || {};
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -86,18 +88,18 @@ export default function RegisterScreen() {
     
     // Validation
     if (!firstName || !lastName || !email || !birthDay || !birthMonth || !birthYear || !password) {
-      setErrorMessage('Bitte fülle alle Felder aus');
+      setErrorMessage(t('register.fillAllFields'));
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage('Passwort muss mindestens 6 Zeichen lang sein');
+      setErrorMessage(t('register.passwordTooShort'));
       return;
     }
 
     // Validate birth date
     if (birthDay.length !== 2 || birthMonth.length !== 2 || birthYear.length !== 4) {
-      setErrorMessage('Bitte gib ein vollständiges Geburtsdatum ein');
+      setErrorMessage(t('register.invalidBirthDate'));
       return;
     }
 
@@ -119,13 +121,13 @@ export default function RegisterScreen() {
           error.message.includes('User already registered') ||
           error.message.includes('duplicate') ||
           error.message.includes('already exists')) {
-        setErrorMessage('Diese E-Mail ist bereits registriert. Bitte melde dich an.');
+        setErrorMessage(t('register.emailAlreadyRegistered'));
       } else if (error.message.includes('invalid email')) {
-        setErrorMessage('Bitte gib eine gültige E-Mail-Adresse ein');
+        setErrorMessage(t('register.invalidEmail'));
       } else if (error.message.includes('Password')) {
-        setErrorMessage('Passwort ist zu schwach. Verwende mindestens 6 Zeichen.');
+        setErrorMessage(t('register.weakPassword'));
       } else {
-        setErrorMessage(error.message || 'Ein Fehler ist aufgetreten');
+        setErrorMessage(error.message || t('register.error'));
       }
       return;
     }
@@ -181,9 +183,9 @@ export default function RegisterScreen() {
             <View style={styles.successIconContainer}>
               <Ionicons name="checkmark-circle" size={80} color={colors.primary} />
             </View>
-            <Text style={styles.successTitle}>Registrierung erfolgreich!</Text>
+            <Text style={styles.successTitle}>{t('register.successTitle')}</Text>
             <Text style={styles.successMessage}>
-              Dein Konto wurde erstellt.{'\n'}Du wirst zur Anmeldung weitergeleitet...
+              {t('register.successMessage')}
             </Text>
           </Animated.View>
         </Animated.View>
@@ -198,7 +200,7 @@ export default function RegisterScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Registrieren</Text>
+        <Text style={styles.headerTitle}>{t('register.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -213,8 +215,8 @@ export default function RegisterScreen() {
         >
           <View style={styles.content}>
             {/* Welcome Text */}
-            <Text style={styles.title}>Konto erstellen</Text>
-            <Text style={styles.subtitle}>Registriere dich für exklusive Vorteile</Text>
+            <Text style={styles.title}>{t('register.pageTitle')}</Text>
+            <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
 
             {/* Error Message */}
             {errorMessage ? (
@@ -228,12 +230,12 @@ export default function RegisterScreen() {
             <View style={styles.form}>
               {/* First Name */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Vorname</Text>
+                <Text style={styles.inputLabel}>{t('register.firstName')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="person-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Max"
+                    placeholder={t('register.firstNamePlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={firstName}
                     onChangeText={setFirstName}
@@ -244,12 +246,12 @@ export default function RegisterScreen() {
 
               {/* Last Name */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Nachname</Text>
+                <Text style={styles.inputLabel}>{t('register.lastName')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="person-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Mustermann"
+                    placeholder={t('register.lastNamePlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={lastName}
                     onChangeText={setLastName}
@@ -260,12 +262,12 @@ export default function RegisterScreen() {
 
               {/* Email */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>E-Mail</Text>
+                <Text style={styles.inputLabel}>{t('register.email')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="mail-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="deine@email.com"
+                    placeholder={t('register.emailPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={email}
                     onChangeText={setEmail}
@@ -278,12 +280,12 @@ export default function RegisterScreen() {
 
               {/* Birth Date */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Geburtsdatum</Text>
+                <Text style={styles.inputLabel}>{t('register.birthDate')}</Text>
                 <View style={styles.dateInputRow}>
                   <View style={styles.dateInputWrapper}>
                     <TextInput
                       style={styles.dateInput}
-                      placeholder="TT"
+                      placeholder={t('register.dayPlaceholder')}
                       placeholderTextColor={colors.mediumGray}
                       value={birthDay}
                       onChangeText={handleDayChange}
@@ -297,7 +299,7 @@ export default function RegisterScreen() {
                     <TextInput
                       ref={monthInputRef}
                       style={styles.dateInput}
-                      placeholder="MM"
+                      placeholder={t('register.monthPlaceholder')}
                       placeholderTextColor={colors.mediumGray}
                       value={birthMonth}
                       onChangeText={handleMonthChange}
@@ -311,7 +313,7 @@ export default function RegisterScreen() {
                     <TextInput
                       ref={yearInputRef}
                       style={styles.dateInput}
-                      placeholder="JJJJ"
+                      placeholder={t('register.yearPlaceholder')}
                       placeholderTextColor={colors.mediumGray}
                       value={birthYear}
                       onChangeText={handleYearChange}
@@ -325,12 +327,12 @@ export default function RegisterScreen() {
 
               {/* Password */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Passwort</Text>
+                <Text style={styles.inputLabel}>{t('register.password')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="lock-closed-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="••••••••"
+                    placeholder={t('register.passwordPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={password}
                     onChangeText={setPassword}
@@ -362,7 +364,7 @@ export default function RegisterScreen() {
                   <ActivityIndicator color={colors.white} />
                 ) : (
                   <>
-                    <Text style={styles.registerButtonText}>Konto erstellen</Text>
+                    <Text style={styles.registerButtonText}>{t('register.createAccount')}</Text>
                     <Ionicons name="arrow-forward" size={20} color={colors.white} />
                   </>
                 )}
@@ -371,10 +373,7 @@ export default function RegisterScreen() {
 
             {/* Terms */}
             <Text style={styles.termsText}>
-              Mit der Registrierung akzeptierst du unsere{' '}
-              <Text style={styles.termsLink}>Nutzungsbedingungen</Text>
-              {' '}und{' '}
-              <Text style={styles.termsLink}>Datenschutzrichtlinien</Text>
+              {t('register.terms')} <Text style={styles.termsLink}>{t('register.termsOfService')}</Text> {t('register.and')} <Text style={styles.termsLink}>{t('register.privacyPolicy')}</Text>
             </Text>
           </View>
         </ScrollView>
@@ -589,4 +588,3 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
-

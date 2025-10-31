@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -16,12 +18,12 @@ export default function ForgotPasswordScreen() {
     setSuccessMessage('');
     
     if (!email) {
-      setErrorMessage('Bitte gib deine E-Mail-Adresse ein');
+      setErrorMessage(t('forgotPassword.enterEmail'));
       return;
     }
 
     if (!email.includes('@')) {
-      setErrorMessage('Bitte gib eine gültige E-Mail-Adresse ein');
+      setErrorMessage(t('forgotPassword.invalidEmail'));
       return;
     }
 
@@ -45,16 +47,16 @@ export default function ForgotPasswordScreen() {
       setLoading(false);
 
       if (!response.ok) {
-        setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
+        setErrorMessage(t('forgotPassword.error'));
         return;
       }
 
       // Erfolg
-      setSuccessMessage('E-Mail versendet! Prüfe deinen Posteingang und klicke auf den Link.');
+      setSuccessMessage(t('forgotPassword.emailSent'));
       
     } catch (error: any) {
       setLoading(false);
-      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
+      setErrorMessage(t('forgotPassword.error'));
     }
   };
 
@@ -69,7 +71,7 @@ export default function ForgotPasswordScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Passwort zurücksetzen</Text>
+        <Text style={styles.headerTitle}>{t('forgotPassword.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -90,9 +92,9 @@ export default function ForgotPasswordScreen() {
               </View>
             </View>
 
-            <Text style={styles.title}>Passwort vergessen?</Text>
+            <Text style={styles.title}>{t('forgotPassword.heading')}</Text>
             <Text style={styles.subtitle}>
-              Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.
+              {t('forgotPassword.subtitle')}
             </Text>
 
             {/* Error Message */}
@@ -114,12 +116,12 @@ export default function ForgotPasswordScreen() {
             {/* Form */}
             <View style={styles.form}>
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>E-Mail</Text>
+                <Text style={styles.inputLabel}>{t('forgotPassword.email')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="mail-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="deine@email.com"
+                    placeholder={t('forgotPassword.emailPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={email}
                     onChangeText={setEmail}
@@ -143,7 +145,7 @@ export default function ForgotPasswordScreen() {
                 ) : (
                   <>
                     <Ionicons name="mail" size={20} color={colors.white} />
-                    <Text style={styles.resetButtonText}>Link senden</Text>
+                    <Text style={styles.resetButtonText}>{t('forgotPassword.sendLink')}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -156,7 +158,7 @@ export default function ForgotPasswordScreen() {
               activeOpacity={0.7}
             >
               <Ionicons name="arrow-back" size={16} color={colors.primary} />
-              <Text style={styles.backToLoginText}>Zurück zur Anmeldung</Text>
+              <Text style={styles.backToLoginText}>{t('forgotPassword.backToLogin')}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

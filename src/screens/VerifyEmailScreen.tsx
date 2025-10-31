@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { supabase } from '../config/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function VerifyEmailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { signIn } = useAuth();
+  const { t } = useLanguage();
   const { email, userId, firstName, password, fromCheckout } = route.params as any;
   
   const [code, setCode] = useState('');
@@ -44,12 +46,12 @@ export default function VerifyEmailScreen() {
 
       // Zeige Warnung
       Alert.alert(
-        'Registrierung abbrechen?',
-        'Wenn du jetzt abbrichst, musst du dich neu registrieren. Der unbestätigte Account wird gelöscht.',
+        t('verify.cancelTitle'),
+        t('verify.cancelMessage'),
         [
-          { text: 'Hier bleiben', style: 'cancel' },
+          { text: t('verify.stayHere'), style: 'cancel' },
           {
-            text: 'Abbrechen',
+            text: t('verify.cancelButton'),
             style: 'destructive',
             onPress: async () => {
               // Lösche den unbestätigten User aus Supabase
@@ -69,7 +71,7 @@ export default function VerifyEmailScreen() {
     setErrorMessage('');
     
     if (!code || code.length !== 6) {
-      setErrorMessage('Bitte gib den 6-stelligen Code ein');
+      setErrorMessage(t('verify.enterCodeError'));
       return;
     }
 
@@ -93,7 +95,7 @@ export default function VerifyEmailScreen() {
 
       if (!response.ok) {
         setLoading(false);
-        setErrorMessage(data.error || 'Ungültiger Code');
+        setErrorMessage(data.error || t('verify.invalidCode'));
         return;
       }
 
@@ -112,7 +114,7 @@ export default function VerifyEmailScreen() {
       setVerified(true); // Markiere als verifiziert für beforeRemove listener
 
       // Erfolg - automatisch anmelden
-      setSuccessMessage('E-Mail bestätigt! Melde dich an...');
+      setSuccessMessage(t('verify.emailConfirmed'));
       
       // Kurze Pause, dann automatisch anmelden
       setTimeout(async () => {
@@ -124,7 +126,7 @@ export default function VerifyEmailScreen() {
           if (signInResult.error) {
             // Falls Login fehlschlägt, zeige Fehler
             setLoading(false);
-            setErrorMessage('Anmeldung fehlgeschlagen. Bitte melde dich manuell an.');
+            setErrorMessage(t('verify.loginFailed'));
             setSuccessMessage('');
             return;
           }
@@ -151,7 +153,7 @@ export default function VerifyEmailScreen() {
 
     } catch (error) {
       setLoading(false);
-      setErrorMessage('Ein Fehler ist aufgetreten');
+      setErrorMessage(t('common.error'));
     }
   };
 
@@ -172,7 +174,7 @@ export default function VerifyEmailScreen() {
         }),
       });
       
-      setSuccessMessage('Neuer Code wurde gesendet!');
+      setSuccessMessage(t('verify.newCodeSent'));
       
       // Clear success message nach 3 Sekunden
       setTimeout(() => {
@@ -180,7 +182,7 @@ export default function VerifyEmailScreen() {
       }, 3000);
       
     } catch (error) {
-      setErrorMessage('Code konnte nicht erneut gesendet werden');
+      setErrorMessage(t('verify.codeNotSent'));
     }
   };
 
@@ -195,7 +197,7 @@ export default function VerifyEmailScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>E-Mail bestätigen</Text>
+        <Text style={styles.headerTitle}>{t('verify.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -207,18 +209,18 @@ export default function VerifyEmailScreen() {
           </View>
         </View>
 
-        <Text style={styles.title}>Code eingeben</Text>
+        <Text style={styles.title}>{t('verify.enterCode')}</Text>
         <Text style={styles.subtitle}>
-          Wir haben einen 6-stelligen Code an{'\n'}
+          {t('verify.codeSentTo')}{'\n'}
           <Text style={styles.emailText}>{email}</Text>{'\n'}
-          gesendet.
+          {t('verify.sent')}
         </Text>
 
         {/* Warning */}
         <View style={styles.warningCard}>
           <Ionicons name="warning" size={20} color="#FF6B00" />
           <Text style={styles.warningText}>
-            Wichtig: Schließe diesen Screen nicht! Bei Verlassen musst du dich neu registrieren.
+            {t('verify.warning')}
           </Text>
         </View>
 
@@ -267,7 +269,7 @@ export default function VerifyEmailScreen() {
           ) : (
             <>
               <Ionicons name="checkmark-circle" size={20} color={colors.white} />
-              <Text style={styles.verifyButtonText}>Bestätigen</Text>
+              <Text style={styles.verifyButtonText}>{t('verify.confirm')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -279,7 +281,7 @@ export default function VerifyEmailScreen() {
             onPress={handleResendCode}
             activeOpacity={0.7}
           >
-            <Text style={styles.resendText}>Code erneut senden</Text>
+            <Text style={styles.resendText}>{t('verify.resendCode')}</Text>
           </TouchableOpacity>
         )}
       </View>

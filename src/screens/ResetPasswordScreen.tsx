@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../config/supabase';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function ResetPasswordScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,17 +22,17 @@ export default function ResetPasswordScreen() {
     setSuccessMessage('');
 
     if (!newPassword || !confirmPassword) {
-      setErrorMessage('Bitte fülle alle Felder aus');
+      setErrorMessage(t('resetPassword.fillAllFields'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setErrorMessage('Passwort muss mindestens 6 Zeichen lang sein');
+      setErrorMessage(t('resetPassword.passwordTooShort'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setErrorMessage('Passwörter stimmen nicht überein');
+      setErrorMessage(t('resetPassword.passwordMismatch'));
       return;
     }
 
@@ -44,12 +46,12 @@ export default function ResetPasswordScreen() {
       setLoading(false);
 
       if (error) {
-        setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+        setErrorMessage(t('resetPassword.error'));
         return;
       }
 
       // Erfolg
-      setSuccessMessage('Passwort wurde erfolgreich geändert!');
+      setSuccessMessage(t('resetPassword.success'));
       
       // Nach 2 Sekunden zurück zum Login
       setTimeout(() => {
@@ -58,7 +60,7 @@ export default function ResetPasswordScreen() {
       
     } catch (error: any) {
       setLoading(false);
-      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+      setErrorMessage(t('resetPassword.error'));
     }
   };
 
@@ -73,7 +75,7 @@ export default function ResetPasswordScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Neues Passwort</Text>
+        <Text style={styles.headerTitle}>{t('resetPassword.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -94,9 +96,9 @@ export default function ResetPasswordScreen() {
               </View>
             </View>
 
-            <Text style={styles.title}>Passwort zurücksetzen</Text>
+            <Text style={styles.title}>{t('resetPassword.heading')}</Text>
             <Text style={styles.subtitle}>
-              Gib dein neues Passwort ein
+              {t('resetPassword.subtitle')}
             </Text>
 
             {/* Error Message */}
@@ -119,12 +121,12 @@ export default function ResetPasswordScreen() {
             <View style={styles.form}>
               {/* New Password */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Neues Passwort</Text>
+                <Text style={styles.inputLabel}>{t('resetPassword.newPassword')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="lock-closed-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Mindestens 6 Zeichen"
+                    placeholder={t('resetPassword.newPasswordPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={newPassword}
                     onChangeText={setNewPassword}
@@ -148,12 +150,12 @@ export default function ResetPasswordScreen() {
 
               {/* Confirm Password */}
               <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Passwort bestätigen</Text>
+                <Text style={styles.inputLabel}>{t('resetPassword.confirmPassword')}</Text>
                 <View style={styles.inputWrapper}>
                   <Ionicons name="lock-closed-outline" size={20} color={colors.mediumGray} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Passwort wiederholen"
+                    placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                     placeholderTextColor={colors.mediumGray}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
@@ -187,7 +189,7 @@ export default function ResetPasswordScreen() {
                 ) : (
                   <>
                     <Ionicons name="checkmark" size={20} color={colors.white} />
-                    <Text style={styles.resetButtonText}>Passwort ändern</Text>
+                    <Text style={styles.resetButtonText}>{t('resetPassword.changePassword')}</Text>
                   </>
                 )}
               </TouchableOpacity>

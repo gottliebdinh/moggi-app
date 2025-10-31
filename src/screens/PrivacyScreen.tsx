@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function PrivacyScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   return (
     <View style={styles.container}>
@@ -18,7 +20,7 @@ export default function PrivacyScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Datenschutz</Text>
+        <Text style={styles.headerTitle}>{t('privacy.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
