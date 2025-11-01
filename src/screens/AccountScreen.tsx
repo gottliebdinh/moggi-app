@@ -281,6 +281,32 @@ export default function AccountScreen() {
                   <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
                 )}
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.languageOption,
+                  language === 'vi' && styles.languageOptionActive
+                ]}
+                onPress={() => handleLanguageSelect('vi')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.languageOptionContent}>
+                  <Ionicons 
+                    name={language === 'vi' ? 'radio-button-on' : 'radio-button-off'} 
+                    size={24} 
+                    color={language === 'vi' ? colors.primary : colors.mediumGray} 
+                  />
+                  <Text style={[
+                    styles.languageOptionText,
+                    language === 'vi' && styles.languageOptionTextActive
+                  ]}>
+                    {t('language.vietnamese')}
+                  </Text>
+                </View>
+                {language === 'vi' && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         </View>

@@ -516,5 +516,152 @@ export const menuTranslations = {
       'Vegan': 'Vegan',
     },
   },
+  vi: {
+    categories: {
+      'New In': {
+        title: 'Món mới',
+        subtitle: 'Khám phá những sáng tạo mới nhất của chúng tôi - Fusion Á Châu kết hợp nguyên liệu theo mùa.',
+      },
+      'Business Lunch': {
+        title: 'Cơm trưa công sở',
+        subtitle: 'Bát cơm và thực đơn trưa chất lượng cao. Thứ Ba đến Thứ Bảy 11:30-14:30. Nhanh, tươi và hoàn hảo cho bữa trưa công sở ở Nürnberg.',
+      },
+      'Tapas Fleisch': {
+        title: 'Tapas thịt',
+        subtitle: 'Tapas thịt mềm từ bánh vịt đến thịt bò nấm truffle - đĩa nhỏ với hương vị lớn. Chia sẻ là quan tâm tại MOGGI Asian Kitchen & Bar Nürnberg.',
+      },
+      'Tapas Fisch': {
+        title: 'Tapas hải sản',
+        subtitle: 'Hải sản hảo hạng trên đĩa nhỏ - Cá hồi tartar, cá ngừ và nhiều món khác. Hoàn hảo để chia sẻ trong không gian ấm cúng với phong cách bar tại Nürnberg.',
+      },
+      'Tapas vegetarisch': {
+        title: 'Tapas chay',
+        subtitle: 'Tapas Á Châu thực vật để chia sẻ - từ baos đến gyoza. Hầu hết các món cũng có phiên bản thuần chay. Ưu đãi Thứ Tư: 3 với giá 4 cho tất cả tapas tại MOGGI Nürnberg.',
+      },
+      'Sticks': {
+        title: 'Xiên',
+        subtitle: 'Xiên Yakitori nướng hoàn hảo với ướp xốt đích thực - lý tưởng với đồ uống tại quầy bar. Đồ ăn đêm muộn đến 3 giờ vào cuối tuần.',
+      },
+      'Crisps': {
+        title: 'Món giòn',
+        subtitle: 'Tempura giòn và đồ ăn nhẹ Á Châu - món khai vị hoàn hảo hoặc đi kèm đồ uống. Happy Hour Thứ Năm & Thứ Sáu 20-22 giờ.',
+      },
+      'Baos': {
+        title: 'Bánh bao',
+        subtitle: 'Bánh bao hấp mềm theo truyền thống Trung Quốc - làm tại nhà với nhân sáng tạo. Tapas Á Châu để chia sẻ, lấy cảm hứng từ Quảng Đông.',
+      },
+      'Nori Tacos': {
+        title: 'Taco rong biển',
+        subtitle: 'Rong biển giòn kết hợp với nhân sáng tạo - sáng tạo fusion đổi mới nhất của chúng tôi. Đồ ăn đường phố Á Châu được diễn giải lại để chia sẻ.',
+      },
+      'Sashimi': {
+        title: 'Sashimi sushi',
+        subtitle: 'Phi lê cá hảo hạng cắt nghệ thuật - chất lượng thuần túy không cơm. Sự tươi ngon gặp kỹ thuật cắt tinh thảo theo phong cách Edomae truyền thống.',
+      },
+      'Nigiri': {
+        title: 'Nigiri sushi',
+        subtitle: 'Cá cao cấp trên cơm nêm vừa vặn - tác phẩm nghệ thuật sushi. Mỗi miếng được tạo ra với độ chính xác và tôn trọng sản phẩm.',
+      },
+      'Hosomaki': {
+        title: 'Hosomaki sushi',
+        subtitle: 'Cuộn sushi nhỏ cổ điển - tinh tế và thanh lịch. Các cuộn mảnh truyền thống với nhân tinh chọn được cuộn trong rong biển Nori.',
+      },
+      'Uramaki': {
+        title: 'Uramaki sushi',
+        subtitle: 'Cuộn trong ngoài - cơm bên ngoài, rong biển bên trong. Sáng tạo sushi hiện đại với topping đa dạng và kết cấu độc đáo.',
+      },
+      'Special Roll': {
+        title: 'Cuộn đặc biệt',
+        subtitle: 'Tác phẩm nghệ thuật sushi của chúng tôi - sáng tạo đặc biệt với nhiều lớp hương vị. Mỗi cuộn là tuyên ngôn ẩm thực độc đáo.',
+      },
+      'Crispy Rolls': {
+        title: 'Cuộn giòn',
+        subtitle: 'Giòn bên ngoài, mềm bên trong - sushi với twist. Cuộn chiên giòn với nhân sáng tạo và sốt hấp dẫn.',
+      },
+      'Sides': {
+        title: 'Món phụ',
+        subtitle: 'Món phụ hoàn hảo cho bữa ăn của bạn - từ cơm đến salad. Bổ sung lý tưởng cho trải nghiệm Asian Fusion của bạn.',
+      },
+    },
+    dishes: {
+      // Tapas Fleisch
+      'Akari': 'thịt bò wagyu hấp với truffle mayo, bí đỏ',
+      'Duck Bao': 'thịt vịt với hoisin, dưa chuột, hành tây ngâm',
+      'Gua Bao Pulled Beef': 'thịt bò kéo sợi, hành tây ngâm, rau mùi',
+      'Wasabi Prawn': 'tôm tempura với wasabi mayo, cà chua',
+      // Tapas Fisch
+      'Crabbombs': 'cua chiên với sốt cay ngọt',
+      'Sake Tataki': 'cá hồi áp chảo nhẹ với ponzu, hành lá',
+      'Maguro Tataki': 'cá ngừ áp chảo nhẹ với ponzu, hành lá',
+      'Salmon Tartar': 'cá hồi tươi với bơ, ponzu, mè',
+      // Tapas vegetarisch  
+      'Spicy Cucumber Salat': 'dưa chuột với sốt mè cay',
+      'Edamame': 'đậu nành hấp với muối biển',
+      'Gyoza vegetarisch': 'bánh xếp rau củ chiên',
+      'Summer Roll vegetarisch': 'cuộn tươi với rau và bún',
+      // Sticks
+      'Asupara Sticks': 'măng tây nướng với teriyaki',
+      'Chicken Yakitori': 'xiên gà nướng với teriyaki',
+      'Beef Yakitori': 'xiên thịt bò nướng với teriyaki',
+      'Prawn Yakitori': 'xiên tôm nướng với teriyaki',
+      // Crisps
+      'Crisps Guacamole': 'chip giòn với guacamole',
+      'Ebi Tempura': 'tôm chiên tempura giòn',
+      'Yasai Tempura': 'rau củ chiên tempura giòn',
+      'Calamari': 'mực chiên giòn với sốt tartar',
+      // Baos
+      'Bao Beef': 'bánh bao thịt bò với hoisin',
+      'Bao Chicken': 'bánh bao gà với teriyaki',
+      'Bao Duck': 'bánh bao vịt với hoisin',
+      'Bao vegetarisch': 'bánh bao chay với rau củ',
+      // Nori Tacos
+      'Sake Taco': 'taco cá hồi với bơ, ponzu',
+      'Beef Taco': 'taco thịt bò với wasabi mayo',
+      'Chicken Taco': 'taco gà với teriyaki',
+      'Veggie Taco': 'taco chay với rau củ',
+      // Sashimi
+      'Maguro to Sake': 'cá ngừ và cá hồi sashimi',
+      'Sake Sashimi': 'cá hồi sashimi',
+      'Maguro Sashimi': 'cá ngừ sashimi',
+      'Mixed Sashimi': 'sashimi hỗn hợp',
+      // Nigiri
+      'Sake': 'nigiri cá hồi',
+      'Maguro': 'nigiri cá ngừ',
+      'Ebi': 'nigiri tôm',
+      'Unagi': 'nigiri lươn',
+      // Hosomaki
+      'Sake Hoso': 'cuộn cá hồi',
+      'Maguro Hoso': 'cuộn cá ngừ',
+      'Avocado Hoso': 'cuộn bơ',
+      'Cucumber Hoso': 'cuộn dưa chuột',
+      // Uramaki
+      'Alasuka Roll': 'cá hồi, bơ, dưa chuột với tobiko',
+      'California Roll': 'cua, bơ, dưa chuột',
+      'Spicy Tuna Roll': 'cá ngừ cay với mayo cay',
+      'Philadelphia Roll': 'cá hồi, phô mai cream, bơ',
+      // Special Roll
+      'Chihiro Roll': 'tôm tempura, cá hồi, bơ với sốt đặc biệt',
+      'Dragon Roll': 'tôm tempura với lươn và bơ ở ngoài',
+      'Rainbow Roll': 'cua với cá hỗn hợp ở ngoài',
+      'Volcano Roll': 'cá hồi nướng với sốt cay',
+      // Crispy Rolls
+      'Beef Crispy Roll': 'cuộn thịt bò chiên giòn',
+      'Chicken Crispy Roll': 'cuộn gà chiên giòn',
+      'Salmon Crispy Roll': 'cuộn cá hồi chiên giòn',
+      'Veggie Crispy Roll': 'cuộn chay chiên giòn',
+      // Sides
+      'Kimchi': 'kim chi truyền thống Hàn Quốc',
+      'Wakame Salad': 'salad rong biển',
+      'Miso Soup': 'súp miso truyền thống',
+      'Edamame Salad': 'salad đậu nành',
+      'Sashimi Salad': 'cá hồi, cá ngừ sashimi trên salad với nước sốt nhà',
+    },
+    tags: {
+      'Vegetarisch': 'Chay',
+      'Pikant': 'Cay nhẹ',
+      'Scharf': 'Cay',
+      'Vegan': 'Thuần chay',
+    },
+  },
 };
 

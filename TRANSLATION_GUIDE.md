@@ -237,10 +237,11 @@ setLanguage('de');
 ## 📊 Statistik
 
 - **Screens übersetzt:** 30+
-- **Translation Keys:** 300+
+- **Translation Keys:** 335+
 - **Menü-Einträge:** 50+ Gerichte
-- **Kategorien:** 6
-- **Tags:** 5
+- **Kategorien:** 16
+- **Tags:** 4
+- **Unterstützte Sprachen:** 3 (Deutsch, English, Tiếng Việt)
 
 ---
 
@@ -287,17 +288,25 @@ Die `t()` Funktion unterstützt:
 
 ---
 
+## 🚀 Unterstützte Sprachen
+
+Die App unterstützt aktuell **3 Sprachen**:
+- 🇩🇪 **Deutsch** (de) - Standard
+- 🇬🇧 **English** (en)
+- 🇻🇳 **Tiếng Việt** (vi) - NEU!
+
 ## 🚀 Neue Sprache hinzufügen
 
-Um eine dritte Sprache (z.B. Französisch) hinzuzufügen:
+Um eine vierte Sprache (z.B. Französisch) hinzuzufügen:
 
 1. **LanguageContext.tsx erweitern:**
 ```typescript
-type Language = 'de' | 'en' | 'fr';
+type Language = 'de' | 'en' | 'vi' | 'fr';
 
 const translations = {
   de: { /* ... */ },
   en: { /* ... */ },
+  vi: { /* ... */ },
   fr: {
     home: {
       heroTitle: 'Bienvenue chez Moggi',
@@ -322,6 +331,7 @@ categories: {
 const languages = [
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' }
 ];
 ```
@@ -339,5 +349,5 @@ Bei Fragen oder Problemen:
 
 **Erstellt:** November 2024  
 **Letzte Aktualisierung:** November 2024  
-**Version:** 1.0
+**Version:** 2.0 - Now with Vietnamese! 🇻🇳
 
