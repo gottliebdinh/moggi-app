@@ -10,71 +10,73 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function HelpSupportScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const faqItems = [
     {
       id: '1',
-      question: 'Wie kann ich eine Bestellung aufgeben?',
-      answer: 'Wähle deine gewünschten Gerichte aus der Speisekarte aus, füge sie zum Warenkorb hinzu und gehe zur Kasse. Du kannst zwischen Abholung und Lieferung wählen.'
+      question: t('helpSupport.faq1Question'),
+      answer: t('helpSupport.faq1Answer')
     },
     {
       id: '2',
-      question: 'Welche Zahlungsmethoden werden akzeptiert?',
-      answer: 'Wir akzeptieren Kreditkarten, Debitkarten und Apple Pay. Alle Zahlungen werden sicher über Stripe verarbeitet.'
+      question: t('helpSupport.faq2Question'),
+      answer: t('helpSupport.faq2Answer')
     },
     {
       id: '3',
-      question: 'Wie kann ich eine Reservierung machen?',
-      answer: 'Gehe zum Home-Tab und wähle "Reservierung". Fülle das Formular aus und wir bestätigen deine Reservierung per E-Mail.'
+      question: t('helpSupport.faq3Question'),
+      answer: t('helpSupport.faq3Answer')
     },
     {
       id: '4',
-      question: 'Kann ich meine Bestellung stornieren?',
-      answer: 'Bestellungen können bis zu 15 Minuten nach der Aufgabe storniert werden. Kontaktiere uns direkt über die App oder telefonisch unter 0911 63290791.'
+      question: t('helpSupport.faq4Question'),
+      answer: t('helpSupport.faq4Answer')
     },
     {
       id: '5',
-      question: 'Wie lange dauert die Lieferung?',
-      answer: 'Die Lieferzeit beträgt normalerweise 30-45 Minuten, abhängig von der Entfernung und der aktuellen Auslastung.'
+      question: t('helpSupport.faq5Question'),
+      answer: t('helpSupport.faq5Answer')
     },
     {
       id: '6',
-      question: 'Was ist die Mindestbestellmenge?',
-      answer: 'Die Mindestbestellmenge beträgt 15€ für Lieferungen und 10€ für Abholungen.'
+      question: t('helpSupport.faq6Question'),
+      answer: t('helpSupport.faq6Answer')
     }
   ];
 
   const contactOptions = [
     {
       id: 'phone',
-      title: 'Telefon',
-      subtitle: '0911 63290791',
+      title: t('helpSupport.phone'),
+      subtitle: t('helpSupport.phoneNumber'),
       icon: 'call',
       action: () => Linking.openURL('tel:091163290791')
     },
     {
       id: 'email',
-      title: 'E-Mail',
-      subtitle: 'info@moggi-restaurant.de',
+      title: t('helpSupport.email'),
+      subtitle: t('helpSupport.emailAddress'),
       icon: 'mail',
       action: () => Linking.openURL('mailto:info@moggi-restaurant.de')
     },
     {
       id: 'address',
-      title: 'Adresse',
-      subtitle: 'Musterstraße 123, 12345 Berlin',
+      title: t('helpSupport.address'),
+      subtitle: t('helpSupport.addressLine'),
       icon: 'location',
       action: () => Linking.openURL('https://maps.google.com/?q=Musterstraße+123,+12345+Berlin')
     },
     {
       id: 'hours',
-      title: 'Öffnungszeiten',
-      subtitle: 'Mo-So: 11:00 - 23:00 Uhr',
+      title: t('helpSupport.hours'),
+      subtitle: t('helpSupport.hoursValue'),
       icon: 'time',
       action: () => {}
     }
@@ -105,7 +107,7 @@ export default function HelpSupportScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Hilfe & Support</Text>
+        <Text style={styles.headerTitle}>{t('helpSupport.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -118,15 +120,15 @@ export default function HelpSupportScreen() {
           {/* Welcome Card */}
           <View style={styles.welcomeCard}>
             <Ionicons name="help-circle" size={48} color={colors.primary} />
-            <Text style={styles.welcomeTitle}>Wie können wir helfen?</Text>
+            <Text style={styles.welcomeTitle}>{t('helpSupport.welcomeTitle')}</Text>
             <Text style={styles.welcomeSubtitle}>
-              Hier findest du Antworten auf häufige Fragen und unsere Kontaktdaten
+              {t('helpSupport.welcomeSubtitle')}
             </Text>
           </View>
 
           {/* FAQ Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Häufige Fragen</Text>
+            <Text style={styles.sectionTitle}>{t('helpSupport.faqTitle')}</Text>
             <View style={styles.faqContainer}>
               {faqItems.map((item, index) => (
                 <View key={item.id} style={styles.faqItem}>
@@ -154,7 +156,7 @@ export default function HelpSupportScreen() {
 
           {/* Contact Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Kontakt</Text>
+            <Text style={styles.sectionTitle}>{t('helpSupport.contactTitle')}</Text>
             <View style={styles.contactContainer}>
               {contactOptions.map((option, index) => (
                 <TouchableOpacity
@@ -193,10 +195,9 @@ export default function HelpSupportScreen() {
           <View style={styles.supportCard}>
             <Ionicons name="headset" size={24} color={colors.primary} />
             <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>Support verfügbar</Text>
+              <Text style={styles.supportTitle}>{t('helpSupport.supportAvailable')}</Text>
               <Text style={styles.supportSubtitle}>
-                Mo-Fr: 9:00 - 18:00 Uhr{'\n'}
-                Sa-So: 10:00 - 16:00 Uhr
+                {t('helpSupport.supportHours')}
               </Text>
             </View>
           </View>
@@ -205,9 +206,9 @@ export default function HelpSupportScreen() {
           <View style={styles.emergencyCard}>
             <Ionicons name="warning" size={24} color="#FF6B00" />
             <View style={styles.emergencyContent}>
-              <Text style={styles.emergencyTitle}>Dringende Probleme?</Text>
+              <Text style={styles.emergencyTitle}>{t('helpSupport.urgentTitle')}</Text>
               <Text style={styles.emergencySubtitle}>
-                Bei dringenden Problemen mit deiner Bestellung rufe uns direkt an
+                {t('helpSupport.urgentSubtitle')}
               </Text>
               <TouchableOpacity 
                 style={styles.emergencyButton}
@@ -215,7 +216,7 @@ export default function HelpSupportScreen() {
                 activeOpacity={0.8}
               >
                 <Ionicons name="call" size={16} color={colors.white} />
-                <Text style={styles.emergencyButtonText}>Jetzt anrufen</Text>
+                <Text style={styles.emergencyButtonText}>{t('helpSupport.callNow')}</Text>
               </TouchableOpacity>
             </View>
           </View>

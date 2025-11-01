@@ -185,7 +185,7 @@ export default function CheckoutScreen() {
         <View style={styles.content}>
           {/* Gast oder Login Toggle */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bestellart</Text>
+            <Text style={styles.sectionTitle}>{t('checkout.orderType')}</Text>
             <View style={styles.toggleContainer}>
               <TouchableOpacity
                 style={[styles.toggleButton, isGuest && styles.toggleButtonActive]}
@@ -193,7 +193,7 @@ export default function CheckoutScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={[styles.toggleText, isGuest && styles.toggleTextActive]}>
-                  Gast
+                  {t('checkout.guest')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -202,7 +202,7 @@ export default function CheckoutScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={[styles.toggleText, !isGuest && styles.toggleTextActive]}>
-                  Login
+                  {t('checkout.login')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -211,13 +211,13 @@ export default function CheckoutScreen() {
           {/* Gast-Formular */}
           {isGuest ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Deine Daten</Text>
+              <Text style={styles.sectionTitle}>{t('checkout.yourData')}</Text>
               
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Vorname</Text>
+                <Text style={styles.inputLabel}>{t('checkout.firstName')}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Max"
+                  placeholder={t('checkout.firstNamePlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   value={firstName}
                   onChangeText={setFirstName}
@@ -225,10 +225,10 @@ export default function CheckoutScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Nachname</Text>
+                <Text style={styles.inputLabel}>{t('checkout.lastName')}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Mustermann"
+                  placeholder={t('checkout.lastNamePlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   value={lastName}
                   onChangeText={setLastName}
@@ -236,10 +236,10 @@ export default function CheckoutScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>E-Mail</Text>
+                <Text style={styles.inputLabel}>{t('checkout.email')}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="max@example.com"
+                  placeholder={t('checkout.emailPlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   value={email}
                   onChangeText={setEmail}
@@ -250,14 +250,14 @@ export default function CheckoutScreen() {
             </View>
           ) : (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Login</Text>
-              <Text style={styles.infoText}>Login-Funktion kommt bald...</Text>
+              <Text style={styles.sectionTitle}>{t('checkout.login')}</Text>
+              <Text style={styles.infoText}>{t('checkout.loginComingSoon')}</Text>
             </View>
           )}
 
           {/* Datum auswählen */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Abholdatum</Text>
+            <Text style={styles.sectionTitle}>{t('checkout.pickupDate')}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -287,7 +287,7 @@ export default function CheckoutScreen() {
           {/* Zeit auswählen */}
           {selectedDate && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Abholzeit</Text>
+              <Text style={styles.sectionTitle}>{t('checkout.pickupTime')}</Text>
               <View style={styles.timeGrid}>
                 {availableTimeSlots.map((time, index) => (
                   <TouchableOpacity
@@ -313,13 +313,13 @@ export default function CheckoutScreen() {
 
           {/* Notizen - für alle */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notizen</Text>
+            <Text style={styles.sectionTitle}>{t('checkout.notes')}</Text>
             
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Besondere Wünsche</Text>
+              <Text style={styles.inputLabel}>{t('checkout.specialRequests')}</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="z.B. ohne Zwiebeln, extra scharf, Allergien..."
+                placeholder={t('checkout.notesPlaceholder')}
                 placeholderTextColor={colors.mediumGray}
                 value={notes}
                 onChangeText={setNotes}
@@ -334,7 +334,7 @@ export default function CheckoutScreen() {
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={24} color={colors.primary} />
             <Text style={styles.infoCardText}>
-              Die Bestellung wird frisch für dich zubereitet. Bitte sei pünktlich zur Abholzeit.
+              {t('checkout.pickupInfo')}
             </Text>
           </View>
         </View>
@@ -342,7 +342,7 @@ export default function CheckoutScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Gesamt</Text>
+          <Text style={styles.totalLabel}>{t('checkout.total')}</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
         <TouchableOpacity
@@ -351,7 +351,7 @@ export default function CheckoutScreen() {
           activeOpacity={0.8}
         >
           <Ionicons name="checkmark-circle" size={24} color={colors.white} />
-          <Text style={styles.orderButtonText}>Bestellung aufgeben</Text>
+          <Text style={styles.orderButtonText}>{t('checkout.placeOrder')}</Text>
         </TouchableOpacity>
       </View>
     </View>
