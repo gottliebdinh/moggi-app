@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import colors from '../theme/colors';
 
 export default function LoginCheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
   const { signIn, user } = useAuth();
+  const { t } = useLanguage();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,12 +21,12 @@ export default function LoginCheckoutScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setErrorMessage('Bitte fülle alle Felder aus');
+      setErrorMessage(t('loginCheckout.fillAllFields'));
       return;
     }
     
     if (!email.includes('@')) {
-      setErrorMessage('Bitte gib eine gültige E-Mail-Adresse ein');
+      setErrorMessage(t('loginCheckout.invalidEmail'));
       return;
     }
 
@@ -37,7 +39,7 @@ export default function LoginCheckoutScreen() {
       
       if (error) {
         console.log('LoginCheckout - Login Fehler:', error);
-        setErrorMessage('E-Mail oder Passwort falsch');
+        setErrorMessage(t('loginCheckout.invalidCredentials'));
         setLoading(false);
         return;
       }
@@ -47,7 +49,7 @@ export default function LoginCheckoutScreen() {
       (navigation.navigate as any)('GuestCheckout');
     } catch (error: any) {
       console.log('LoginCheckout - Exception:', error);
-      setErrorMessage('E-Mail oder Passwort falsch');
+      setErrorMessage(t('loginCheckout.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -65,8 +67,8 @@ export default function LoginCheckoutScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Login</Text>
-        <Text style={styles.headerSubtitle}>Melde dich an</Text>
+        <Text style={styles.headerTitle}>{t('loginCheckout.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('loginCheckout.subtitle')}</Text>
       </View>
 
       <ScrollView
@@ -84,13 +86,13 @@ export default function LoginCheckoutScreen() {
           ) : null}
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Anmeldung</Text>
+            <Text style={styles.sectionTitle}>{t('loginCheckout.sectionTitle')}</Text>
             
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>E-Mail / Benutzername</Text>
+              <Text style={styles.inputLabel}>{t('loginCheckout.email')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="max@example.com"
+                placeholder={t('loginCheckout.emailPlaceholder')}
                 placeholderTextColor={colors.mediumGray}
                 value={email}
                 onChangeText={setEmail}
@@ -101,11 +103,11 @@ export default function LoginCheckoutScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Passwort</Text>
+              <Text style={styles.inputLabel}>{t('loginCheckout.password')}</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="••••••••"
+                  placeholder={t('loginCheckout.passwordPlaceholder')}
                   placeholderTextColor={colors.mediumGray}
                   value={password}
                   onChangeText={setPassword}
@@ -149,7 +151,7 @@ export default function LoginCheckoutScreen() {
               ) : (
                 <>
                   <Ionicons name="log-in" size={24} color={colors.white} />
-                  <Text style={styles.loginButtonText}>Einloggen & Fortfahren</Text>
+                  <Text style={styles.loginButtonText}>{t('loginCheckout.loginButton')}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -163,8 +165,8 @@ export default function LoginCheckoutScreen() {
           >
             <Ionicons name="person-add" size={24} color={colors.primary} />
             <View style={styles.registerContent}>
-              <Text style={styles.registerTitle}>Noch kein Account?</Text>
-              <Text style={styles.registerSubtitle}>Erstelle jetzt kostenlos einen Account</Text>
+              <Text style={styles.registerTitle}>{t('loginCheckout.noAccount')}</Text>
+              <Text style={styles.registerSubtitle}>{t('loginCheckout.createAccount')}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color={colors.mediumGray} />
           </TouchableOpacity>
@@ -173,7 +175,7 @@ export default function LoginCheckoutScreen() {
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={24} color={colors.primary} />
             <Text style={styles.infoCardText}>
-              Mit einem Account kannst du deine Bestellhistorie einsehen und Treuepunkte sammeln.
+              {t('loginCheckout.accountInfo')}
             </Text>
           </View>
         </View>
@@ -181,7 +183,7 @@ export default function LoginCheckoutScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalSection}>
-          <Text style={styles.totalLabel}>Gesamt</Text>
+          <Text style={styles.totalLabel}>{t('loginCheckout.total')}</Text>
           <Text style={styles.totalPrice}>{totalPrice}</Text>
         </View>
       </View>

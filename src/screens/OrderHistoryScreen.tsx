@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../config/supabase';
 import colors from '../theme/colors';
 
@@ -26,6 +27,7 @@ interface Order {
 export default function OrderHistoryScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -48,12 +50,12 @@ export default function OrderHistoryScreen() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Fehler beim Laden der Bestellungen:', error);
+        console.error(t('orderHistory.loadError'), error);
       } else {
         setOrders(data || []);
       }
     } catch (error) {
-      console.error('Fehler beim Laden der Bestellungen:', error);
+      console.error(t('orderHistory.loadError'), error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -75,11 +77,11 @@ export default function OrderHistoryScreen() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Ausstehend';
-      case 'confirmed': return 'Bestätigt';
-      case 'ready': return 'Bereit';
-      case 'completed': return 'Abgeschlossen';
-      case 'cancelled': return 'Storniert';
+      case 'pending': return t('orderHistory.statusPending');
+      case 'confirmed': return t('orderHistory.statusConfirmed');
+      case 'ready': return t('orderHistory.statusReady');
+      case 'completed': return t('orderHistory.statusCompleted');
+      case 'cancelled': return t('orderHistory.statusCancelled');
       default: return status;
     }
   };
@@ -106,7 +108,7 @@ export default function OrderHistoryScreen() {
           >
             <Ionicons name="arrow-back" size={24} color={colors.white} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Meine Bestellungen</Text>
+          <Text style={styles.headerTitle}>{t('orderHistory.title')}</Text>
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -125,9 +127,9 @@ export default function OrderHistoryScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Meine Bestellungen</Text>
+        <Text style={styles.headerTitle}>{t('orderHistory.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          {orders.length === 0 ? 'Noch keine Bestellungen' : `${orders.length} ${orders.length === 1 ? 'Bestellung' : 'Bestellungen'}`}
+          {orders.length === 0 ? t('orderHistory.noOrders') : orders.length === 1 ? t('orderHistory.orderCount', { count: '1' }) : t('orderHistory.ordersCount', { count: orders.length.toString() })}
         </Text>
       </View>
 
@@ -148,9 +150,9 @@ export default function OrderHistoryScreen() {
             <View style={styles.iconCircle}>
               <Ionicons name="receipt-outline" size={48} color={colors.white} />
             </View>
-            <Text style={styles.emptyTitle}>Keine Bestellungen</Text>
+            <Text style={styles.emptyTitle}>{t('orderHistory.emptyTitle')}</Text>
             <Text style={styles.emptySubtitle}>
-              Du hast noch keine Bestellungen aufgegeben
+              {t('orderHistory.emptyDescription')}
             </Text>
           </View>
         ) : (
@@ -159,7 +161,7 @@ export default function OrderHistoryScreen() {
               <View key={order.id} style={styles.orderCard}>
                 <View style={styles.orderHeader}>
                   <View>
-                    <Text style={styles.orderNumber}>Bestellung #{order.order_number}</Text>
+                    <Text style={styles.orderNumber}>{t('orderHistory.orderNumber', { number: order.order_number })}</Text>
                     <Text style={styles.orderDate}>{formatDate(order.created_at)}</Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
@@ -172,7 +174,7 @@ export default function OrderHistoryScreen() {
                 <View style={styles.orderDetails}>
                   <View style={styles.detailRow}>
                     <Ionicons name="calendar-outline" size={16} color={colors.lightGray} />
-                    <Text style={styles.detailLabel}>Abholung</Text>
+                    <Text style={styles.detailLabel}>{t('orderHistory.pickup')}</Text>
                     <Text style={styles.detailValue}>
                       {formatDate(order.pickup_date)}, {order.pickup_time} Uhr
                     </Text>
@@ -180,7 +182,7 @@ export default function OrderHistoryScreen() {
 
                   <View style={styles.detailRow}>
                     <Ionicons name="restaurant-outline" size={16} color={colors.lightGray} />
-                    <Text style={styles.detailLabel}>Artikel</Text>
+                    <Text style={styles.detailLabel}>{t('orderHistory.items')}</Text>
                     <Text style={styles.detailValue}>{order.items.length}</Text>
                   </View>
                 </View>
@@ -202,7 +204,7 @@ export default function OrderHistoryScreen() {
                 <View style={styles.divider} />
 
                 <View style={styles.orderFooter}>
-                  <Text style={styles.totalLabel}>Gesamt</Text>
+                  <Text style={styles.totalLabel}>{t('orderHistory.total')}</Text>
                   <Text style={styles.totalValue}>
                     {order.total_amount.toFixed(2).replace('.', ',')}€
                   </Text>
@@ -378,4 +380,3 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 });
-

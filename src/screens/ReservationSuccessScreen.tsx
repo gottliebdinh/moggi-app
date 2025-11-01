@@ -55,7 +55,9 @@ export default function ReservationSuccessScreen() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+    const days = language === 'de' 
+      ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -76,30 +78,30 @@ export default function ReservationSuccessScreen() {
 
         <Animated.View style={[styles.textContainer, { opacity: fadeAnim }]}>
           {/* Success Message */}
-          <Text style={styles.title}>Reservierung bestätigt!</Text>
+          <Text style={styles.title}>{t('reservationSuccess.title')}</Text>
           <Text style={styles.subtitle}>
-            Vielen Dank, {guestName}!
+            {t('reservationSuccess.thankYou', { name: guestName })}
           </Text>
 
           {/* Reservation Number */}
           {reservationNumber && (
             <View style={styles.reservationNumberCard}>
-              <Text style={styles.reservationNumberLabel}>Reservierungsnummer</Text>
+              <Text style={styles.reservationNumberLabel}>{t('reservationSuccess.reservationNumber')}</Text>
               <Text style={styles.reservationNumberText}>#{reservationNumber}</Text>
-              <Text style={styles.reservationNumberSubtext}>Eine Bestätigung wurde an {email} gesendet</Text>
+              <Text style={styles.reservationNumberSubtext}>{t('reservationSuccess.confirmationSent', { email })}</Text>
             </View>
           )}
 
           {/* Reservation Details - Simplified */}
           <View style={styles.detailsCard}>
-            <Text style={styles.detailsTitle}>Reservierungsdetails</Text>
+            <Text style={styles.detailsTitle}>{t('reservationSuccess.details')}</Text>
             
             <View style={styles.detailRow}>
               <View style={styles.iconWrapper}>
                 <Ionicons name="calendar-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Datum</Text>
+                <Text style={styles.detailLabel}>{t('reservationSuccess.date')}</Text>
                 <Text style={styles.detailValue}>{formatDate(date)}</Text>
               </View>
             </View>
@@ -109,7 +111,7 @@ export default function ReservationSuccessScreen() {
                 <Ionicons name="time-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>{t('reservation.time')}</Text>
+                <Text style={styles.detailLabel}>{t('reservationSuccess.time')}</Text>
                 <Text style={styles.detailValue}>{time} {language === 'de' ? 'Uhr' : ''}</Text>
               </View>
             </View>
@@ -119,8 +121,8 @@ export default function ReservationSuccessScreen() {
                 <Ionicons name="people-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Anzahl Personen</Text>
-                <Text style={styles.detailValue}>{guests} {guests === 1 ? 'Person' : 'Personen'}</Text>
+                <Text style={styles.detailLabel}>{t('reservationSuccess.guests')}</Text>
+                <Text style={styles.detailValue}>{guests} {guests === 1 ? t('reservationSuccess.person') : t('reservationSuccess.persons')}</Text>
               </View>
             </View>
 
@@ -129,8 +131,8 @@ export default function ReservationSuccessScreen() {
                 <Ionicons name="location-outline" size={24} color={colors.primary} />
               </View>
               <View style={styles.detailTextContainer}>
-                <Text style={styles.detailLabel}>Restaurant</Text>
-                <Text style={styles.detailValue}>Katharinengasse 14, Nürnberg</Text>
+                <Text style={styles.detailLabel}>{t('reservationSuccess.restaurant')}</Text>
+                <Text style={styles.detailValue}>{t('reservationSuccess.restaurantAddress')}</Text>
               </View>
             </View>
           </View>
@@ -151,7 +153,7 @@ export default function ReservationSuccessScreen() {
           activeOpacity={0.8}
         >
           <Ionicons name="restaurant" size={20} color={colors.white} />
-          <Text style={styles.primaryButtonText}>Zurück zur Startseite</Text>
+          <Text style={styles.primaryButtonText}>{t('reservationSuccess.backToHome')}</Text>
         </TouchableOpacity>
       </View>
     </View>
