@@ -110,28 +110,28 @@ export default function ContactScreen() {
             </View>
             <View style={styles.hoursContent}>
               <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}>Montag:</Text>
-                <Text style={styles.hoursTime}>Ruhetag (geschlossen)</Text>
+                <Text style={styles.hoursDay}>{t('contact.monday')}</Text>
+                <Text style={styles.hoursTime}>{t('contact.closedDay')}</Text>
               </View>
               <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}>Dienstag - Mittwoch:</Text>
-                <Text style={styles.hoursTime}>11:30 - 14:30 Uhr (Mittagsservice)</Text>
-              </View>
-              <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}></Text>
-                <Text style={styles.hoursTime}>17:30 - 23:00 Uhr (Abendservice)</Text>
-              </View>
-              <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}>Donnerstag-Samstag:</Text>
-                <Text style={styles.hoursTime}>11:30 - 14:30 Uhr (Mittagsservice)</Text>
+                <Text style={styles.hoursDay}>{t('contact.tuesdayWednesday')}</Text>
+                <Text style={styles.hoursTime}>11:30 - 14:30 ({t('contact.lunchService')})</Text>
               </View>
               <View style={styles.hoursRow}>
                 <Text style={styles.hoursDay}></Text>
-                <Text style={styles.hoursTime}>17:30 - 02:00 Uhr (Abendservice)</Text>
+                <Text style={styles.hoursTime}>17:30 - 23:00 ({t('contact.eveningService')})</Text>
               </View>
               <View style={styles.hoursRow}>
-                <Text style={styles.hoursDay}>Sonntag:</Text>
-                <Text style={styles.hoursTime}>17:00 - 23:00 Uhr (nur Abendservice)</Text>
+                <Text style={styles.hoursDay}>{t('contact.thursdaySaturday')}</Text>
+                <Text style={styles.hoursTime}>11:30 - 14:30 ({t('contact.lunchService')})</Text>
+              </View>
+              <View style={styles.hoursRow}>
+                <Text style={styles.hoursDay}></Text>
+                <Text style={styles.hoursTime}>17:30 - 02:00 ({t('contact.eveningService')})</Text>
+              </View>
+              <View style={styles.hoursRow}>
+                <Text style={styles.hoursDay}>{t('contact.sunday')}</Text>
+                <Text style={styles.hoursTime}>17:00 - 23:00 ({t('contact.eveningService')})</Text>
               </View>
             </View>
           </View>
