@@ -17,7 +17,7 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
   console.log('[LoadingTransition] Component mounted at:', new Date().toISOString());
   
   // Video früher initialisieren und mit shouldPlay=true starten
-  const player = useVideoPlayer(require('../../assets/videocompressedfurther.mp4'), (player) => {
+  const player = useVideoPlayer(require('../../assets/videocompressed.mp4'), (player) => {
     console.log('[LoadingTransition] useVideoPlayer callback - player created');
     player.loop = false;
     player.muted = false;
@@ -36,6 +36,8 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
     let hideLogoTimeout: NodeJS.Timeout | null = null;
     let logoHidden = false;
     let videoReady = false;
+    const MIN_LOGO_DISPLAY_TIME = 1000; // Mindestens 1 Sekunde Logo anzeigen
+    const logoStartTime = Date.now();
 
     // Funktion zum Ausblenden des Logos und Video starten
     const hideLogoAndPlay = (reason: string) => {
@@ -43,27 +45,45 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
         console.log('[LoadingTransition] hideLogoAndPlay called again with reason:', reason, '- already hidden');
         return;
       }
-      logoHidden = true;
-      const hideTime = Date.now();
-      console.log('[LoadingTransition] 🎬 HIDING LOGO & STARTING VIDEO - Reason:', reason, 'Time since mount:', hideTime - startTime, 'ms');
-      if (hideLogoTimeout) {
-        clearTimeout(hideLogoTimeout);
+      
+      const elapsedTime = Date.now() - logoStartTime;
+      const remainingTime = Math.max(0, MIN_LOGO_DISPLAY_TIME - elapsedTime);
+      
+      if (remainingTime > 0) {
+        console.log('[LoadingTransition] ⏳ Logo muss noch', remainingTime, 'ms angezeigt werden (Mindestzeit: 1s)');
+        // Warte noch die verbleibende Zeit, bevor Logo ausgeblendet wird
+        setTimeout(() => {
+          if (!logoHidden) {
+            logoHidden = true;
+            const hideTime = Date.now();
+            console.log('[LoadingTransition] 🎬 HIDING LOGO & STARTING VIDEO - Reason:', reason, 'Time since mount:', hideTime - startTime, 'ms');
+            setShowLogo(false);
+            // Video SOFORT starten
+            console.log('[LoadingTransition] 🎥 Starting video playback immediately');
+            player.play();
+          }
+        }, remainingTime);
+      } else {
+        // Mindestzeit bereits erreicht, Logo sofort ausblenden
+        logoHidden = true;
+        const hideTime = Date.now();
+        console.log('[LoadingTransition] 🎬 HIDING LOGO & STARTING VIDEO - Reason:', reason, 'Time since mount:', hideTime - startTime, 'ms');
+        setShowLogo(false);
+        // Video SOFORT starten
+        console.log('[LoadingTransition] 🎥 Starting video playback immediately');
+        player.play();
       }
-      setShowLogo(false);
-      // Video SOFORT starten
-      console.log('[LoadingTransition] 🎥 Starting video playback immediately');
-      player.play();
     };
 
-    // Video-Status überwachen: Sobald Video bereit ist, sofort starten
+    // Video-Status überwachen: Sobald Video bereit ist, Logo ausblenden (mit Mindestzeit)
     const statusSubscription = player.addListener('statusChange', (status) => {
       const statusTime = Date.now();
       console.log('[LoadingTransition] 📹 Video status changed:', status.status, 'Time since mount:', statusTime - startTime, 'ms');
       
       if (status.status === 'readyToPlay') {
-        console.log('[LoadingTransition] ✅ Video is READY TO PLAY - Starting immediately!');
+        console.log('[LoadingTransition] ✅ Video is READY TO PLAY');
         videoReady = true;
-        // Video ist bereit, SOFORT Logo ausblenden und Video starten
+        // Video ist bereit, Logo ausblenden (mit Mindestzeit-Prüfung)
         hideLogoAndPlay('video-ready');
       } else if (status.status === 'loading') {
         console.log('[LoadingTransition] ⏳ Video is LOADING');
