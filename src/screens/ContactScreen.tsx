@@ -18,12 +18,40 @@ export default function ContactScreen() {
     }
   };
 
-  const handlePhonePress = () => {
-    copyToClipboard('091163290791', 'Telefonnummer');
+  const handlePhonePress = async () => {
+    // Direkt anrufen statt kopieren
+    const phoneNumber = '091163290791';
+    try {
+      await Linking.openURL(`tel:${phoneNumber}`);
+    } catch (error) {
+      console.error('Fehler beim Öffnen der Telefon-App:', error);
+      // Fallback: Zeige die Nummer zum Kopieren
+      Alert.alert(
+        t('contact.phone'),
+        phoneNumber,
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          { 
+            text: t('contact.copy'), 
+            onPress: () => copyToClipboard(phoneNumber, 'Telefonnummer')
+          }
+        ]
+      );
+    }
   };
 
-  const handleLocationPress = () => {
-    copyToClipboard('Katharinengasse 14, 90403 Nürnberg', 'Adresse');
+  const handleLocationPress = async () => {
+    // Google Maps Link direkt öffnen
+    const googleMapsLink = 'https://maps.app.goo.gl/4qZ9rho7XTc7dyf37?g_st=ipc';
+    
+    try {
+      await Linking.openURL(googleMapsLink);
+    } catch (error) {
+      console.error('Fehler beim Öffnen von Google Maps:', error);
+      // Fallback: Versuche alternative URL
+      const fallbackUrl = 'https://www.google.com/maps/search/?api=1&query=Katharinengasse+14,+90403+Nürnberg';
+      Linking.openURL(fallbackUrl);
+    }
   };
 
   const handleEmailPress = () => {

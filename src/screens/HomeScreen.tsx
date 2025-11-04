@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,38 +10,16 @@ export default function HomeScreen() {
   const { t } = useLanguage();
 
   const handleLocationPress = async () => {
-    const address = 'Katharinengasse 14, 90403 Nürnberg';
-    
-    // Versuche zuerst Google Maps im Browser (funktioniert immer)
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    
-    // Für iOS: Versuche Apple Maps, falls nicht verfügbar -> Google Maps Web
-    const iosMapsUrl = `maps://app?daddr=${encodeURIComponent(address)}`;
-    
-    // Für Android: Versuche Google Maps App, falls nicht verfügbar -> Google Maps Web
-    const androidMapsUrl = `geo:0,0?q=${encodeURIComponent(address)}`;
+    // Google Maps Link direkt öffnen
+    const googleMapsLink = 'https://maps.app.goo.gl/4qZ9rho7XTc7dyf37?g_st=ipc';
     
     try {
-      if (Platform.OS === 'ios') {
-        const canOpen = await Linking.canOpenURL(iosMapsUrl);
-        if (canOpen) {
-          await Linking.openURL(iosMapsUrl);
-        } else {
-          await Linking.openURL(googleMapsUrl);
-        }
-      } else if (Platform.OS === 'android') {
-        const canOpen = await Linking.canOpenURL(androidMapsUrl);
-        if (canOpen) {
-          await Linking.openURL(androidMapsUrl);
-        } else {
-          await Linking.openURL(googleMapsUrl);
-        }
-      } else {
-        await Linking.openURL(googleMapsUrl);
-      }
+      await Linking.openURL(googleMapsLink);
     } catch (error) {
-      // Fallback: Öffne Google Maps im Browser
-      Linking.openURL(googleMapsUrl);
+      console.error('Fehler beim Öffnen von Google Maps:', error);
+      // Fallback: Versuche alternative URL
+      const fallbackUrl = 'https://www.google.com/maps/search/?api=1&query=Katharinengasse+14,+90403+Nürnberg';
+      Linking.openURL(fallbackUrl);
     }
   };
 
@@ -50,7 +28,17 @@ export default function HomeScreen() {
   };
 
   const handleContactPress = () => {
-    navigation.navigate('Contact' as never);
+    // Direkt anrufen statt zur Contact-Seite zu navigieren
+    const phoneNumber = '091163290791';
+    Linking.openURL(`tel:${phoneNumber}`).catch(err => {
+      console.error('Fehler beim Öffnen der Telefon-App:', err);
+      // Fallback: Zeige die Nummer zum Kopieren
+      Alert.alert(
+        'Telefonnummer',
+        phoneNumber,
+        [{ text: 'OK' }]
+      );
+    });
   };
 
   return (

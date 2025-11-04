@@ -17,7 +17,7 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
   console.log('[LoadingTransition] Component mounted at:', new Date().toISOString());
   
   // Video früher initialisieren und mit shouldPlay=true starten
-  const player = useVideoPlayer(require('../../assets/videocompressed.mp4'), (player) => {
+  const player = useVideoPlayer(require('../../assets/videocompressedfurther.mp4'), (player) => {
     console.log('[LoadingTransition] useVideoPlayer callback - player created');
     player.loop = false;
     player.muted = false;
@@ -78,7 +78,6 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
     console.log('[LoadingTransition] Waiting for video to be ready...');
 
     // Fallback: Logo nach maximal 10 Sekunden ausblenden (falls Video nie bereit wird)
-    // Bei 1.4MB sollte es viel schneller sein
     hideLogoTimeout = setTimeout(() => {
       console.log('[LoadingTransition] ⏰ Fallback timeout reached (10s)');
       if (!videoReady) {
@@ -93,14 +92,17 @@ export default function LoadingTransition({ onFinish }: LoadingTransitionProps) 
       const endTime = Date.now();
       console.log('[LoadingTransition] 🏁 Video finished playing, total time:', endTime - startTime, 'ms');
       
-      // Smooth Fade-out des Videos (überlappt mit App Fade-in)
+      // Start App transition immediately (overlaps with video fade-out for smooth transition)
+      onFinish();
+      
+      // Smooth Fade-out des Videos - synchronized with App fade-in
+      // Duration matches App fade-in for perfect overlap
       Animated.timing(videoOpacity, {
         toValue: 0,
-        duration: 600,
+        duration: 800, // Match App fade-in duration
         useNativeDriver: true,
       }).start(() => {
-        console.log('[LoadingTransition] Video faded out, transitioning to home...');
-        onFinish();
+        console.log('[LoadingTransition] Video faded out completely');
       });
     });
 

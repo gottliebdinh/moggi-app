@@ -46,7 +46,9 @@ const linking = {
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [showApp, setShowApp] = useState(false); // App erst rendern wenn ready
   const appOpacity = useRef(new Animated.Value(0)).current;
+  const appScale = useRef(new Animated.Value(0.98)).current; // Subtle scale for smoothness
 
   // Start loading the app immediately (while video is playing)
   // This ensures all images and components are loaded in the background
@@ -57,12 +59,24 @@ export default function App() {
 
   const handleLoadingFinish = () => {
     console.log('[App] Video finished, starting smooth transition...');
-    // Start fade-in of the app (it's already loaded in background)
-    Animated.timing(appOpacity, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start(() => {
+    
+    // App jetzt rendern (aber noch unsichtbar)
+    setShowApp(true);
+    
+    // Start fade-in and scale-in of the app immediately - no delay
+    // This creates a smooth, polished transition
+    Animated.parallel([
+      Animated.timing(appOpacity, {
+        toValue: 1,
+        duration: 800, // Slightly longer for smoother feel
+        useNativeDriver: true,
+      }),
+      Animated.timing(appScale, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
       console.log('[App] Transition complete');
       setIsLoading(false);
     });
@@ -77,24 +91,33 @@ export default function App() {
         </View>
       )}
 
-      {/* App - wird im Hintergrund geladen, dann eingeblendet */}
-      <Animated.View style={{ flex: 1, opacity: appOpacity, backgroundColor: '#000000' }}>
-        <LanguageProvider>
-          <StripeProvider
-            publishableKey={STRIPE_PUBLISHABLE_KEY}
-            merchantIdentifier={APPLE_PAY_MERCHANT_ID}
-          >
-            <AuthProvider>
-              <CartProvider>
-                <NavigationContainer linking={linking}>
-                  <StatusBar style="auto" />
-                  <BottomTabNavigator />
-                </NavigationContainer>
-              </CartProvider>
-            </AuthProvider>
-          </StripeProvider>
-        </LanguageProvider>
-      </Animated.View>
+      {/* App - wird erst gerendert wenn ready, dann smooth eingeblendet */}
+      {showApp && (
+        <Animated.View 
+          style={{ 
+            flex: 1, 
+            opacity: appOpacity, 
+            backgroundColor: '#000000',
+            transform: [{ scale: appScale }],
+          }}
+        >
+          <LanguageProvider>
+            <StripeProvider
+              publishableKey={STRIPE_PUBLISHABLE_KEY}
+              merchantIdentifier={APPLE_PAY_MERCHANT_ID}
+            >
+              <AuthProvider>
+                <CartProvider>
+                  <NavigationContainer linking={linking}>
+                    <StatusBar style="auto" />
+                    <BottomTabNavigator />
+                  </NavigationContainer>
+                </CartProvider>
+              </AuthProvider>
+            </StripeProvider>
+          </LanguageProvider>
+        </Animated.View>
+      )}
     </View>
   );
 }
