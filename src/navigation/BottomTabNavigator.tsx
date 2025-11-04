@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
+import { Platform, Image } from 'react-native';
 import { useCart } from '../context/CartContext';
 
 // Screens
@@ -165,10 +165,14 @@ export default function BottomTabNavigator() {
         options={{
           tabBarLabel: t('nav.home'),
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons 
-              name={focused ? "home" : "home-outline"} 
-              size={22} 
-              color={color} 
+            <Image
+              source={require('../../assets/appLogo.png')}
+              style={{
+                width: 22,
+                height: 22,
+                opacity: focused ? 1 : 0.6,
+              }}
+              resizeMode="contain"
             />
           ),
         }}
