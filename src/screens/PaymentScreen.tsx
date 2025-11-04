@@ -19,7 +19,7 @@ export default function PaymentScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [initialUserState] = useState(user); // Speichere initialen User-State
-  const { t, language } = useLanguage();
+  const { t, language, getWeekdayNames } = useLanguage();
 
   const params = route.params as any;
   const { customerInfo, pickupDate, pickupTime, notes } = params || {};
@@ -46,9 +46,7 @@ export default function PaymentScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = language === 'de'
-      ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
-      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = getWeekdayNames();
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

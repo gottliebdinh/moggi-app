@@ -11,7 +11,7 @@ export default function GuestCheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice } = useCart();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const { t, language, getShortWeekdayNames } = useLanguage();
   
   // Debug: User Status prüfen
   console.log('GuestCheckoutScreen - User:', user ? 'Eingeloggt' : 'Gast');
@@ -112,7 +112,7 @@ export default function GuestCheckoutScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = language === 'de' ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+    const days = getShortWeekdayNames();
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

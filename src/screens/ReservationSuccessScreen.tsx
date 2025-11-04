@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 export default function ReservationSuccessScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { t, language } = useLanguage();
+  const { t, language, getWeekdayNames } = useLanguage();
   const { 
     guestName, 
     email, 
@@ -55,9 +55,7 @@ export default function ReservationSuccessScreen() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const days = language === 'de' 
-      ? ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
-      : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = getWeekdayNames();
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

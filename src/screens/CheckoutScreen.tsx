@@ -15,7 +15,7 @@ type TimeSlot = {
 export default function CheckoutScreen() {
   const navigation = useNavigation();
   const { getTotalPrice, clearCart } = useCart();
-  const { t } = useLanguage();
+  const { t, getShortWeekdayNames } = useLanguage();
   const [isGuest, setIsGuest] = useState(true);
   
   // Gast-Daten
@@ -120,7 +120,7 @@ export default function CheckoutScreen() {
   };
 
   const formatDate = (date: Date) => {
-    const days = t('reservation.title') ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] : ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const days = getShortWeekdayNames();
     const day = days[date.getDay()];
     const dateStr = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

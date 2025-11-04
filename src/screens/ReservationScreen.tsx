@@ -31,7 +31,7 @@ interface TimeSlot {
 export default function ReservationScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const { t, language, getShortWeekdayNames } = useLanguage();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [dayPart, setDayPart] = useState('');
@@ -604,12 +604,12 @@ export default function ReservationScreen() {
                       const iso = `${yyyy}-${mm}-${dd}`;
                       const isSelected = selectedDate === iso;
                       let labelLeft = '';
-                      if (idx === 0) labelLeft = language === 'de' ? 'Heute' : 'Today';
-                      else if (idx === 1) labelLeft = language === 'de' ? 'Morgen' : 'Tomorrow';
+                      if (idx === 0) labelLeft = t('date.today');
+                      else if (idx === 1) labelLeft = t('date.tomorrow');
                       else {
-                        const locale = language === 'de' ? 'de-DE' : 'en-US';
-                        const weekday = d.toLocaleDateString(locale, { weekday: 'short' });
-                        const dateStr = d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        const days = getShortWeekdayNames();
+                        const weekday = days[d.getDay()];
+                        const dateStr = `${dd}.${mm}.${yyyy}`;
                         labelLeft = `${weekday}, ${dateStr}`;
                       }
 

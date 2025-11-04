@@ -8,6 +8,7 @@ import colors from '../theme/colors';
 type MenuItem = {
   id: string;
   name: string;
+  categoryKey?: string; // Original category key for navigation
   isHeader?: boolean;
   image?: string;
 };
@@ -19,11 +20,13 @@ const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   { 
     id: '1', 
     name: t('category.newIn'),
+    categoryKey: 'New In',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e6468c60b7433914f4ed13_DSC02799.png'
   },
   { 
     id: '2', 
     name: t('category.businessLunch'),
+    categoryKey: 'Business Lunch',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391eea750278df0d297e4_Lunch%20Bento%20Box%20Fisch.png'
   },
   
@@ -32,26 +35,31 @@ const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   { 
     id: '3', 
     name: t('category.tapasMeat'),
+    categoryKey: 'Tapas Fleisch',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37626a9f1c4aefba3d119_Akari.png'
   },
   { 
     id: '4', 
     name: t('category.tapasFish'),
+    categoryKey: 'Tapas Fisch',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e3782fdbb3b714e3872e00_Crabbombs.png'
   },
   { 
     id: '5', 
     name: t('category.tapasVegetarian'),
+    categoryKey: 'Tapas vegetarisch',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37d60b68f6d067e35a0fd_Spicy%20Cucumber%20Salat.png'
   },
   { 
     id: '6', 
     name: t('category.sticks'),
+    categoryKey: 'Sticks',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37704b8e3dea86bdbd1e8_Asupara%20Sticks.png'
   },
   { 
     id: '7', 
     name: t('category.crisps'),
+    categoryKey: 'Crisps',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e3783fa9f1c4aefba47c91_Crisps%20Guacamole.png'
   },
   
@@ -60,11 +68,13 @@ const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   { 
     id: '8', 
     name: t('category.baos'),
+    categoryKey: 'Baos',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e377b6b61b875b047e95db_Bao%20Beef.png'
   },
   { 
     id: '9', 
     name: t('category.noriTacos'),
+    categoryKey: 'Nori Tacos',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c8c03a0f0ca50c7f4e7_Sake%20Taco.png'
   },
   
@@ -73,31 +83,37 @@ const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   { 
     id: '10', 
     name: t('category.sashimi'),
+    categoryKey: 'Sashimi',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37b0f3e9ddd9337e99e61_Maguro%20to%20Sake.png'
   },
   { 
     id: '11', 
     name: t('category.nigiri'),
+    categoryKey: 'Nigiri',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c4890174fa0f9a7add7_Sake.png'
   },
   { 
     id: '12', 
     name: t('category.hosomaki'),
+    categoryKey: 'Hosomaki',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37c6e878de12a8d9580f2_Sake%20Hoso.png'
   },
   { 
     id: '13', 
     name: t('category.uramaki'),
+    categoryKey: 'Uramaki',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37644902977171d5faf52_Alasuka%20Roll.png'
   },
   { 
     id: '14', 
     name: t('category.specialRoll'),
+    categoryKey: 'Special Roll',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37805b68f6d067e319a13_Chihiro%20Roll.png'
   },
   { 
     id: '15', 
     name: t('category.crispyRolls'),
+    categoryKey: 'Crispy Rolls',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391c8bb933e1d4e0e1d8b_Crispy%20Bini.png'
   },
   
@@ -106,16 +122,19 @@ const getMenuItems = (t: (key: string) => string): MenuItem[] => [
   { 
     id: '16', 
     name: 'Salat',
+    categoryKey: 'Salat',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e391b7ea20c58b003f8ef2_Avocado%20Salad%20Kopie.png'
   },
   { 
     id: '18', 
     name: 'Dessert',
+    categoryKey: 'Dessert',
     image: 'https://cdn.prod.website-files.com/68e0a5df489d43d06d4efb63/68e37b58752a400737537906_Mochi%20Trio.png'
   },
   { 
     id: '17', 
-    name: 'Sides'
+    name: 'Sides',
+    categoryKey: 'Sides'
   },
 ];
 
@@ -124,7 +143,9 @@ export default function ProductsScreen() {
   const { t } = useLanguage();
   const menuItems = getMenuItems(t);
 
-  const handleCategoryPress = (categoryName: string) => {
+  const handleCategoryPress = (item: MenuItem) => {
+    // Use categoryKey if available, otherwise fall back to name
+    const categoryName = item.categoryKey || item.name;
     navigation.navigate('CategoryDetail' as never, { categoryName } as never);
   };
 
@@ -156,7 +177,7 @@ export default function ProductsScreen() {
                 key={item.id}
                 style={styles.menuItem}
                 activeOpacity={0.7}
-                onPress={() => handleCategoryPress(item.name)}
+                onPress={() => handleCategoryPress(item)}
               >
                 {item.image && (
                   <Image

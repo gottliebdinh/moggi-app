@@ -307,6 +307,32 @@ export default function AccountScreen() {
                   <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
                 )}
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.languageOption,
+                  language === 'es' && styles.languageOptionActive
+                ]}
+                onPress={() => handleLanguageSelect('es')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.languageOptionContent}>
+                  <Ionicons 
+                    name={language === 'es' ? 'radio-button-on' : 'radio-button-off'} 
+                    size={24} 
+                    color={language === 'es' ? colors.primary : colors.mediumGray} 
+                  />
+                  <Text style={[
+                    styles.languageOptionText,
+                    language === 'es' && styles.languageOptionTextActive
+                  ]}>
+                    {t('language.spanish')}
+                  </Text>
+                </View>
+                {language === 'es' && (
+                  <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         </View>
